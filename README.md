@@ -24,16 +24,16 @@
 
 | 项目 | 说明 |
 |------|------|
-| 目录 | `first-cc/` |
+| 目录 | `pomodoro-timer/` |
 | 技术栈 | Electron + React 18 + Vite |
-| 详细文档 | [first-cc/README.md](first-cc/README.md) |
+| 详细文档 | [pomodoro-timer/README.md](pomodoro-timer/README.md) |
 
 基于 Electron + React 构建的桌面番茄钟应用，支持计时、任务管理、数据统计、主题切换等功能。
 
 **快速开始：**
 
 ```bash
-cd first-cc
+cd pomodoro-timer
 npm install
 npm run electron:dev
 ```
