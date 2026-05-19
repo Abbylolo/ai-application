@@ -7,7 +7,7 @@ export const useTheme = () => useContext(ThemeContext);
 
 export const ThemeProvider = ({ children }) => {
   // 复用 useStorage hook，而不是自己操作 localStorage
-  const [theme, setTheme] = useStorage('theme', 'dark');
+  const [theme, setTheme] = useStorage('theme', 'light');
   const isDark = theme === 'dark';
 
   useEffect(() => {

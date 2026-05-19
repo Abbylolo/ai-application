@@ -4,7 +4,7 @@
   "description": "桌面番茄钟应用",
   "main": "electron/main.js",
   "scripts": {
-    "dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
+    "dev": "concurrently \"vite --strictPort\" \"wait-on http://localhost:5173 && electron .\"",
     "build": "vite build && electron-builder",
     "electron:build": "vite build && electron-builder"
   },
