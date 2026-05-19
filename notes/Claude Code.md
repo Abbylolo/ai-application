@@ -5,6 +5,8 @@
 3. `Claude Code` 官网概述（含安装方式）：<https://code.claude.com/docs/en/overview>
 4. 使用`cc-switch`多模型管理与切换，用户手册（含安装方式）：<https://github.com/farion1231/cc-switch/blob/main/docs/user-manual/zh/README.md>
 
+
+
 ## 二、命令
 
 | 命令                                   | 作用                                                | 备注                 |
@@ -24,6 +26,8 @@
 | /skills                              | 查看现有技能                                            | <br />             |
 | claude -c                            | 或`claude --continue `  ，继续上一次的会话                  | <br />             |
 
+
+
 ## 三、个性化设置
 
 > 你是谁？项目在做什么？有什么要求
@@ -38,7 +42,7 @@
   - 项目级（单独项目规范，项目根目录下）
   - 子文件夹级
 
-#### [受 Karpathy 启发的 Claude Code 指南](https://github.com/multica-ai/andrej-karpathy-skills/blob/main/README.zh.md)
+[受 Karpathy 启发的 Claude Code 指南](https://github.com/multica-ai/andrej-karpathy-skills/blob/main/README.zh.md)
 
 **选项 A：Claude Code 插件（推荐）**
 
@@ -87,6 +91,8 @@ curl https://raw.githubusercontent.com/forrestchang/andrej-karpathy-skills/main/
 
 自行写一些规则文件，最终在CLAUDE.md文件中引入使用
 
+
+
 ## 四、高级扩展
 
 ### 1、Skill
@@ -122,17 +128,44 @@ curl https://raw.githubusercontent.com/forrestchang/andrej-karpathy-skills/main/
 
 ### 5、Hook
 
+> Hook 是一种强大的扩展机制，它允许你在 Claude Code **会话生命周期的特定节点上插入自定义的脚本或命令**。简单来说，Hook 就像一种“事件监听器”，能在特定事情发生时自动触发一个外部操作，并将结果反馈给 Claude，从而干预或增强它的行为
+>
 > 当CC【xxx】，就自动执行【xxx】
 
-Hook 是一种强大的扩展机制，它允许你在 Claude Code 会话生命周期的特定节点上插入自定义的脚本或命令。简单来说，Hook 就像一种“事件监听器”，能在特定事情发生时自动触发一个外部操作，并将结果反馈给 Claude，从而干预或增强它的行为
+#### 1）与钉钉联动
+
+`帮我做个Hook，你每次完成任务之后，自动发出一个提示音并向我的钉钉发一条消息`
+
+**创建钉钉自定义机器人步骤：**
+
+    1. 打开钉钉群 → 右上角「群设置」→「智能群助手」→「添加机器人」
+    2. 选择「自定义」机器人
+    3. 配置机器人
+
+    - 填写机器人名称（如：Claude 通知）
+    - 安全设置选择「自定义关键词」，填入 任务完成（或你想要的关键词）
+
+    4. 复制 Webhook 地址
+
+    - 创建完成后会显示类似：https://oapi.dingtalk.com/robot/send?access_token=xxxxxxxx
+
+    5. 把 Webhook 地址发给CC，CC来配置 Hook
+
+
+
+**效果图：**
+
+![image-20260519231010497](assets/image-20260519231010497.png)
 
 
 
 ## 其他
 
-### 配置状态栏
+### 1、配置状态栏
 
-1. `帮我配一个statusLine,能显示当前目录+模型+上下文剩余百分比的功能   `     &#x20;
+`帮我配一个statusLine,能显示当前目录+模型+上下文剩余百分比的功能   `     &#x20;
 
-   ![image-20260519005837519](assets/image-20260519005837519.png)
+![image-20260519005837519](assets/image-20260519005837519.png)
+
+
 
