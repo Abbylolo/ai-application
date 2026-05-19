@@ -1,6 +1,0 @@
-{
-  "enabledPlugins": {
-    "andrej-karpathy-skills@karpathy-skills": true,
-    "document-skills@anthropic-agent-skills": true
-  }
-}
