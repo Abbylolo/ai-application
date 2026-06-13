@@ -37,6 +37,10 @@ async function handleLogout() {
     <aside class="sidebar" :class="{ collapsed: sidebarCollapsed }">
       <div class="sidebar-brand">
         <template v-if="!sidebarCollapsed">
+          <svg class="brand-logo" viewBox="0 0 28 28" fill="none" width="24" height="24">
+            <rect x="2" y="2" width="24" height="24" rx="6" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M8 12l4 4 8-8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
           <div class="brand-text-group">
             <span class="brand-text">JobPrep</span>
             <span class="brand-sub">AI Interview</span>
@@ -147,6 +151,11 @@ async function handleLogout() {
 }
 .collapse-btn:hover { background: var(--surface-hover); color: var(--text-primary); border-color: var(--border-medium); }
 .collapsed .collapse-btn svg { transform: scaleX(-1); }
+
+.brand-logo {
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
 
 .brand-text-group {
   display: flex; flex-direction: column; gap: 1px;
