@@ -14,6 +14,18 @@ const parseError = ref('')
 const resumeText = ref('')
 const parseElapsed = ref(0)
 let parseTimer = null
+
+// 模拟解析阶段（给用户感知，虽然实际是一次API调用）
+const parseSteps = [
+  '正在提取个人信息...',
+  '正在识别技术栈...',
+  '正在分析项目经验...',
+  '正在整理教育背景...',
+  '正在生成技能画像...',
+  '正在汇总结果...'
+]
+const parseStep = ref('')
+let stepIndex = 0
 const resumeFile = ref(null)
 
 const form = ref({
@@ -137,7 +149,15 @@ async function handleParseResume() {
   isParsing.value = true
   parseError.value = ''
   parseElapsed.value = 0
-  parseTimer = setInterval(() => { parseElapsed.value++ }, 1000)
+  stepIndex = 0
+  parseStep.value = parseSteps[0]
+  parseTimer = setInterval(() => {
+    parseElapsed.value++
+    if (parseElapsed.value % 3 === 0 && stepIndex < parseSteps.length - 1) {
+      stepIndex++
+      parseStep.value = parseSteps[stepIndex]
+    }
+  }, 1000)
 
   try {
     const result = await parseResume(resumeText.value)
@@ -255,7 +275,8 @@ const levelLabels = { proficient: '精通', familiar: '熟悉', learning: '学�
             <div class="progress-fill"></div>
           </div>
           <div class="progress-text">
-            🤖 AI 正在分析简历，请耐心等待... 已耗时 {{ parseElapsed }} 秒
+            {{ parseStep }}
+            <span style="color:var(--text-muted);font-weight:400;font-size:12px">({{ parseElapsed }}秒)</span>
           </div>
         </div>
       </div>
