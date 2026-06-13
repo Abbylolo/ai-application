@@ -40,10 +40,13 @@ function ensureString(val) { return Array.isArray(val) ? val.join(', ') : val ||
 async function loadProfile() {
   isLoading.value = true
   try {
+    console.log('🔄 loadProfile 开始, currentProfileId:', userStore.currentProfileId)
     await userStore.loadProfiles()
+    console.log('📋 profiles count:', userStore.profiles.length, 'currentProfile:', userStore.currentProfile?.name)
     if (userStore.currentProfile) {
       hasProfile.value = true
       const p = userStore.currentProfile
+      console.log('✅ 回填档案:', p.name, p.id)
       form.value = {
         id: p.id, name: p.name || '', position: p.position || '',
         yearsOfExperience: p.yearsOfExperience || 0,
@@ -143,8 +146,11 @@ async function handleSave() {
   data.strengths = ensureArray(form.value.strengths)
   data.weaknesses = ensureArray(form.value.weaknesses)
   data.projects = data.projects.map(p => ({ ...p, techUsed: ensureArray(p.techUsed) }))
+  console.log('💾 保存档案...')
   await userStore.saveProfile(data)
+  console.log('✅ 保存完成, currentProfileId:', userStore.currentProfileId, 'profiles:', userStore.profiles.length)
   await loadProfile()
+  console.log('🔄 loadProfile后 hasProfile:', hasProfile.value)
   isEditing.value = false
   alert('保存成功！')
 }

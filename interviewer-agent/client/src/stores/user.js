@@ -12,9 +12,11 @@ export const useUserStore = defineStore('user', () => {
 
   async function loadProfiles() {
     try {
-      profiles.value = await data.getProfiles()
+      const result = await data.getProfiles()
+      console.log('📂 loadProfiles 返回:', result?.length, '条, currentProfileId:', currentProfileId.value)
+      profiles.value = result
     } catch (e) {
-      console.warn('加载档案失败:', e.message)
+      console.error('加载档案失败:', e.message)
     }
   }
 
