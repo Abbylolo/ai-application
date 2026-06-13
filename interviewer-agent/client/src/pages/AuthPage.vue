@@ -180,7 +180,7 @@ async function submit() {
   height: 100vh;
   overflow: hidden;
   font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', sans-serif;
-  background: linear-gradient(155deg, #4338ca 0%, #4f46e5 45%, #6366f1 100%);
+  background: linear-gradient(155deg, #3730a3 0%, #4338ca 30%, #4f46e5 60%, #6366f1 100%);
   position: relative;
 }
 
