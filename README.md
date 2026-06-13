@@ -72,3 +72,9 @@ cd interviewer-agent/client && npm run dev   # 启动前端（端口 5199）
 - 📊 面试报告 + 技能雷达图 + 数据统计分析
 - 🌓 暗色/亮色主题切换
 - 📱 移动端响应式适配
+
+**页面效果：**
+
+<img width="3024" height="1656" alt="edf11477cf9b0512a5db29184ea408e5" src="https://github.com/user-attachments/assets/2d397292-19c3-47fb-b108-36862f3d87ef" />
+<img width="3024" height="1656" alt="a331c03b40302a03c5edabfb3cff5829" src="https://github.com/user-attachments/assets/041b0f58-72ae-4bba-a206-59795007ceda" />
+
