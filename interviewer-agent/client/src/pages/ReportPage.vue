@@ -1,8 +1,9 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useInterviewStore } from '@/stores/interview.js'
 import { marked } from 'marked'
+import db from '@/db/database.js'
 
 const router = useRouter()
 const route = useRoute()
@@ -10,6 +11,32 @@ const interviewStore = useInterviewStore()
 
 const renderedHTML = ref('')
 const copied = ref(false)
+const flaggedIds = ref(new Set())
+
+// 加载已标记的 QA
+async function loadFlagged() {
+  const flagged = await db.interviewQA
+    .where({ interviewId: parseInt(route.params.id), isFlagged: 1 })
+    .toArray()
+  flaggedIds.value = new Set(flagged.map(q => q.id))
+}
+
+async function toggleFlag(qaId) {
+  if (flaggedIds.value.has(qaId)) {
+    await db.interviewQA.update(qaId, { isFlagged: 0 })
+    flaggedIds.value.delete(qaId)
+  } else {
+    await db.interviewQA.update(qaId, { isFlagged: 1 })
+    flaggedIds.value.add(qaId)
+  }
+  // 强制刷新
+  flaggedIds.value = new Set(flaggedIds.value)
+}
+
+// 已回答的问题列表
+const answeredQA = computed(() =>
+  interviewStore.qaList.filter(q => q.userAnswer && q.evaluation)
+)
 
 onMounted(async () => {
   const id = route.params.id
@@ -24,6 +51,8 @@ onMounted(async () => {
     router.push('/history')
     return
   }
+
+  await loadFlagged()
 
   if (interviewStore.interview.reportMarkdown) {
     renderedHTML.value = marked(interviewStore.interview.reportMarkdown)
@@ -75,8 +104,45 @@ const difficultyLabels = { small: '小厂', mid: '中厂', big: '大厂' }
       </div>
 
       <!-- 报告预览 -->
-      <div class="card">
+      <div class="card mb-4">
         <div class="report-content" v-html="renderedHTML"></div>
+      </div>
+
+      <!-- 面试回放 -->
+      <div class="card">
+        <div class="card-header">▶️ 面试回放 & 标记复习</div>
+        <div v-if="!answeredQA.length" class="empty-state">
+          <div class="empty-state-text">暂无问答记录</div>
+        </div>
+        <div v-else class="replay-list">
+          <div v-for="qa in answeredQA" :key="qa.id" class="replay-item">
+            <div class="replay-q">
+              <div class="flex justify-between items-start">
+                <strong>Q{{ qa.sequenceNumber }}:</strong>
+                <button
+                  class="btn btn-sm"
+                  :class="flaggedIds.has(qa.id) ? 'btn-danger' : 'btn-ghost'"
+                  @click="toggleFlag(qa.id)"
+                >
+                  {{ flaggedIds.has(qa.id) ? '🏴 已标记复习' : '🏳 标记复习' }}
+                </button>
+              </div>
+              <p class="mt-2">{{ qa.question?.text || '（无题目文本）' }}</p>
+            </div>
+            <div class="replay-a">
+              <strong>你的回答：</strong>
+              <p class="mt-2">{{ qa.userAnswer }}</p>
+            </div>
+            <div class="replay-eval">
+              <span class="tag" :class="{
+                'tag-green': qa.evaluation?.score >= 4,
+                'tag-yellow': qa.evaluation?.score === 3,
+                'tag-red': qa.evaluation?.score <= 2
+              }">评分 {{ '⭐'.repeat(qa.evaluation?.score || 0) }} ({{ qa.evaluation?.score }}/5)</span>
+              <span class="text-secondary ml-2" style="font-size:13px">{{ qa.evaluation?.feedback }}</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <div v-else class="loading-spinner">加载报告中...</div>
@@ -128,6 +194,23 @@ const difficultyLabels = { small: '小厂', mid: '中厂', big: '大厂' }
   background: var(--bg-code); padding: 2px 6px; border-radius: 4px;
   font-size: 13px;
 }
+
+.replay-list { display: flex; flex-direction: column; gap: 12px; }
+.replay-item {
+  padding: 16px; border: 1px solid var(--border-color);
+  border-radius: var(--radius-md); background: var(--bg-hover);
+}
+.replay-q { margin-bottom: 12px; }
+.replay-q p { font-size: 14px; color: var(--text-primary); line-height: 1.6; }
+.replay-a {
+  padding: 10px 14px; background: var(--accent-bg);
+  border-radius: var(--radius-sm); margin-bottom: 8px;
+  border-left: 3px solid var(--accent-color);
+}
+.replay-a p { font-size: 13px; color: var(--text-primary); line-height: 1.6; }
+.replay-eval { display: flex; align-items: center; }
+
+.ml-2 { margin-left: 8px; }
 
 /* 打印样式 */
 @media print {

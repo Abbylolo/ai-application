@@ -1,6 +1,8 @@
 <script setup>
 import { useSettingsStore } from '@/stores/settings.js'
+import { useThemeStore } from '@/stores/theme.js'
 const settingsStore = useSettingsStore()
+const themeStore = useThemeStore()
 </script>
 
 <template>
@@ -27,12 +29,21 @@ const settingsStore = useSettingsStore()
           <span class="nav-icon">🏢</span>
           <span>公司题库</span>
         </router-link>
+        <router-link to="/stats" class="nav-item" active-class="nav-item--active">
+          <span class="nav-icon">📊</span>
+          <span>面试统计</span>
+        </router-link>
         <router-link to="/settings" class="nav-item" active-class="nav-item--active">
           <span class="nav-icon">⚙️</span>
           <span>设置</span>
           <span v-if="!settingsStore.currentConfig" class="nav-warn">⚠️</span>
         </router-link>
       </nav>
+      <div class="sidebar-footer">
+        <button class="theme-toggle" @click="themeStore.toggle" :title="themeStore.theme === 'light' ? '切换暗色模式' : '切换亮色模式'">
+          {{ themeStore.theme === 'light' ? '🌙' : '☀️' }}
+        </button>
+      </div>
     </aside>
     <main class="main-content">
       <router-view />
@@ -99,6 +110,16 @@ const settingsStore = useSettingsStore()
 
 .nav-icon { font-size: 16px; }
 .nav-warn { font-size: 12px; margin-left: auto; }
+
+.sidebar-footer {
+  margin-top: auto; padding: 12px 16px; border-top: 1px solid var(--border-color);
+}
+.theme-toggle {
+  width: 100%; padding: 8px; border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm); background: var(--bg-card);
+  cursor: pointer; font-size: 18px; transition: all 0.15s;
+}
+.theme-toggle:hover { background: var(--bg-hover); }
 
 .main-content {
   flex: 1;

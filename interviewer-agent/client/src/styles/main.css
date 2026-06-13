@@ -285,6 +285,82 @@ body {
   font-size: 13px;
 }
 
+/* ========== 暗色主题 ========== */
+[data-theme="dark"] {
+  --bg-primary: #111827;
+  --bg-sidebar: #1f2937;
+  --bg-card: #1f2937;
+  --bg-hover: #374151;
+  --bg-input: #111827;
+  --bg-code: #1e293b;
+  --bg-tag: #312e81;
+  --accent-bg: #1e1b4b;
+  --accent-color: #818cf8;
+  --accent-hover: #6366f1;
+  --text-primary: #f9fafb;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
+  --border-color: #374151;
+  --border-input: #4b5563;
+  --success: #34d399;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.4);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.5);
+}
+
+[data-theme="dark"] .chat-evaluation {
+  background: #1e293b;
+  border-color: #4b5563;
+}
+
+[data-theme="dark"] .success-message {
+  background: #064e3b;
+  border-color: #065f46;
+}
+
+[data-theme="dark"] .error-message {
+  background: #450a0a;
+  border-color: #7f1d1d;
+}
+
+/* ========== 移动端响应式 ========== */
+@media (max-width: 768px) {
+  .app-container { flex-direction: column; }
+
+  .sidebar {
+    width: 100%; flex-direction: row; padding: 8px 12px;
+    border-right: none; border-bottom: 1px solid var(--border-color);
+    overflow-x: auto;
+  }
+  .sidebar-brand { display: none; }
+  .sidebar-nav {
+    flex-direction: row; gap: 4px; padding: 0;
+    overflow-x: auto; flex: 1;
+  }
+  .nav-item { padding: 6px 10px; font-size: 12px; white-space: nowrap; }
+  .nav-item span:last-child { display: none; }
+  .nav-icon { font-size: 18px; }
+  .sidebar-footer { display: none; }
+
+  .main-content { padding: 0; }
+  .page { padding: 16px; }
+
+  .action-grid { grid-template-columns: 1fr; }
+  .difficulty-grid { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: repeat(3, 1fr); }
+  .form-row { flex-direction: column; }
+  .profile-header { flex-direction: column; text-align: center; }
+
+  .chat-bubble .bubble-content { max-width: 90%; }
+  .chat-evaluation { margin-left: 0; }
+  .chat-reference { margin-left: 0; }
+
+  .config-item { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .config-actions { width: 100%; justify-content: flex-end; }
+}
+
 /* ========== 滚动条 ========== */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
