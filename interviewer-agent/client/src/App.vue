@@ -100,12 +100,13 @@ async function handleLogout() {
 /* === 侧边栏 === */
 .sidebar {
   width: 220px;
-  background: #fff4f0;
-  color: #8c6e6e;
+  background: var(--bg-sidebar, #fff4f0);
+  color: var(--text-secondary, #8c6e6e);
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  border-right: 1.5px solid #f2ddd5;
+  border-right: 1.5px solid var(--border-color, #f2ddd5);
+  transition: background .3s, color .3s;
 }
 
 .sidebar-brand {
@@ -116,17 +117,17 @@ async function handleLogout() {
 }
 
 .brand-logo {
-  color: #e87d8b;
+  color: var(--accent-color);
   flex-shrink: 0;
 }
 
 .brand-text-group { display: flex; flex-direction: column; gap: 0; }
 .brand-text {
-  font-size: 16px; font-weight: 680; color: #3d2c2c;
+  font-size: 16px; font-weight: 680; color: var(--text-primary);
   letter-spacing: -.02em; line-height: 1.3;
 }
 .brand-sub {
-  font-size: 11px; color: #c4a6a6; letter-spacing: .04em;
+  font-size: 11px; color: var(--text-muted); letter-spacing: .04em;
   font-weight: 500;
 }
 
@@ -144,7 +145,7 @@ async function handleLogout() {
   gap: 10px;
   padding: 9px 12px;
   border-radius: 10px;
-  color: #b08a8a;
+  color: var(--text-muted);
   text-decoration: none;
   font-size: 13.5px;
   font-weight: 500;
@@ -153,18 +154,18 @@ async function handleLogout() {
 }
 
 .nav-item:hover {
-  color: #6b5050;
-  background: #fef0ea;
+  color: var(--text-secondary);
+  background: var(--bg-hover);
 }
 
 .nav-item--active {
-  color: #3d2c2c;
-  background: #fdf2f8;
+  color: var(--text-primary);
+  background: var(--accent-bg);
   font-weight: 560;
 }
 
 .nav-ico { flex-shrink: 0; }
-.nav-warn { margin-left: auto; width: 7px; height: 7px; border-radius: 50%; background: #e87d8b; }
+.nav-warn { margin-left: auto; width: 7px; height: 7px; border-radius: 50%; background: var(--accent-color); }
 
 /* === 底部 === */
 .sidebar-footer {
@@ -173,13 +174,13 @@ async function handleLogout() {
   display: flex;
   align-items: center;
   gap: 8px;
-  border-top: 1.5px solid #f2ddd5;
+  border-top: 1.5px solid var(--border-color);
 }
 
 .user-info {
   flex: 1;
   font-size: 12.5px;
-  color: #b08a8a;
+  color: var(--text-muted);
   display: flex;
   align-items: center;
   gap: 7px;
@@ -191,15 +192,15 @@ async function handleLogout() {
 .sidebar-btn {
   width: 32px; height: 32px;
   display: flex; align-items: center; justify-content: center;
-  border: 1.5px solid #f2ddd5;
+  border: 1.5px solid var(--border-color);
   border-radius: 10px;
   background: transparent;
   cursor: pointer;
   font-size: 15px;
-  color: #b08a8a;
+  color: var(--text-muted);
   transition: all .12s;
 }
-.sidebar-btn:hover { background: #fef0ea; color: #6b5050; }
+.sidebar-btn:hover { background: var(--bg-hover); color: var(--text-secondary); }
 
 /* === 主区域 === */
 .main-content {

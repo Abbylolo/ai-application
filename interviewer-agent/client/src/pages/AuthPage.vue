@@ -451,6 +451,22 @@ form { display: flex; flex-direction: column; gap: 20px; flex: 1; justify-conten
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* ==================== 响应式 ==================== */
+/* ===== 暗色模式 ===== */
+[data-theme="dark"] .auth { background: linear-gradient(155deg, #141417 0%, #1a1a24 45%, #1e1d2f 100%); }
+[data-theme="dark"] .form-block { background: #222228; }
+[data-theme="dark"] .panel { background: transparent; }
+[data-theme="dark"] .head h2 { color: #e8e3e0; }
+[data-theme="dark"] .head p { color: #888; }
+[data-theme="dark"] .inp input { background: #1e1e23; border-color: #2e2e35; color: #e8e3e0; }
+[data-theme="dark"] .inp input:focus { border-color: var(--accent-color); }
+[data-theme="dark"] .ii { color: #555; }
+[data-theme="dark"] .inp:focus-within .ii { color: var(--accent-color); }
+[data-theme="dark"] .seg { background: #2a2a30; }
+[data-theme="dark"] .seg button { color: #777; }
+[data-theme="dark"] .seg button.on { color: #e8e3e0; }
+[data-theme="dark"] .sw { color: #777; }
+[data-theme="dark"] .seg-bar { background: #3a3a42; }
+
 @media (max-width: 980px) {
   .brand { display: none; }
   .panel { flex: 1; }

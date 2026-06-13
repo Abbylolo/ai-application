@@ -247,6 +247,34 @@ body {
   font-size: 13px;
 }
 
+/* ========== 暗色模式 ========== */
+[data-theme="dark"] {
+  --bg-primary: #1a1a1f;
+  --bg-sidebar: #141417;
+  --bg-card: #222228;
+  --bg-hover: #2a2a30;
+  --bg-input: #1e1e23;
+  --bg-code: #25252b;
+  --bg-tag: #2d2d34;
+  --accent-bg: #2d2835;
+  --accent-color: #c98d98;
+  --accent-hover: #dba0aa;
+  --text-primary: #e8e3e0;
+  --text-secondary: #a09a96;
+  --text-muted: #6b6562;
+  --border-color: #2e2e35;
+  --border-input: #38383f;
+  --success: #6dba8a;
+  --warning: #d4a050;
+  --danger: #c55a5a;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-md: 0 1px 3px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.25);
+  --shadow-lg: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.3);
+}
+
+[data-theme="dark"] .success-message { background: #1a3a2a; border-color: #2a4a3a; color: #7dba90; }
+[data-theme="dark"] .error-message { background: #3a1a1a; border-color: #4a2a2a; color: #d08080; }
+
 /* ========== 滚动条 ========== */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
