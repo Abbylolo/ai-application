@@ -13,15 +13,15 @@ const isParsing = ref(false)
 const parseError = ref('')
 const resumeText = ref('')
 const parseElapsed = ref(0)
+const parseProgress = ref(0)    // 0-100
 let parseTimer = null
 
-// 模拟解析阶段（给用户感知，虽然实际是一次API调用）
+// 模拟解析阶段
 const parseSteps = [
-  '正在提取个人信息...',
+  '正在发送请求...',
   '正在识别技术栈...',
   '正在分析项目经验...',
   '正在整理教育背景...',
-  '正在生成技能画像...',
   '正在汇总结果...'
 ]
 const parseStep = ref('')
@@ -149,12 +149,20 @@ async function handleParseResume() {
   isParsing.value = true
   parseError.value = ''
   parseElapsed.value = 0
+  parseProgress.value = 0
   stepIndex = 0
   parseStep.value = parseSteps[0]
   parseTimer = setInterval(() => {
     parseElapsed.value++
-    if (parseElapsed.value % 3 === 0 && stepIndex < parseSteps.length - 1) {
-      stepIndex++
+    // 进度 0→90%，越往后越慢（模拟真实解析）
+    parseProgress.value = Math.min(90, Math.floor(parseElapsed.value * 2.5))
+    // 根据进度切换阶段
+    const newIdx = Math.min(
+      Math.floor(parseProgress.value / 20),
+      parseSteps.length - 1
+    )
+    if (newIdx !== stepIndex) {
+      stepIndex = newIdx
       parseStep.value = parseSteps[stepIndex]
     }
   }, 1000)
@@ -272,7 +280,7 @@ const levelLabels = { proficient: '精通', familiar: '熟悉', learning: '学�
         <!-- 解析进度条 -->
         <div v-if="isParsing" class="parse-progress mt-2">
           <div class="progress-bar">
-            <div class="progress-fill"></div>
+            <div class="progress-fill" :style="{ width: parseProgress + '%' }"></div>
           </div>
           <div class="progress-text">
             {{ parseStep }}
@@ -439,15 +447,10 @@ const levelLabels = { proficient: '精通', familiar: '熟悉', learning: '学�
 }
 .progress-fill {
   height: 100%;
-  width: 70%;
+  width: 0%;
   background: linear-gradient(90deg, var(--accent-color), #818cf8);
   border-radius: 3px;
-  animation: progress-slide 1.5s ease-in-out infinite;
-}
-@keyframes progress-slide {
-  0% { width: 10%; }
-  50% { width: 75%; }
-  100% { width: 10%; }
+  transition: width 0.8s ease-out;
 }
 .progress-text {
   font-size: 13px;
