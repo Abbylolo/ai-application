@@ -36,15 +36,19 @@ async function handleLogout() {
   <div v-else class="app-container">
     <aside class="sidebar" :class="{ collapsed: sidebarCollapsed }">
       <div class="sidebar-brand">
-        <button class="collapse-btn" @click="sidebarCollapsed = !sidebarCollapsed" title="折叠侧栏">
-          <svg viewBox="0 0 20 20" fill="none" width="18" height="18"><path d="M7 4l-1 1 5 5-5 5 1 1 6-6-6-6z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
         <template v-if="!sidebarCollapsed">
           <div class="brand-text-group">
             <span class="brand-text">JobPrep</span>
             <span class="brand-sub">AI Interview</span>
           </div>
         </template>
+        <button class="collapse-btn" @click="sidebarCollapsed = !sidebarCollapsed" title="折叠侧栏">
+          <svg viewBox="0 0 20 20" fill="none" width="16" height="16">
+            <rect x="3" y="4" width="14" height="12" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M3 8h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M3 12h9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
       </div>
       <nav class="sidebar-nav">
         <div class="nav-group">

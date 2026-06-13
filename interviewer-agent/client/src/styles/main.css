@@ -278,16 +278,22 @@ body {
 
 /* ========== 暗色模式 ========== */
 [data-theme="dark"] {
-  --bg-primary: #111318;
-  --bg-sidebar: #15182a;
-  --bg-card: #181a21;
-  --bg-hover: #1e2129;
-  --bg-input: #15171d;
-  --bg-code: #1a1c24;
-  --bg-tag: #1e2129;
-  --accent-bg: #1b1e2e;
-  --accent-color: #6b82f7;
-  --accent-hover: #8598f9;
+  --surface-page: #111318;
+  --surface-sidebar: #15182a;
+  --surface-card: #181a21;
+  --surface-hover: #1e2129;
+  --surface-input: #15171d;
+  --color-primary: #6b82f7;
+  --color-primary-hover: #8598f9;
+  --color-primary-bg: #1b1e2e;
+  --text-primary: #e5e7ed;
+  --text-secondary: #9398a8;
+  --text-tertiary: #5d6170;
+  --border-light: #21242d;
+  --border-medium: #2a2d38;
+  --color-success: #5aae80;
+  --color-warning: #cc9140;
+  --color-danger: #c85c5c;
   --text-primary: #e5e7ed;
   --text-secondary: #9398a8;
   --text-muted: #5d6170;
