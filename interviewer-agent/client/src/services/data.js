@@ -16,7 +16,13 @@ async function authHeaders() {
 
 async function get(url) {
   const res = await fetch(url, { headers: await authHeaders() })
-  return res.json()
+  if (!res.ok) {
+    const text = await res.text()
+    throw new Error(`HTTP ${res.status}: ${text}`)
+  }
+  const json = await res.json()
+  if (json.error) throw new Error(json.error)
+  return json
 }
 
 async function post(url, body) {
