@@ -57,13 +57,29 @@ resumeRouter.post('/parse', async (req, res) => {
     })
     console.log('✅ LLM 返回内容长度:', content?.length)
 
-    // 尝试解析 JSON（剥离可能的 markdown 代码块）
-    let cleaned = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
+    // 尝试解析 JSON（处理各种 LLM 返回格式）
+    let cleaned = content.trim()
+
+    // 1. 提取 markdown 代码块中的内容
+    const codeBlockMatch = cleaned.match(/```(?:json)?\s*\n?([\s\S]*?)```/)
+    if (codeBlockMatch) {
+      cleaned = codeBlockMatch[1].trim()
+    }
+
+    // 2. 如果还有多余内容，尝试提取 JSON 对象
+    if (!cleaned.startsWith('{')) {
+      const jsonStart = cleaned.indexOf('{')
+      const jsonEnd = cleaned.lastIndexOf('}')
+      if (jsonStart !== -1 && jsonEnd > jsonStart) {
+        cleaned = cleaned.slice(jsonStart, jsonEnd + 1)
+      }
+    }
 
     try {
       const parsed = JSON.parse(cleaned)
       res.json(parsed)
-    } catch {
+    } catch (e) {
+      console.log('JSON解析失败，原始内容前200字:', content.substring(0, 200))
       res.json({
         rawContent: content,
         parseError: '无法解析为 JSON，请检查简历文本格式。提示：确保文本包含足够的工作经历和技术信息。'

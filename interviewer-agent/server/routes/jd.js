@@ -46,7 +46,20 @@ jdRouter.post('/parse', async (req, res) => {
       max_tokens: 4096
     })
 
-    let cleaned = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
+    let cleaned = content.trim()
+
+    const codeBlockMatch = cleaned.match(/```(?:json)?\s*\n?([\s\S]*?)```/)
+    if (codeBlockMatch) {
+      cleaned = codeBlockMatch[1].trim()
+    }
+
+    if (!cleaned.startsWith('{')) {
+      const jsonStart = cleaned.indexOf('{')
+      const jsonEnd = cleaned.lastIndexOf('}')
+      if (jsonStart !== -1 && jsonEnd > jsonStart) {
+        cleaned = cleaned.slice(jsonStart, jsonEnd + 1)
+      }
+    }
 
     try {
       res.json(JSON.parse(cleaned))

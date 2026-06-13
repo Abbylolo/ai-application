@@ -121,6 +121,7 @@ async function handleFileUpload(e) {
 }
 
 async function handleParseResume() {
+  console.log('🔍 handleParseResume 开始')
   if (!resumeText.value.trim()) {
     parseError.value = '请先上传简历文件或粘贴简历文本'
     return
@@ -130,11 +131,13 @@ async function handleParseResume() {
     return
   }
 
+  console.log('📤 发送解析请求, 配置:', settingsStore.currentConfig?.modelName)
   isParsing.value = true
   parseError.value = ''
 
   try {
     const result = await parseResume(resumeText.value)
+    console.log('📥 解析返回:', result)
 
     if (result.error) {
       parseError.value = result.error
@@ -155,7 +158,9 @@ async function handleParseResume() {
     if (result.education) form.value.education = { ...form.value.education, ...result.education }
     if (result.strengths?.length) form.value.strengths = ensureString(result.strengths)
     if (result.weaknesses?.length) form.value.weaknesses = ensureString(result.weaknesses)
+    console.log('✅ 解析完成')
   } catch (err) {
+    console.error('❌ 解析异常:', err.name, err.message)
     if (err.name === 'AbortError') {
       parseError.value = '解析请求超时（2分钟）。可能原因：模型响应慢或网络问题，请检查模型配置后重试'
     } else {

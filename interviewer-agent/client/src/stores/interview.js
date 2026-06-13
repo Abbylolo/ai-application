@@ -210,13 +210,9 @@ export const useInterviewStore = defineStore('interview', () => {
 
       const result = await chatLLM({ system, messages, temperature: 0.5 })
 
-      // 清理内容中的 markdown 代码块
-      let content = result.content || ''
-      content = content.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim()
-
       let parsed
       try {
-        parsed = JSON.parse(content)
+        parsed = JSON.parse(extractJSON(result.content))
       } catch {
         // 解析失败，当作纯文本
         parsed = { phase: 'evaluation', content: result.content, evaluation: { score: 3, feedback: result.content, strengths: [], weaknesses: [], followUpNeeded: false, nextQuestion: '' } }
@@ -294,12 +290,10 @@ export const useInterviewStore = defineStore('interview', () => {
       })
 
       const result = await chatLLM({ system, messages, temperature: 0.3 })
-      let content = result.content || ''
-      content = content.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim()
 
       let parsed
       try {
-        parsed = JSON.parse(content)
+        parsed = JSON.parse(extractJSON(result.content))
       } catch {
         parsed = { phase: 'summary', content: result.content, summary: { totalScore: averageScore.value, overall: result.content, strengths: [], weaknesses: [], learningPlan: [] } }
       }
@@ -429,14 +423,40 @@ export const useInterviewStore = defineStore('interview', () => {
   function parseResponse(result) {
     if (!result?.content) return { phase: 'question', content: '面试开始' }
 
-    let content = result.content
-    content = content.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim()
+    let content = result.content.trim()
+
+    // 提取 markdown 代码块中的 JSON
+    const codeBlockMatch = content.match(/```(?:json)?\s*\n?([\s\S]*?)```/)
+    if (codeBlockMatch) {
+      content = codeBlockMatch[1].trim()
+    }
+
+    // 尝试提取 JSON 对象
+    if (!content.startsWith('{')) {
+      const jsonStart = content.indexOf('{')
+      const jsonEnd = content.lastIndexOf('}')
+      if (jsonStart !== -1 && jsonEnd > jsonStart) {
+        content = content.slice(jsonStart, jsonEnd + 1)
+      }
+    }
 
     try {
       return JSON.parse(content)
     } catch {
       return { phase: 'question', content: result.content }
     }
+  }
+
+  // 解析 LLM 响应中的 JSON（通用工具函数，处理各种格式）
+  function extractJSON(text) {
+    let cleaned = (text || '').trim()
+    const codeBlockMatch = cleaned.match(/```(?:json)?\s*\n?([\s\S]*?)```/)
+    if (codeBlockMatch) cleaned = codeBlockMatch[1].trim()
+    if (!cleaned.startsWith('{')) {
+      const start = cleaned.indexOf('{'), end = cleaned.lastIndexOf('}')
+      if (start !== -1 && end > start) cleaned = cleaned.slice(start, end + 1)
+    }
+    return cleaned
   }
 
   // 加载已有面试
