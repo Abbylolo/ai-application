@@ -114,13 +114,12 @@ async function submit() {
   background: #0c0c0e;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   padding: 64px 56px 56px;
   color: #fafafa;
   min-width: 0;
 }
 
-.left-top { margin-bottom: 48px; }
+.left-top { }
 
 .logo {
   width: 48px; height: 48px;
@@ -141,10 +140,10 @@ async function submit() {
   font-size: 15px; color: #71717a;
 }
 
-/* 功能列表 - 竖向排列填充空间 */
+/* 功能列表 - 居中于剩余空间 */
 .features {
   display: flex; flex-direction: column; gap: 20px;
-  margin-bottom: auto;
+  margin: auto 0;
 }
 
 .ft {
@@ -162,7 +161,6 @@ async function submit() {
 }
 
 .left-foot {
-  margin-top: 48px;
   font-size: 12px; color: #3f3f46;
   letter-spacing: .03em;
 }
