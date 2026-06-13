@@ -180,7 +180,7 @@ async function submit() {
   height: 100vh;
   overflow: hidden;
   font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', sans-serif;
-  background: linear-gradient(155deg, #e8ecf8 0%, #eef1ff 45%, #f0f3ff 100%);
+  background: linear-gradient(155deg, #4338ca 0%, #4f46e5 45%, #6366f1 100%);
   position: relative;
 }
 
@@ -198,19 +198,19 @@ async function submit() {
 }
 .orb-a {
   width: 520px; height: 520px;
-  background: radial-gradient(circle, rgba(79,110,247,.25) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(129,140,248,.25) 0%, transparent 70%);
   top: -180px; right: -100px;
   animation: drift 14s ease-in-out infinite;
 }
 .orb-b {
   width: 380px; height: 380px;
-  background: radial-gradient(circle, rgba(79,110,247,.18) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(129,140,248,.18) 0%, transparent 70%);
   bottom: -140px; left: -80px;
   animation: drift 18s ease-in-out infinite reverse;
 }
 .orb-c {
   width: 260px; height: 260px;
-  background: radial-gradient(circle, rgba(79,110,247,.12) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(129,140,248,.12) 0%, transparent 70%);
   top: 50%; left: 50%;
   animation: drift 22s ease-in-out infinite;
 }
@@ -406,7 +406,7 @@ form { display: flex; flex-direction: column; gap: 20px; flex: 1; justify-conten
 /* 按钮 */
 .btn {
   width: 100%; margin-top: 8px; padding: 14px;
-  background: #4f6ef7; border: none; border-radius: 12px;
+  background: #4f46e5; border: none; border-radius: 12px;
   font-size: 16px; font-weight: 650; color: #fff;
   cursor: pointer; font-family: inherit;
   display: flex; align-items: center; justify-content: center; gap: 10px;
