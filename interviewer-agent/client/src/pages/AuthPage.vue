@@ -60,9 +60,9 @@ async function submit() {
         <!-- Logo -->
         <div class="top" style="--d:0ms">
           <div class="logo">
-            <svg viewBox="0 0 24 24" fill="none" width="28" height="28">
-              <path d="M12 2L3 7v10l9 5 9-5V7l-9-5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
-              <path d="M12 12l9-5M12 12v10M12 12L3 7" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+            <svg viewBox="0 0 32 32" fill="none" width="32" height="32">
+              <rect x="3" y="3" width="26" height="26" rx="7" stroke="currentColor" stroke-width="1.8"/>
+              <path d="M10 14l4 4 8-8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
           <div class="logo-text">
