@@ -94,12 +94,6 @@ async function submit() {
           </li>
         </ul>
 
-        <!-- 底部数据 -->
-        <div class="bot" style="--d:360ms">
-          <div class="bt"><em>3</em><span>难度等级</span></div>
-          <div class="bt"><em>200+</em><span>高频考点</span></div>
-          <div class="bt"><em>10+</em><span>技术领域</span></div>
-        </div>
       </div>
     </section>
 
@@ -233,15 +227,14 @@ async function submit() {
 }
 
 /* 入场动效 */
-.top, .mid, .feat, .bot {
+.top, .mid, .feat {
   opacity: 0; transform: translateY(20px);
   transition: opacity .7s ease, transform .7s ease;
   transition-delay: var(--d, 0ms);
 }
 .brand-inner.in .top,
 .brand-inner.in .mid,
-.brand-inner.in .feat,
-.brand-inner.in .bot {
+.brand-inner.in .feat {
   opacity: 1; transform: translateY(0);
 }
 
@@ -296,19 +289,6 @@ async function submit() {
   font-size: 13px; line-height: 1.5; color: rgba(255,255,255,.6);
 }
 
-.bot {
-  display: flex; gap: 36px;
-  padding-top: 28px;
-  border-top: 1px solid rgba(255,255,255,.12);
-}
-.bt em {
-  display: block; font-size: 28px; font-weight: 800; font-style: normal;
-  color: #fff; letter-spacing: -.02em;
-}
-.bt span {
-  font-size: 12.5px; color: rgba(255,255,255,.55); margin-top: 3px; display: block;
-}
-
 /* ==================== 右侧面板 ==================== */
 .panel {
   flex: 1;
@@ -319,7 +299,7 @@ async function submit() {
 }
 
 .form-block {
-  width: 100%; max-width: 388px;
+  width: 100%; max-width: 420px;
 }
 
 .head, .seg, form, .sw {
@@ -336,21 +316,21 @@ async function submit() {
 
 .head { margin-bottom: 26px; }
 .head h2 {
-  font-size: 28px; font-weight: 800; color: #0f172a;
+  font-size: 30px; font-weight: 800; color: #0f172a;
   letter-spacing: -.03em; margin: 0 0 6px;
 }
-.head p { font-size: 14px; color: #94a3b8; margin: 0; }
+.head p { font-size: 15px; color: #94a3b8; margin: 0; }
 
 /* 分段切换 */
 .seg {
   position: relative; display: flex;
-  background: #f1f5f9; border-radius: 11px; padding: 4px;
-  margin-bottom: 26px;
+  background: #f1f5f9; border-radius: 12px; padding: 4px;
+  margin-bottom: 28px;
 }
 .seg button {
   flex: 1; position: relative; z-index: 1;
   border: none; background: none;
-  padding: 9px; font-size: 14px; font-weight: 600;
+  padding: 10px; font-size: 15px; font-weight: 600;
   color: #64748b; cursor: pointer; font-family: inherit;
   transition: color .25s;
 }
@@ -358,7 +338,7 @@ async function submit() {
 .seg-bar {
   position: absolute; top: 4px; left: 4px;
   width: calc(50% - 4px); height: calc(100% - 8px);
-  background: #fff; border-radius: 8px;
+  background: #fff; border-radius: 9px;
   box-shadow: 0 1px 3px rgba(0,0,0,.07);
   transition: transform .3s cubic-bezier(.4,0,.2,1);
 }
@@ -366,7 +346,7 @@ async function submit() {
 
 /* 消息 */
 .msg {
-  padding: 11px 14px; border-radius: 10px; font-size: 13px; margin-bottom: 16px;
+  padding: 12px 14px; border-radius: 10px; font-size: 14px; margin-bottom: 18px;
 }
 .msg-e { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
 .msg-s { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
@@ -375,26 +355,26 @@ async function submit() {
 .msg-enter-from, .msg-leave-to { opacity: 0; transform: translateY(-6px); }
 
 /* 表单 */
-form { display: flex; flex-direction: column; gap: 18px; }
+form { display: flex; flex-direction: column; gap: 20px; }
 
 .fld label {
-  display: block; font-size: 13px; font-weight: 600;
+  display: block; font-size: 14px; font-weight: 600;
   color: #475569; margin-bottom: 7px;
 }
 .inp {
   position: relative; display: flex; align-items: center;
 }
 .ii {
-  position: absolute; left: 14px; color: #cbd5e1;
+  position: absolute; left: 16px; color: #cbd5e1; width: 18px; height: 18px;
   transition: color .2s;
 }
 .inp input {
-  width: 100%; padding: 12px 14px 12px 42px;
-  border: 1.5px solid #e2e8f0; border-radius: 11px;
-  font-size: 14px; color: #0f172a; font-family: inherit;
+  width: 100%; padding: 14px 16px 14px 46px;
+  border: 1.5px solid #e2e8f0; border-radius: 12px;
+  font-size: 15px; color: #0f172a; font-family: inherit;
   outline: none; box-sizing: border-box;
   transition: border-color .2s, box-shadow .2s;
-  background: #fafbfc;
+  background: #f9fafb;
 }
 .inp input::placeholder { color: #cbd5e1; }
 .inp input:focus {
@@ -406,13 +386,13 @@ form { display: flex; flex-direction: column; gap: 18px; }
 
 /* 按钮 */
 .btn {
-  width: 100%; margin-top: 6px; padding: 13px;
-  background: #4f46e5; border: none; border-radius: 11px;
-  font-size: 15px; font-weight: 650; color: #fff;
+  width: 100%; margin-top: 8px; padding: 14px;
+  background: #4f46e5; border: none; border-radius: 12px;
+  font-size: 16px; font-weight: 650; color: #fff;
   cursor: pointer; font-family: inherit;
   display: flex; align-items: center; justify-content: center; gap: 10px;
-  min-height: 48px;
-  box-shadow: 0 4px 14px rgba(79,70,229,.28);
+  min-height: 50px;
+  box-shadow: 0 4px 16px rgba(79,70,229,.28);
   transition: background .2s, transform .15s, box-shadow .2s;
   overflow: hidden;
   position: relative;
@@ -436,8 +416,8 @@ form { display: flex; flex-direction: column; gap: 18px; }
 .btn:hover .arr { transform: translateX(2px); }
 
 .sw {
-  text-align: center; margin: 24px 0 0;
-  font-size: 14px; color: #94a3b8;
+  text-align: center; margin: 28px 0 0;
+  font-size: 15px; color: #94a3b8;
 }
 .sw a { color: #4f46e5; text-decoration: none; font-weight: 600; }
 .sw a:hover { text-decoration: underline; }
