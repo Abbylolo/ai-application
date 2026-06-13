@@ -76,5 +76,6 @@ cd interviewer-agent/client && npm run dev   # 启动前端（端口 5199）
 **页面效果：**
 
 <img width="3024" height="1656" alt="edf11477cf9b0512a5db29184ea408e5" src="https://github.com/user-attachments/assets/2d397292-19c3-47fb-b108-36862f3d87ef" />
-<img width="3024" height="1656" alt="a331c03b40302a03c5edabfb3cff5829" src="https://github.com/user-attachments/assets/041b0f58-72ae-4bba-a206-59795007ceda" />
+<img width="1512" height="825" alt="image" src="https://github.com/user-attachments/assets/166fd9ef-3649-4614-b569-14bb089b6e3b" />
+
 
