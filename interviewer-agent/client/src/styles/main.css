@@ -1,13 +1,13 @@
 /* ========== CSS 变量 — 精致暗色 ========== */
 :root {
   /* ===== 主色调 ===== */
-  --color-primary: #4f6ef7;
-  --color-primary-hover: #3d54d6;
+  --color-primary: #4f46e5;
+  --color-primary-hover: #4338ca;
   --color-primary-bg: #eef2ff;
 
   /* ===== 中性色 ===== */
   --surface-page: #f6f7fb;
-  --surface-sidebar: #dce2f2;
+  --surface-sidebar: #e2def5;
   --surface-card: #ffffff;
   --surface-hover: #f0f2f9;
   --surface-input: #f5f6fb;
@@ -279,12 +279,12 @@ body {
 /* ========== 暗色模式 ========== */
 [data-theme="dark"] {
   --surface-page: #111318;
-  --surface-sidebar: #15182a;
+  --surface-sidebar: #1a1840;
   --surface-card: #181a21;
   --surface-hover: #1e2129;
   --surface-input: #15171d;
-  --color-primary: #6b82f7;
-  --color-primary-hover: #8598f9;
+  --color-primary: #8180f0;
+  --color-primary-hover: #9d9cf5;
   --color-primary-bg: #1b1e2e;
   --text-primary: #e5e7ed;
   --text-secondary: #9398a8;
