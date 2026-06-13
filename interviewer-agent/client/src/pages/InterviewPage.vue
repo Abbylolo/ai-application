@@ -37,6 +37,20 @@ onMounted(async () => {
     return
   }
 
+  // 公司特定面试：直接从 CompanyPage 跳转过来
+  if (route.query.company) {
+    interviewStore.type = 'company_specific'
+    interviewStore.companyName = route.query.company
+    if (route.query.jdInfo) {
+      try {
+        interviewStore.jdParsed = JSON.parse(decodeURIComponent(route.query.jdInfo))
+      } catch { /* ignore parse error */ }
+    }
+    // 直接开始面试，跳过难度选择
+    await startCompanyInterview()
+    return
+  }
+
   showSetup.value = true
 })
 
@@ -47,7 +61,26 @@ async function startInterview() {
   try {
     await interviewStore.startInterview(userStore.currentProfile, {
       difficulty: selectedDifficulty.value,
-      type: 'general'
+      type: 'general',
+      reviewMode: settingsStore.reviewMode
+    })
+  } catch (err) {
+    errorMsg.value = '启动面试失败：' + err.message
+    showSetup.value = true
+  }
+}
+
+async function startCompanyInterview() {
+  showSetup.value = false
+  errorMsg.value = ''
+
+  try {
+    await interviewStore.startInterview(userStore.currentProfile, {
+      difficulty: selectedDifficulty.value,
+      type: 'company_specific',
+      reviewMode: settingsStore.reviewMode,
+      companyName: interviewStore.companyName,
+      jdInfo: interviewStore.jdParsed
     })
   } catch (err) {
     errorMsg.value = '启动面试失败：' + err.message
@@ -151,6 +184,7 @@ const isWaitingAnswer = () => {
         :isLoading="interviewStore.isLoading"
         :interviewType="interviewStore.type"
         :companyName="interviewStore.companyName"
+        :reviewMode="interviewStore.interview?.reviewMode || 'instant'"
       />
 
       <!-- 输入区 -->

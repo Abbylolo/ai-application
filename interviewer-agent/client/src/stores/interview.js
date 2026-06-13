@@ -134,6 +134,7 @@ export const useInterviewStore = defineStore('interview', () => {
         type: type.value,
         companyName: companyName.value,
         difficulty: difficulty.value,
+        reviewMode: config.reviewMode || 'instant',
         status: 'in_progress',
         startedAt: new Date(),
         totalQuestions: 0,
@@ -195,10 +196,16 @@ export const useInterviewStore = defineStore('interview', () => {
       const system = buildSystemPrompt(profile, jdParsed.value)
       const messages = buildMessageHistory()
 
-      // 添加评估请求
+      // 添加评估请求（根据评审模式调整 prompt）
+      const reviewMode = interview.value?.reviewMode || 'instant'
+      const isSummary = reviewMode === 'summary'
+      const evalInstruction = isSummary
+        ? `请内部评估回答质量（评分1-5），但**不要展示评分给候选人**。直接决定追问还是出下一题，像正常面试一样自然过渡。仍需在JSON中保留evaluation数据用于最终报告。`
+        : `请评估我的回答，给出评分（1-5分）、点评、优缺点。${currentQA.type === 'question' ? '如果回答不够深入，请继续追问。如果回答基本到位，请出下一道题。' : '追问之后，请评估并决定是否继续追问或出下一题。'}`
+
       messages.push({
         role: 'user',
-        content: `我的回答是：${answer}\n\n请评估我的回答，给出评分（1-5分）、点评、优缺点。${currentQA.type === 'question' ? '如果回答不够深入，请继续追问。如果回答基本到位，请出下一道题。' : '追问之后，请评估并决定是否继续追问或出下一题。'}`
+        content: `我的回答是：${answer}\n\n${evalInstruction}`
       })
 
       const result = await chatLLM({ system, messages, temperature: 0.5 })

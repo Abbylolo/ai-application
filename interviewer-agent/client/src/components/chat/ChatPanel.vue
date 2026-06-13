@@ -6,7 +6,8 @@ const props = defineProps({
   qaList: { type: Array, default: () => [] },
   isLoading: { type: Boolean, default: false },
   interviewType: { type: String, default: 'general' },
-  companyName: { type: String, default: '' }
+  companyName: { type: String, default: '' },
+  reviewMode: { type: String, default: 'instant' }
 })
 
 const chatContainer = ref(null)
@@ -79,8 +80,8 @@ const categoryLabels = {
         <div class="bubble-avatar">👤</div>
       </div>
 
-      <!-- 评估结果 -->
-      <div v-if="qa.evaluation" class="chat-evaluation">
+      <!-- 评估结果（即时点评模式才显示） -->
+      <div v-if="qa.evaluation && reviewMode === 'instant'" class="chat-evaluation">
         <div class="eval-header">
           <span class="eval-score">
             {{ '⭐'.repeat(qa.evaluation.score || 0) }}
@@ -96,8 +97,8 @@ const categoryLabels = {
         </div>
       </div>
 
-      <!-- 参考答案（即时点评模式） -->
-      <div v-if="qa.evaluation && qa.question?.referenceAnswer" class="chat-reference">
+      <!-- 参考答案（即时点评模式才显示） -->
+      <div v-if="qa.evaluation && qa.question?.referenceAnswer && reviewMode === 'instant'" class="chat-reference">
         <details>
           <summary>📖 查看参考答案要点</summary>
           <div class="reference-content">{{ qa.question.referenceAnswer }}</div>

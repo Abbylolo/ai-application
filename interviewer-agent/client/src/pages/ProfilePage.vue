@@ -2,6 +2,8 @@
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user.js'
+import SkillRadar from '@/components/profile/SkillRadar.vue'
+import ProjectTimeline from '@/components/profile/ProjectTimeline.vue'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -65,9 +67,9 @@ if (!profile.value) {
       </div>
     </div>
 
-    <!-- 技能概览 -->
+    <!-- 技能雷达图 + 统计 -->
     <div class="card mb-4">
-      <div class="card-header">📈 技能概览</div>
+      <div class="card-header">📈 技能分析</div>
       <div class="skill-stats">
         <div class="stat-item">
           <div class="stat-value">{{ skillStats.total }}</div>
@@ -86,6 +88,7 @@ if (!profile.value) {
           <div class="stat-label">学习中</div>
         </div>
       </div>
+      <SkillRadar :techStack="profile.techStack" class="mt-4" />
     </div>
 
     <!-- 技能分类 -->
@@ -121,24 +124,7 @@ if (!profile.value) {
     <!-- 项目时间线 -->
     <div class="card mb-4">
       <div class="card-header">📁 项目经验</div>
-      <div v-if="profile.projects?.length" class="project-timeline">
-        <div v-for="(proj, idx) in profile.projects" :key="idx" class="timeline-item">
-          <div class="timeline-dot"></div>
-          <div class="timeline-content">
-            <div class="flex justify-between items-center">
-              <h4>{{ proj.name || '未命名项目' }}</h4>
-              <span v-if="proj.duration" class="text-secondary" style="font-size:12px">{{ proj.duration }}</span>
-            </div>
-            <p v-if="proj.description" class="text-secondary mt-2">{{ proj.description }}</p>
-            <div class="flex gap-2 mt-2" v-if="proj.techUsed?.length">
-              <span v-for="tech in (Array.isArray(proj.techUsed) ? proj.techUsed : proj.techUsed.split(','))" :key="tech" class="tag">{{ tech.trim() }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div v-else class="empty-state">
-        <div class="empty-state-text">暂无项目经验</div>
-      </div>
+      <ProjectTimeline :projects="profile.projects" />
     </div>
 
     <!-- 需要提升 -->

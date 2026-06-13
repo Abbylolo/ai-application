@@ -31,6 +31,90 @@ async function deleteInterview(item) {
   interviews.value = interviews.value.filter(i => i.id !== item.id)
 }
 
+// 数据导出
+async function exportData() {
+  const data = {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    profiles: await db.userProfiles.toArray(),
+    interviews: await db.interviews.toArray(),
+    interviewQA: await db.interviewQA.toArray(),
+    companyQuestionBank: await db.companyQuestionBank.toArray(),
+    modelConfigs: await db.modelConfigs.toArray()
+  }
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `面试官Agent_数据备份_${new Date().toISOString().slice(0, 10)}.json`
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+// 数据导入
+const importInput = ref(null)
+function triggerImport() {
+  const input = document.createElement('input')
+  input.type = 'file'
+  input.accept = '.json'
+  input.onchange = handleImportFile
+  input.click()
+}
+
+async function handleImportFile(e) {
+  const file = e.target.files[0]
+  if (!file) return
+
+  try {
+    const text = await file.text()
+    const data = JSON.parse(text)
+
+    if (!data.version || !data.interviews) {
+      alert('无效的备份文件')
+      return
+    }
+
+    if (!confirm(`即将导入 ${data.interviews.length} 条面试记录、${data.profiles?.length || 0} 个档案。确定继续？`)) return
+
+    // 导入数据
+    if (data.profiles) {
+      for (const p of data.profiles) {
+        const existing = await db.userProfiles.get(p.id)
+        if (!existing) await db.userProfiles.put(p)
+      }
+    }
+    if (data.interviews) {
+      for (const i of data.interviews) {
+        const existing = await db.interviews.get(i.id)
+        if (!existing) await db.interviews.put(i)
+      }
+    }
+    if (data.interviewQA) {
+      for (const qa of data.interviewQA) {
+        const existing = await db.interviewQA.get(qa.id)
+        if (!existing) await db.interviewQA.put(qa)
+      }
+    }
+    if (data.companyQuestionBank) {
+      for (const c of data.companyQuestionBank) {
+        const existing = await db.companyQuestionBank.get(c.id)
+        if (!existing) await db.companyQuestionBank.put(c)
+      }
+    }
+    if (data.modelConfigs) {
+      for (const m of data.modelConfigs) {
+        const existing = await db.modelConfigs.get(m.id)
+        if (!existing) await db.modelConfigs.put(m)
+      }
+    }
+
+    alert('导入成功！请刷新页面查看。')
+    location.reload()
+  } catch (err) {
+    alert('导入失败：' + err.message)
+  }
+}
+
 function formatDate(date) {
   if (!date) return '-'
   return new Date(date).toLocaleString('zh-CN')
@@ -48,7 +132,13 @@ function getTypeLabel(item) {
 
 <template>
   <div class="page">
-    <div class="page-title">📋 面试历史</div>
+    <div class="page-title">
+      <span>📋 面试历史</span>
+      <div style="margin-left:auto;display:flex;gap:8px">
+        <button class="btn btn-secondary btn-sm" @click="exportData">📥 导出数据</button>
+        <button class="btn btn-secondary btn-sm" @click="triggerImport">📤 导入数据</button>
+      </div>
+    </div>
 
     <div v-if="isLoading" class="loading-spinner">加载中...</div>
 

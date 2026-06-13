@@ -61,14 +61,12 @@ async function startCompanyInterview() {
     return
   }
 
-  interviewStore.reset()
-  interviewStore.type = 'company_specific'
-  interviewStore.companyName = companyName.value
+  const query = { company: companyName.value.trim() }
   if (jdParsed.value) {
-    interviewStore.jdParsed = jdParsed.value
+    query.jdInfo = encodeURIComponent(JSON.stringify(jdParsed.value))
   }
 
-  router.push('/interview')
+  router.push({ path: '/interview', query })
 }
 
 // 保存公司面经
