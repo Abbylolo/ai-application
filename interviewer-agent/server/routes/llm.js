@@ -55,8 +55,11 @@ llmRouter.post('/chat', async (req, res) => {
 /**
  * 调用 Anthropic Messages API
  */
-export async function callAnthropic(apiKey, model, system, messages, temperature, max_tokens) {
-  const anthropic = new Anthropic({ apiKey, timeout: 60000 })
+export async function callAnthropic(apiKey, model, system, messages, temperature, max_tokens, baseURL) {
+  const config = { apiKey, timeout: 60000 }
+  // 支持自定义端点（如 DeepSeek 的 Anthropic 兼容接口）
+  if (baseURL) config.baseURL = baseURL.replace(/\/+$/, '')
+  const anthropic = new Anthropic(config)
 
   // 转换消息格式: OpenAI 格式 -> Anthropic 格式
   const systemMessages = []
@@ -75,12 +78,21 @@ export async function callAnthropic(apiKey, model, system, messages, temperature
   // 如果有顶层 system，追加到系统消息
   const allSystem = [system, ...systemMessages].filter(Boolean).join('\n\n')
 
+  console.log('🔄 Anthropic 调用:', { model, systemLen: allSystem.length, msgCount: anthropicMessages.length, max_tokens })
+
   const response = await anthropic.messages.create({
     model,
     system: allSystem || undefined,
     messages: anthropicMessages,
     temperature,
     max_tokens,
+  })
+
+  console.log('📦 Anthropic 返回:', {
+    stopReason: response.stop_reason,
+    contentCount: response.content?.length,
+    type: response.content?.[0]?.type,
+    textLen: response.content?.[0]?.text?.length
   })
 
   return response.content[0]?.text || ''
@@ -111,11 +123,19 @@ export async function callOpenAICompatible(apiKey, apiEndpoint, model, system, m
     formattedMessages.push(msg)
   }
 
+  console.log('🔄 OpenAI兼容调用:', { model, baseURL, msgCount: formattedMessages.length, max_tokens })
+
   const response = await openai.chat.completions.create({
     model,
     messages: formattedMessages,
     temperature,
     max_tokens,
+  })
+
+  console.log('📦 OpenAI兼容返回:', {
+    choiceCount: response.choices?.length,
+    finishReason: response.choices?.[0]?.finish_reason,
+    contentLen: response.choices?.[0]?.message?.content?.length
   })
 
   return response.choices[0]?.message?.content || ''
@@ -128,7 +148,7 @@ export async function callLLM({ providerType, apiKey, apiEndpoint, model, system
   if (!apiKey) throw new Error('缺少 API Key')
 
   if (providerType === 'anthropic') {
-    return await callAnthropic(apiKey, model, system, messages, temperature, max_tokens)
+    return await callAnthropic(apiKey, model, system, messages, temperature, max_tokens, apiEndpoint)
   } else {
     return await callOpenAICompatible(apiKey, apiEndpoint, model, system, messages, temperature, max_tokens)
   }
@@ -153,7 +173,7 @@ llmRouter.post('/test', async (req, res) => {
 
     let content
     if (providerType === 'anthropic') {
-      content = await callAnthropic(apiKey, model, '你是一个测试助手。', testMessages, 0, 100)
+      content = await callAnthropic(apiKey, model, '你是一个测试助手。', testMessages, 0, 100, apiEndpoint)
     } else {
       content = await callOpenAICompatible(apiKey, apiEndpoint, model, '你是一个测试助手。', testMessages, 0, 100)
     }

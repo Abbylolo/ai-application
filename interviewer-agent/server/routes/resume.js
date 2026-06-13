@@ -59,9 +59,16 @@ resumeRouter.post('/parse', async (req, res) => {
       system: systemPrompt,
       messages,
       temperature: 0.1,
-      max_tokens: 8192  // 增大输出限制，防止 JSON 被截断
+      max_tokens: 8192
     })
     console.log('✅ LLM 返回内容长度:', content?.length, '最后100字:', content?.slice(-100))
+
+    if (!content || content.trim().length === 0) {
+      console.error('❌ LLM 返回了空内容！')
+      return res.status(500).json({
+        error: 'LLM 返回空内容，可能是模型不支持或 API 配置有误。请检查模型配置并确认模型可正常使用。'
+      })
+    }
 
     // 尝试解析 JSON（处理各种 LLM 返回格式）
     let cleaned = content.trim()

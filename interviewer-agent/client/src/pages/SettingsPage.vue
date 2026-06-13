@@ -129,10 +129,14 @@ function handleSelect(id) {
           </select>
         </div>
 
-        <div class="form-group" v-if="editConfig.providerType === 'openai-compatible'">
-          <label class="form-label">API 端点</label>
-          <input v-model="editConfig.endpoint" class="form-input" placeholder="如 https://api.deepseek.com" />
-          <div class="form-hint">OpenAI兼容需要填写，Anthropic 无需填写</div>
+        <div class="form-group">
+          <label class="form-label">API 端点（可选，自定义API地址时填写）</label>
+          <input v-model="editConfig.endpoint" class="form-input" placeholder="留空用官方地址。如 DeepSeek Anthropic兼容: https://api.deepseek.com" />
+          <div class="form-hint">
+            Anthropic 留空默认连 api.anthropic.com<br/>
+            OpenAI兼容留空默认连 api.openai.com<br/>
+            用 DeepSeek/通义千问 等请在下方选 OpenAI兼容 并填对应端点
+          </div>
         </div>
 
         <div class="form-group">
