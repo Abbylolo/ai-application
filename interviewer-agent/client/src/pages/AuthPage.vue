@@ -177,7 +177,6 @@ async function submit() {
   overflow: hidden;
   background: linear-gradient(155deg, #4338ca 0%, #4f46e5 45%, #6366f1 100%);
   display: flex;
-  align-items: center;
 }
 
 /* 动态光球 */
@@ -222,7 +221,7 @@ async function submit() {
 
 .brand-inner {
   position: relative; z-index: 1;
-  padding: 80px 72px;
+  padding: 72px 72px 80px;
   max-width: 640px;
 }
 
