@@ -127,37 +127,32 @@ async function handleLogout() {
 }
 
 .sidebar-brand {
-  padding: 14px 14px;
+  padding: 14px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 10px;
 }
+.collapsed .sidebar-brand { justify-content: center; padding: 14px 10px; }
 .collapse-btn {
-  width: 32px; height: 32px;
+  width: 34px; height: 34px;
   display: flex; align-items: center; justify-content: center;
   border: 1px solid var(--border-light);
-  border-radius: 8px;
+  border-radius: 9px;
   background: transparent;
   cursor: pointer;
   color: var(--text-secondary);
   flex-shrink: 0;
-  transition: all .12s;
+  transition: all .15s;
 }
-.collapse-btn:hover { background: var(--surface-hover); color: var(--text-primary); }
+.collapse-btn:hover { background: var(--surface-hover); color: var(--text-primary); border-color: var(--border-medium); }
 .collapsed .collapse-btn svg { transform: scaleX(-1); }
 
-.brand-logo {
-  color: var(--accent-color);
-  flex-shrink: 0;
-}
-
 .brand-text-group {
-  display: flex; flex-direction: column; gap: 0;
-  overflow: hidden;
-  white-space: nowrap;
+  display: flex; flex-direction: column; gap: 1px;
+  overflow: hidden; white-space: nowrap; flex: 1;
 }
 
-.brand-text-group { display: flex; flex-direction: column; gap: 0; }
 .brand-text {
   font-size: 16px; font-weight: 680; color: var(--text-primary);
   letter-spacing: -.02em; line-height: 1.3;
