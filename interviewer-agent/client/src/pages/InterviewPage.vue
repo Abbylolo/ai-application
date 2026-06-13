@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user.js'
 import { useSettingsStore } from '@/stores/settings.js'
@@ -16,14 +16,31 @@ const interviewStore = useInterviewStore()
 const showSetup = ref(false)
 const selectedDifficulty = ref('mid')
 const errorMsg = ref('')
+const elapsed = ref(0)
+let timer = null
+
+// 面试计时
+const interviewTime = computed(() => {
+  const m = Math.floor(elapsed.value / 60)
+  const s = elapsed.value % 60
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+})
+
+function startTimer() {
+  timer = setInterval(() => { elapsed.value++ }, 1000)
+}
+function stopTimer() { clearInterval(timer) }
+onUnmounted(stopTimer)
 
 onMounted(async () => {
   // 如果是恢复面试
   if (route.params.id) {
     await interviewStore.loadInterview(route.params.id)
-    if (!interviewStore.interview) {
-      router.push('/')
-    }
+    if (!interviewStore.interview) { router.push('/'); return }
+    // 计算已过时间
+    const start = new Date(interviewStore.interview.startedAt).getTime()
+    elapsed.value = Math.floor((Date.now() - start) / 1000)
+    startTimer()
     return
   }
 
@@ -57,13 +74,14 @@ onMounted(async () => {
 async function startInterview() {
   showSetup.value = false
   errorMsg.value = ''
-
   try {
     await interviewStore.startInterview(userStore.currentProfile, {
       difficulty: selectedDifficulty.value,
       type: 'general',
       reviewMode: settingsStore.reviewMode
     })
+    elapsed.value = 0
+    startTimer()
   } catch (err) {
     errorMsg.value = '启动面试失败：' + err.message
     showSetup.value = true
@@ -98,7 +116,7 @@ async function handleSubmitAnswer(answer) {
 
 async function handleFinish() {
   if (!confirm('确定结束面试吗？结束后将生成评估报告。')) return
-
+  stopTimer()
   try {
     const result = await interviewStore.finishInterview(userStore.currentProfile)
     router.push(`/report/${interviewStore.interview.id}`)
@@ -163,6 +181,7 @@ const isWaitingAnswer = () => {
       <header class="interview-header">
         <div class="header-left">
           <span class="header-title">🤖 面试进行中</span>
+          <span class="header-timer">⏱ {{ interviewTime }}</span>
           <span class="tag" :class="{
             'tag-yellow': interviewStore.difficulty === 'big',
             'tag-green': interviewStore.difficulty === 'mid'
@@ -213,6 +232,7 @@ const isWaitingAnswer = () => {
 }
 .header-left { display: flex; align-items: center; gap: 10px; }
 .header-title { font-weight: 700; font-size: 15px; }
+.header-timer { font-size: 16px; font-weight: 700; color: var(--accent-color); font-variant-numeric: tabular-nums; }
 
 .difficulty-grid {
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
