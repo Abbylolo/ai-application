@@ -1,203 +1,91 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useUserStore } from '@/stores/user.js'
-import { useSettingsStore } from '@/stores/settings.js'
-import { useInterviewStore } from '@/stores/interview.js'
 import { parseJD, searchInterviewExperience } from '@/services/api.js'
 import * as data from '@/services/data.js'
 
 const router = useRouter()
-const userStore = useUserStore()
-const settingsStore = useSettingsStore()
-const interviewStore = useInterviewStore()
-
-const companyName = ref('')
+const company = ref('')
 const jdText = ref('')
 const jdParsed = ref(null)
-const isParsingJD = ref(false)
+const searching = ref(false)
+const parsing = ref(false)
 const searchResults = ref([])
-const isSearching = ref(false)
-const companyRecords = ref([])
+const records = ref([])
 
-onMounted(async () => {
-  companyRecords.value = await data.getCompanyQuestions()
-})
+onMounted(async () => { records.value = await data.getCompanyQuestions() })
 
-async function handleParseJD() {
-  if (!jdText.value.trim()) return
-  isParsingJD.value = true
-  try {
-    const result = await parseJD(jdText.value)
-    if (!result.error) {
-      jdParsed.value = result
-    }
-  } catch (err) {
-    console.error('JD解析失败:', err)
-  } finally {
-    isParsingJD.value = false
-  }
-}
-
-async function handleSearch() {
-  if (!companyName.value.trim()) return
-  isSearching.value = true
-  try {
-    const result = await searchInterviewExperience(companyName.value)
-    searchResults.value = result.results || []
-  } catch (err) {
-    console.error('搜索失败:', err)
-  } finally {
-    isSearching.value = false
-  }
-}
-
-async function startCompanyInterview() {
-  if (!companyName.value.trim()) {
-    alert('请输入公司名称')
-    return
-  }
-
-  const query = { company: companyName.value.trim() }
-  if (jdParsed.value) {
-    query.jdInfo = encodeURIComponent(JSON.stringify(jdParsed.value))
-  }
-
-  router.push({ path: '/interview', query })
-}
-
-// 保存公司面经
-async function saveCompanyRecord() {
-  if (!companyName.value.trim()) return
-  await data.saveCompanyQuestion({
-    companyName: companyName.value.trim(),
-    position: jdParsed.value?.position || '',
-    jdContent: jdText.value,
-    source: 'user_upload',
-    questions: [],
-    tags: jdParsed.value?.requiredSkills || []
-  })
-  alert('保存成功！')
-  companyRecords.value = await data.getCompanyQuestions()
-}
+async function handleParse() { if(!jdText.value.trim()) return; parsing.value = true; try { const r = await parseJD(jdText.value); if(!r.error) jdParsed.value = r } catch(e){} finally { parsing.value = false } }
+async function handleSearch() { if(!company.value.trim()) return; searching.value = true; try { const r = await searchInterviewExperience(company.value); searchResults.value = r.results || [] } catch(e){} finally { searching.value = false } }
+function start() { if(!company.value.trim()) return; const q = { company: company.value.trim() }; if(jdParsed.value) q.jdInfo = encodeURIComponent(JSON.stringify(jdParsed.value)); router.push({ path: '/interview', query: q }) }
+async function save() { if(!company.value.trim()) return; await data.saveCompanyQuestion({ companyName: company.value.trim(), position: jdParsed.value?.position || '', jdContent: jdText.value, source: 'user_upload', questions: [], tags: jdParsed.value?.requiredSkills || [] }); records.value = await data.getCompanyQuestions(); alert('已保存') }
 </script>
 
 <template>
   <div class="page">
-    <div class="page-title">🏢 公司特定面试</div>
-    <div class="page-subtitle">针对目标公司，上传岗位描述，精准模拟面试</div>
+    <h1 class="h1">🏢 公司面试</h1>
 
-    <!-- 公司选择 + JD上传 -->
-    <div class="card mb-4">
-      <div class="card-header">🔍 选择公司 & 上传岗位描述</div>
+    <div class="card">
+      <h3>🔍 目标公司</h3>
+      <div class="fld"><label>公司名称</label><input v-model="company" placeholder="字节跳动 / 阿里巴巴 / 腾讯..." /></div>
+      <div class="fld"><label>岗位描述 (JD) - 可选</label><textarea v-model="jdText" rows="4" placeholder="粘贴 JD 文本，AI 自动提取关键要求..."></textarea></div>
+      <div class="acts"><button class="btn-sm pri" :disabled="!jdText.trim()||parsing" @click="handleParse">{{ parsing?'解析中...':'🤖 解析JD' }}</button><button class="btn-sm" :disabled="!company.trim()||searching" @click="handleSearch">{{ searching?'搜索中...':'🔍 搜索面经' }}</button></div>
 
-      <div class="form-group">
-        <label class="form-label">公司名称 *</label>
-        <input v-model="companyName" class="form-input" placeholder="如：字节跳动、阿里巴巴、腾讯..." />
+      <div v-if="jdParsed" class="preview">
+        <div v-if="jdParsed.position"><strong>{{ jdParsed.position }}</strong> · {{ jdParsed.level }}</div>
+        <div class="tags" v-if="jdParsed.requiredSkills?.length"><span v-for="s in jdParsed.requiredSkills" :key="s" class="t">{{ s }}</span></div>
       </div>
 
-      <div class="form-group">
-        <label class="form-label">岗位描述（JD）- 可选</label>
-        <textarea
-          v-model="jdText"
-          class="form-textarea"
-          rows="6"
-          placeholder="粘贴岗位描述文本，AI 将自动提取关键要求..."
-        ></textarea>
+      <div v-if="searchResults.length" class="results">
+        <strong>搜索结果</strong>
+        <div v-for="(r,i) in searchResults" :key="i" class="sr">{{ r.snippet }}</div>
       </div>
 
-      <div class="flex gap-2">
-        <button
-          class="btn btn-primary btn-sm"
-          :disabled="!jdText.trim() || isParsingJD"
-          @click="handleParseJD"
-        >
-          {{ isParsingJD ? '解析中...' : '🤖 解析JD' }}
-        </button>
-        <button
-          class="btn btn-secondary btn-sm"
-          :disabled="!companyName.trim() || isSearching"
-          @click="handleSearch"
-        >
-          {{ isSearching ? '搜索中...' : '🔍 搜索面经' }}
-        </button>
-      </div>
-
-      <!-- JD 解析结果 -->
-      <div v-if="jdParsed" class="jd-preview mt-4">
-        <div class="card-header">📋 岗位要求预览</div>
-        <div v-if="jdParsed.position" class="mb-2"><strong>岗位：</strong>{{ jdParsed.position }} · {{ jdParsed.level }}</div>
-        <div v-if="jdParsed.requiredSkills?.length" class="mb-2">
-          <strong>必备技能：</strong>
-          <span v-for="skill in jdParsed.requiredSkills" :key="skill" class="tag tag-green">{{ skill }}</span>
-        </div>
-        <div v-if="jdParsed.niceToHave?.length" class="mb-2">
-          <strong>加分项：</strong>
-          <span v-for="item in jdParsed.niceToHave" :key="item" class="tag">{{ item }}</span>
-        </div>
-        <div v-if="jdParsed.responsibilities?.length" class="mb-2">
-          <strong>主要职责：</strong>
-          <ul>
-            <li v-for="r in jdParsed.responsibilities" :key="r">{{ r }}</li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- 搜索面经结果 -->
-      <div v-if="searchResults.length" class="mt-4">
-        <div class="card-header">🔍 搜索结果</div>
-        <div v-for="(item, idx) in searchResults" :key="idx" class="search-item">
-          <div class="text-secondary" style="font-size:12px">{{ item.url }}</div>
-          <div>{{ item.snippet }}</div>
-        </div>
-      </div>
-
-      <div class="mt-4 flex gap-2">
-        <button class="btn btn-primary btn-lg" @click="startCompanyInterview" :disabled="!companyName.trim()">
-          🚀 开始 {{ companyName || '公司' }} 面试
-        </button>
-        <button v-if="jdParsed" class="btn btn-secondary btn-lg" @click="saveCompanyRecord">
-          💾 保存记录
-        </button>
+      <div class="acts mt">
+        <button class="btn-lg pri" :disabled="!company.trim()" @click="start">🚀 开始 {{ company||'公司' }} 面试</button>
+        <button v-if="jdParsed" class="btn-lg" @click="save">💾 保存记录</button>
       </div>
     </div>
 
-    <!-- 历史公司记录 -->
-    <div v-if="companyRecords.length" class="card">
-      <div class="card-header">📁 已保存的公司记录</div>
-      <div class="company-list">
-        <div v-for="record in companyRecords" :key="record.id" class="company-item">
-          <div class="flex-1">
-            <div class="company-item-name">{{ record.companyName }}</div>
-            <div v-if="record.position" class="text-secondary" style="font-size:12px">
-              {{ record.position }}
-              <span v-if="record.tags?.length"> · {{ record.tags.join(', ') }}</span>
-            </div>
-          </div>
-          <span class="tag">{{ record.source === 'user_upload' ? '本人上传' : '网络检索' }}</span>
-        </div>
+    <div v-if="records.length" class="card">
+      <h3>📁 已保存公司</h3>
+      <div v-for="r in records" :key="r.id" class="row">
+        <div><strong>{{ r.companyName }}</strong><span class="sub"> · {{ r.position || '未指定岗位' }}</span></div>
+        <span class="t">{{ r.source === 'user_upload' ? '本人上传' : '搜索' }}</span>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.jd-preview {
-  background: var(--bg-hover); border-radius: var(--radius-md); padding: 16px;
-}
-.jd-preview ul { padding-left: 20px; }
+.page { max-width: 680px; margin: 0 auto; padding: 48px 32px; }
+.h1 { font-size: 24px; font-weight: 800; margin-bottom: 28px; }
+.card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 28px; margin-bottom: 20px; }
+.card h3 { font-size: 16px; font-weight: 700; margin: 0 0 18px; }
 
-.search-item {
-  padding: 8px 12px; border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm); margin-bottom: 8px;
-}
+.fld { margin-bottom: 14px; }
+.fld label { display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 5px; }
+.fld input, .fld textarea { width: 100%; padding: 9px 13px; border: 1.5px solid var(--border-color); border-radius: 10px; font-size: 14px; font-family: inherit; background: var(--bg-primary); color: var(--text-primary); resize: vertical; }
+.fld input:focus, .fld textarea:focus { border-color: var(--accent-color); box-shadow: 0 0 0 3px rgba(79,70,229,.08); outline: none; }
 
-.company-list { display: flex; flex-direction: column; gap: 8px; }
-.company-item {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 12px 16px; border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-}
-.company-item:hover { background: var(--bg-hover); }
-.company-item-name { font-weight: 600; }
+.acts { display: flex; gap: 8px; flex-wrap: wrap; }
+.mt { margin-top: 16px; }
+.preview { margin-top: 16px; padding: 16px; background: var(--bg-hover); border-radius: 12px; font-size: 14px; }
+.preview .tags { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
+.results { margin-top: 16px; }
+.sr { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 13px; margin-top: 6px; color: var(--text-secondary); }
+
+.row { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border: 1px solid var(--border-color); border-radius: 10px; margin-top: 8px; font-size: 14px; }
+.sub { color: var(--text-muted); font-size: 12px; }
+
+.t { font-size: 12px; padding: 2px 8px; border-radius: 9999px; background: var(--bg-hover); color: var(--text-secondary); font-weight: 500; }
+
+.btn-sm { padding: 6px 14px; border: 1.5px solid var(--border-color); border-radius: 9px; background: none; font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit; }
+.btn-sm:hover { background: var(--bg-hover); }
+.btn-sm:disabled { opacity: .4; cursor: not-allowed; }
+.btn-sm.pri { background: var(--accent-color); border-color: var(--accent-color); color: #fff; }
+.btn-lg { padding: 10px 22px; border: 1.5px solid var(--border-color); border-radius: 12px; background: none; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
+.btn-lg:hover { background: var(--bg-hover); }
+.btn-lg:disabled { opacity: .4; }
+.btn-lg.pri { background: var(--accent-color); border-color: var(--accent-color); color: #fff; }
 </style>

@@ -5,104 +5,74 @@ import * as data from '@/services/data.js'
 
 const router = useRouter()
 const interviews = ref([])
-const isLoading = ref(true)
+const loading = ref(true)
 
-onMounted(async () => {
-  interviews.value = await data.getInterviews()
-  isLoading.value = false
-})
+onMounted(async () => { interviews.value = await data.getInterviews(); loading.value = false })
 
-function viewReport(item) {
-  router.push(`/report/${item.id}`)
-}
+const dl = { small:'小厂', mid:'中厂', big:'大厂' }
 
-function continueInterview(item) {
-  router.push(`/interview/${item.id}`)
-}
-
-async function deleteInterview(item) {
-  if (!confirm('确定删除这条面试记录？')) return
+async function del(item) {
+  if(!confirm('删除？')) return
   await data.deleteInterview(item.id)
   interviews.value = interviews.value.filter(i => i.id !== item.id)
 }
 
-function formatDate(date) {
-  if (!date) return '-'
-  return new Date(date).toLocaleString('zh-CN')
-}
-
-const difficultyLabels = { small: '小厂', mid: '中厂', big: '大厂' }
-const typeLabels = { general: '通用面试', company_specific: '公司面试' }
-
-function getTypeLabel(item) {
-  let label = typeLabels[item.type] || item.type
-  if (item.companyName) label += ` · ${item.companyName}`
-  return label
+async function exp() {
+  const all = await data.getInterviews()
+  const blob = new Blob([JSON.stringify(all, null, 2)], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a'); a.href = url; a.download = `JobPrep_backup_${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(url)
 }
 </script>
 
 <template>
   <div class="page">
-    <div class="page-title">
-      <span>📋 面试历史</span>
-      <div style="margin-left:auto;display:flex;gap:8px">
-        <button class="btn btn-secondary btn-sm" @click="exportData">📥 导出数据</button>
-        <button class="btn btn-secondary btn-sm" @click="triggerImport">📤 导入数据</button>
-      </div>
+    <div class="bar">
+      <h1 class="h1">📋 面试历史</h1>
+      <button class="btn-sm" @click="exp">📥 导出</button>
     </div>
 
-    <div v-if="isLoading" class="loading-spinner">加载中...</div>
+    <div v-if="loading" class="empty">加载中...</div>
+    <div v-else-if="!interviews.length" class="empty">还没有面试记录</div>
 
-    <div v-else-if="!interviews.length" class="empty-state">
-      <div class="empty-state-icon">📋</div>
-      <div class="empty-state-text">还没有面试记录</div>
-      <button class="btn btn-primary" @click="router.push('/')">开始第一次面试</button>
-    </div>
-
-    <div v-else class="history-list">
-      <div v-for="item in interviews" :key="item.id" class="history-item card">
-        <div class="flex justify-between items-start">
-          <div class="flex-1">
-            <div class="flex items-center gap-2 mb-2">
-              <span class="tag" :class="{
-                'tag-yellow': item.difficulty === 'big',
-                'tag-green': item.difficulty === 'mid'
-              }">{{ difficultyLabels[item.difficulty] || item.difficulty }}</span>
-              <span class="tag">{{ getTypeLabel(item) }}</span>
-              <span :class="item.status === 'completed' ? 'tag tag-green' : 'tag tag-yellow'">
-                {{ item.status === 'completed' ? '✅ 已完成' : '🔄 进行中' }}
-              </span>
-            </div>
-            <div class="text-secondary" style="font-size:12px">
-              {{ formatDate(item.startedAt) }}
-              <template v-if="item.completedAt">
-                → {{ formatDate(item.completedAt) }}
-              </template>
-            </div>
-            <div class="flex gap-3 mt-2 text-secondary" style="font-size:13px">
-              <span v-if="item.totalQuestions">📝 {{ item.totalQuestions }}题</span>
-              <span v-if="item.averageScore">⭐ {{ item.averageScore }}/5</span>
-            </div>
+    <div v-else class="list">
+      <div v-for="item in interviews" :key="item.id" class="row">
+        <div class="row-main" @click="router.push(item.status==='completed'?`/report/${item.id}`:`/interview/${item.id}`)">
+          <div class="row-head">
+            <span :class="item.difficulty==='big'?'t t-y':item.difficulty==='mid'?'t t-g':'t'">{{ dl[item.difficulty] || item.difficulty }}</span>
+            <span class="t">{{ item.companyName || '通用面试' }}</span>
+            <span :class="item.status==='completed'?'t t-g':'t t-o'">{{ item.status==='completed'?'已完成':'进行中' }}</span>
+            <span v-if="item.averageScore" class="t t-b">{{ item.averageScore }}/5</span>
           </div>
-          <div class="flex gap-2">
-            <button
-              v-if="item.status === 'completed'"
-              class="btn btn-sm btn-primary"
-              @click="viewReport(item)"
-            >查看报告</button>
-            <button
-              v-if="item.status === 'in_progress'"
-              class="btn btn-sm btn-primary"
-              @click="continueInterview(item)"
-            >继续面试</button>
-            <button class="btn btn-sm btn-ghost" @click="deleteInterview(item)">🗑</button>
-          </div>
+          <div class="row-sub">{{ new Date(item.startedAt).toLocaleString('zh-CN') }}</div>
         </div>
+        <button class="btn-sm btn-d" @click.stop="del(item)">删除</button>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.history-list { display: flex; flex-direction: column; gap: 12px; }
+.page { max-width: 720px; margin: 0 auto; padding: 48px 32px; }
+.bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
+.h1 { font-size: 24px; font-weight: 800; }
+.empty { text-align: center; color: var(--text-muted); padding: 56px 0; font-size: 14px; }
+
+.list { display: flex; flex-direction: column; gap: 8px; }
+.row { display: flex; align-items: center; gap: 12px; padding: 14px 18px; border: 1px solid var(--border-color); border-radius: 12px; transition: border-color .15s; }
+.row:hover { border-color: var(--accent-color); }
+.row-main { flex: 1; cursor: pointer; }
+.row-head { display: flex; gap: 8px; align-items: center; margin-bottom: 4px; flex-wrap: wrap; }
+.row-sub { font-size: 12px; color: var(--text-muted); }
+
+.t { font-size: 12px; padding: 2px 8px; border-radius: 9999px; background: var(--bg-hover); color: var(--text-secondary); font-weight: 500; }
+.t-y { background: #fffbeb; color: #92400e; }
+.t-g { background: #ecfdf5; color: #065f46; }
+.t-o { background: #fff7ed; color: #9a3412; }
+.t-b { background: var(--accent-bg); color: var(--accent-color); font-weight: 700; }
+
+.btn-sm { padding: 6px 14px; border: 1.5px solid var(--border-color); border-radius: 9px; background: none; font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit; color: var(--text-primary); }
+.btn-sm:hover { background: var(--bg-hover); }
+.btn-d { color: var(--danger); border-color: var(--danger); }
+.btn-d:hover { background: #fef2f2; }
 </style>
