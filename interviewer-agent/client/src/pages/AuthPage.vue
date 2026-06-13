@@ -308,9 +308,8 @@ async function submit() {
 .panel {
   flex: 1;
   display: flex;
-  align-items: center;
   justify-content: center;
-  padding: 48px;
+  padding: 64px 48px 48px;
 }
 
 .form-block {
