@@ -221,8 +221,11 @@ async function submit() {
 
 .brand-inner {
   position: relative; z-index: 1;
-  padding: 72px 72px 80px;
-  max-width: 640px;
+  padding: 64px 72px;
+  max-width: 660px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 /* 入场动效 */
@@ -238,7 +241,7 @@ async function submit() {
 }
 
 .top {
-  display: flex; align-items: center; gap: 12px; margin-bottom: 48px;
+  display: flex; align-items: center; gap: 12px; margin-bottom: 56px;
 }
 .logo {
   width: 48px; height: 48px;
@@ -254,19 +257,20 @@ async function submit() {
   font-size: 19px; font-weight: 700; color: #fff; letter-spacing: -.01em;
 }
 
-.mid { margin-bottom: 52px; }
+.mid { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; }
 .mid h1 {
-  font-size: 44px; font-weight: 850; line-height: 1.18;
-  letter-spacing: -.04em; color: #fff; margin: 0 0 20px;
+  font-size: 52px; font-weight: 850; line-height: 1.14;
+  letter-spacing: -.04em; color: #fff; margin: 0 0 24px;
 }
 .mid p {
-  font-size: 16px; line-height: 1.7; color: rgba(255,255,255,.72);
-  max-width: 480px; margin: 0;
+  font-size: 17px; line-height: 1.7; color: rgba(255,255,255,.72);
+  max-width: 520px; margin: 0;
 }
 
 .feat {
-  list-style: none; padding: 0; margin: 0;
-  display: flex; flex-direction: column; gap: 24px;
+  list-style: none; padding: 0; margin: auto 0 0;
+  display: flex; flex-direction: column; gap: 22px;
+  padding-top: 40px;
 }
 .feat li {
   display: flex; gap: 16px; align-items: flex-start;
