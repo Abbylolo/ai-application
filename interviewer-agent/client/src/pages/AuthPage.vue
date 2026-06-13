@@ -60,12 +60,15 @@ async function submit() {
         <!-- Logo -->
         <div class="top" style="--d:0ms">
           <div class="logo">
-            <svg viewBox="0 0 24 24" fill="none" width="22" height="22">
+            <svg viewBox="0 0 24 24" fill="none" width="28" height="28">
               <path d="M12 2L3 7v10l9 5 9-5V7l-9-5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
               <path d="M12 12l9-5M12 12v10M12 12L3 7" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
             </svg>
           </div>
-          <span class="logo-name">JobPrep</span>
+          <div class="logo-text">
+            <span class="logo-name">JobPrep</span>
+            <span class="logo-tagline">AI 模拟面试平台</span>
+          </div>
         </div>
 
         <!-- 主标题 -->
@@ -249,20 +252,29 @@ async function submit() {
 }
 
 .top {
-  display: flex; align-items: center; gap: 12px;
+  display: flex; align-items: center; gap: 16px;
 }
 .logo {
-  width: 48px; height: 48px;
-  border-radius: 14px;
+  width: 56px; height: 56px;
+  border-radius: 16px;
   background: rgba(255,255,255,.15);
   border: 1px solid rgba(255,255,255,.2);
   backdrop-filter: blur(6px);
   display: flex; align-items: center; justify-content: center;
   color: #fff;
+  flex-shrink: 0;
 }
-.logo svg { width: 26px; height: 26px; }
+.logo svg { width: 28px; height: 28px; }
+.logo-text {
+  display: flex; flex-direction: column;
+}
 .logo-name {
-  font-size: 24px; font-weight: 800; color: #fff; letter-spacing: -.02em;
+  font-size: 36px; font-weight: 900; color: #fff; letter-spacing: -.03em;
+  line-height: 1.1;
+}
+.logo-tagline {
+  font-size: 14px; font-weight: 500; color: rgba(255,255,255,.55);
+  letter-spacing: .02em;
 }
 
 /* slogan 在 logo 下方适当留白 */

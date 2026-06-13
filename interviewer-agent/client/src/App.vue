@@ -36,7 +36,10 @@ async function handleLogout() {
     <aside class="sidebar">
       <div class="sidebar-brand">
         <span class="brand-icon">🤖</span>
-        <span class="brand-text">JobPrep</span>
+        <div class="brand-text-group">
+          <span class="brand-text">JobPrep</span>
+          <span class="brand-sub">AI 模拟面试</span>
+        </div>
       </div>
       <nav class="sidebar-nav">
         <router-link to="/" class="nav-item" active-class="nav-item--active">
@@ -107,8 +110,10 @@ async function handleLogout() {
   border-bottom: 1px solid var(--border-color);
 }
 
-.brand-icon { font-size: 28px; }
-.brand-text { font-size: 18px; font-weight: 800; color: var(--text-primary); letter-spacing: -.02em; }
+.brand-icon { font-size: 32px; }
+.brand-text-group { display: flex; flex-direction: column; gap: 1px; }
+.brand-text { font-size: 19px; font-weight: 800; color: var(--text-primary); letter-spacing: -.02em; line-height: 1.2; }
+.brand-sub { font-size: 11px; color: var(--text-muted); letter-spacing: .02em; }
 
 .sidebar-nav {
   padding: 12px 8px;
