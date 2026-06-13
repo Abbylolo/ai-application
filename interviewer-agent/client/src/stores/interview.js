@@ -111,7 +111,14 @@ export const useInterviewStore = defineStore('interview', () => {
 
       const firstQA = {
         interviewId: interview.value.id, sequenceNumber: 1, type: 'question',
-        question: parsed.question || { text: parsed.content || result.content, category: 'general', difficulty: 1, tags: [], referenceAnswer: '' },
+        question: {
+          text: parsed.content || '',
+          ...(parsed.question || {}),
+          category: parsed.question?.category || 'general',
+          difficulty: parsed.question?.difficulty || 1,
+          tags: parsed.question?.tags || [],
+          referenceAnswer: parsed.question?.referenceAnswer || ''
+        },
         userAnswer: '', evaluation: null, isFlagged: false
       }
       const savedQA = await data.saveQA(firstQA)
@@ -154,7 +161,14 @@ export const useInterviewStore = defineStore('interview', () => {
       const nextQA = {
         interviewId: interview.value.id, sequenceNumber: qaList.value.length + 1,
         type: parsed.evaluation?.followUpNeeded ? 'followup' : 'question',
-        question: parsed.question || { text: parsed.content, category: 'general', difficulty: 1, tags: [], referenceAnswer: '' },
+        question: {
+          text: parsed.content || '',
+          ...(parsed.question || {}),
+          category: parsed.question?.category || 'general',
+          difficulty: parsed.question?.difficulty || 1,
+          tags: parsed.question?.tags || [],
+          referenceAnswer: parsed.question?.referenceAnswer || ''
+        },
         userAnswer: '', evaluation: null, isFlagged: false
       }
       const savedQA = await data.saveQA(nextQA)

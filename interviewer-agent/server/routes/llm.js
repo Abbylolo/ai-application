@@ -22,6 +22,7 @@ llmRouter.post('/chat', async (req, res) => {
     const apiKey = req.headers['x-api-key']
     const apiEndpoint = req.headers['x-api-endpoint']
     const model = req.headers['x-model'] || 'claude-sonnet-4-6'
+    console.log('💬 LLM chat 请求:', { providerType, model, msgLen: req.body?.messages?.length, systemLen: req.body?.system?.length })
 
     if (!apiKey) {
       return res.status(400).json({ error: '缺少 API Key (x-api-key 请求头)' })
