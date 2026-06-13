@@ -74,9 +74,9 @@ async function submit() {
           <p>AI 模拟面试平台。基于你的真实背景与目标岗位，动态生成考题、智能追问、即时打分，让每次练习都逼近真实面试。</p>
         </div>
 
-        <!-- 亮点列表 -->
-        <ul class="feat" style="--d:240ms">
-          <li>
+        <!-- 亮点列表 - 逐个出现 -->
+        <ul class="feat">
+          <li style="--d:240ms">
             <i class="fi fi-a">
               <svg viewBox="0 0 20 20" fill="none" width="18" height="18">
                 <circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/>
@@ -85,7 +85,7 @@ async function submit() {
             </i>
             <div><strong>真实模拟</strong><span>大厂 / 中厂 / 小厂三档强度，智能追问层层深入</span></div>
           </li>
-          <li>
+          <li style="--d:380ms">
             <i class="fi fi-b">
               <svg viewBox="0 0 20 20" fill="none" width="18" height="18">
                 <path d="M11 2L4 11h5l-1 7 7-9h-5l1-7z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
@@ -93,7 +93,7 @@ async function submit() {
             </i>
             <div><strong>即时反馈</strong><span>每题评分 + 标准答案对比，面试后一键导出报告</span></div>
           </li>
-          <li>
+          <li style="--d:520ms">
             <i class="fi fi-c">
               <svg viewBox="0 0 20 20" fill="none" width="18" height="18">
                 <path d="M3 17h14M5 17V8l5-4 5 4v9M8 17v-4h4v4" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
@@ -107,13 +107,13 @@ async function submit() {
     </section>
 
     <section class="panel">
-      <div class="form-block" :class="{ in: show }">
-        <header class="head" style="--d:180ms">
+      <div class="form-block">
+        <header class="head">
           <h2>{{ mode === 'login' ? '欢迎回来' : '创建账号' }}</h2>
           <p>{{ mode === 'login' ? '登录以继续面试训练' : '注册后即可免费使用' }}</p>
         </header>
 
-        <div class="seg" style="--d:260ms">
+        <div class="seg">
           <button :class="{ on: mode === 'login' }" @click="switchMode('login')">登录</button>
           <button :class="{ on: mode === 'register' }" @click="switchMode('register')">注册</button>
           <span class="seg-bar" :class="{ r: mode === 'register' }"></span>
@@ -126,7 +126,7 @@ async function submit() {
           <div v-if="ok" class="msg msg-s">{{ ok }}</div>
         </Transition>
 
-        <form @submit.prevent="submit" style="--d:320ms">
+        <form @submit.prevent="submit">
           <div class="fld">
             <label>邮箱地址</label>
             <span class="inp">
@@ -161,7 +161,7 @@ async function submit() {
           </button>
         </form>
 
-        <p class="sw" style="--d:400ms">
+        <p class="sw">
           {{ mode === 'login' ? '还没有账号？' : '已有账号？' }}
           <a href="#" @click.prevent="switchMode(mode === 'login' ? 'register' : 'login')">{{ mode === 'login' ? '免费注册' : '立即登录' }}</a>
         </p>
@@ -237,15 +237,15 @@ async function submit() {
   min-height: 100vh;
 }
 
-/* 入场动效 */
-.top, .mid, .feat {
+/* 入场动效 - 左侧品牌区逐个出现 */
+.top, .mid, .feat li {
   opacity: 0; transform: translateY(20px);
-  transition: opacity .7s ease, transform .7s ease;
+  transition: opacity .6s ease, transform .6s ease;
   transition-delay: var(--d, 0ms);
 }
 .brand-inner.in .top,
 .brand-inner.in .mid,
-.brand-inner.in .feat {
+.brand-inner.in .feat li {
   opacity: 1; transform: translateY(0);
 }
 
@@ -320,18 +320,6 @@ async function submit() {
   border-radius: 20px;
   padding: 44px 40px;
   box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 16px 48px rgba(0,0,0,.12);
-}
-
-.head, .seg, form, .sw {
-  opacity: 0; transform: translateY(16px);
-  transition: opacity .6s ease, transform .6s ease;
-  transition-delay: var(--d, 0ms);
-}
-.form-block.in .head,
-.form-block.in .seg,
-.form-block.in form,
-.form-block.in .sw {
-  opacity: 1; transform: translateY(0);
 }
 
 .head { margin-bottom: 26px; }
