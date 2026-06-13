@@ -55,9 +55,9 @@ const stats = computed(() => {
 </template>
 
 <style scoped>
-.page { max-width: 960px; margin: 0 auto; padding: 56px 40px; }
+.page { max-width: 1080px; margin: 0 auto; padding: 56px 40px; }
 .bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
-.h1 { font-size: 24px; font-weight: 800; }
+.h1 { font-size: 28px; font-weight: 800; }
 .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 28px; margin-bottom: 20px; }
 .card h3 { font-size: 16px; font-weight: 700; margin: 0 0 20px; }
 

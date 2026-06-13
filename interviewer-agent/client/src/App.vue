@@ -94,7 +94,7 @@ async function handleLogout() {
 }
 
 .sidebar {
-  width: 200px;
+  width: 240px;
   background: var(--bg-sidebar);
   border-right: 1px solid var(--border-color);
   display: flex;
@@ -103,7 +103,7 @@ async function handleLogout() {
 }
 
 .sidebar-brand {
-  padding: 20px 16px;
+  padding: 24px 20px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -125,12 +125,12 @@ async function handleLogout() {
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 8px;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 10px;
   color: var(--text-secondary);
   text-decoration: none;
-  font-size: 14px;
+  font-size: 15px;
   transition: all 0.15s;
 }
 

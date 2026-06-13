@@ -58,8 +58,8 @@ async function handleDelete(id) { if(confirm('删除？')) await settingsStore.d
 </template>
 
 <style scoped>
-.page { max-width: 960px; margin: 0 auto; padding: 56px 40px; }
-.h1 { font-size: 24px; font-weight: 800; margin-bottom: 28px; }
+.page { max-width: 1080px; margin: 0 auto; padding: 56px 40px; }
+.h1 { font-size: 28px; font-weight: 800; margin-bottom: 28px; }
 .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 28px; margin-bottom: 0; }
 .card-hd { display: flex; justify-content: space-between; align-items: center; font-size: 15px; font-weight: 700; margin-bottom: 20px; }
 .mt { margin-top: 20px; }

@@ -59,8 +59,8 @@ const avg = computed(() => { const s=interviews.value.filter(i=>i.averageScore).
 </template>
 
 <style scoped>
-.page { max-width: 960px; margin: 0 auto; padding: 56px 40px; }
-.h1 { font-size: 24px; font-weight: 800; margin-bottom: 28px; }
+.page { max-width: 1080px; margin: 0 auto; padding: 56px 40px; }
+.h1 { font-size: 28px; font-weight: 800; margin-bottom: 28px; }
 .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 28px; margin-bottom: 20px; }
 .card h3 { font-size: 16px; font-weight: 700; margin: 0 0 16px; }
 .chart { width: 100%; height: 260px; }

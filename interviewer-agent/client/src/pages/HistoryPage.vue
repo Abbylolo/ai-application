@@ -53,9 +53,9 @@ async function exp() {
 </template>
 
 <style scoped>
-.page { max-width: 960px; margin: 0 auto; padding: 56px 40px; }
+.page { max-width: 1080px; margin: 0 auto; padding: 56px 40px; }
 .bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
-.h1 { font-size: 24px; font-weight: 800; }
+.h1 { font-size: 28px; font-weight: 800; }
 .empty { text-align: center; color: var(--text-muted); padding: 56px 0; font-size: 14px; }
 
 .list { display: flex; flex-direction: column; gap: 8px; }
