@@ -177,7 +177,8 @@ async function submit() {
 .auth {
   display: flex;
   width: 100%;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', sans-serif;
   background: linear-gradient(155deg, #4338ca 0%, #4f46e5 45%, #6366f1 100%);
   position: relative;
