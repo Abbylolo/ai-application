@@ -1,9 +1,10 @@
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { signIn, signUp } from '@/services/auth.js'
 
 const router = useRouter()
+const route = useRoute()
 const email = ref('')
 const password = ref('')
 const mode = ref('login')
@@ -12,8 +13,16 @@ const err = ref('')
 const ok = ref('')
 const show = ref(false)
 
-onMounted(() => {
-  requestAnimationFrame(() => show.value = true)
+function triggerAnim() {
+  show.value = false
+  requestAnimationFrame(() => requestAnimationFrame(() => show.value = true))
+}
+
+onMounted(triggerAnim)
+
+// 每次路由切到这个页面重新播动画
+watch(() => route.path, (to) => {
+  if (to === '/auth') triggerAnim()
 })
 
 function switchMode(m) { mode.value = m; err.value = ''; ok.value = '' }
