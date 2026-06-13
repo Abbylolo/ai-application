@@ -222,8 +222,8 @@ async function submit() {
 
 .brand-inner {
   position: relative; z-index: 1;
-  padding: 64px;
-  max-width: 600px;
+  padding: 80px 72px;
+  max-width: 640px;
 }
 
 /* 入场动效 */
@@ -239,41 +239,42 @@ async function submit() {
 }
 
 .top {
-  display: flex; align-items: center; gap: 10px; margin-bottom: 40px;
+  display: flex; align-items: center; gap: 12px; margin-bottom: 48px;
 }
 .logo {
-  width: 40px; height: 40px;
-  border-radius: 11px;
+  width: 48px; height: 48px;
+  border-radius: 14px;
   background: rgba(255,255,255,.15);
   border: 1px solid rgba(255,255,255,.2);
   backdrop-filter: blur(6px);
   display: flex; align-items: center; justify-content: center;
   color: #fff;
 }
+.logo svg { width: 26px; height: 26px; }
 .logo-name {
-  font-size: 17px; font-weight: 700; color: #fff; letter-spacing: -.01em;
+  font-size: 19px; font-weight: 700; color: #fff; letter-spacing: -.01em;
 }
 
-.mid { margin-bottom: 44px; }
+.mid { margin-bottom: 52px; }
 .mid h1 {
-  font-size: 40px; font-weight: 850; line-height: 1.2;
-  letter-spacing: -.04em; color: #fff; margin: 0 0 18px;
+  font-size: 44px; font-weight: 850; line-height: 1.18;
+  letter-spacing: -.04em; color: #fff; margin: 0 0 20px;
 }
 .mid p {
-  font-size: 15px; line-height: 1.7; color: rgba(255,255,255,.72);
-  max-width: 440px; margin: 0;
+  font-size: 16px; line-height: 1.7; color: rgba(255,255,255,.72);
+  max-width: 480px; margin: 0;
 }
 
 .feat {
-  list-style: none; padding: 0; margin: 0 0 44px;
-  display: flex; flex-direction: column; gap: 20px;
+  list-style: none; padding: 0; margin: 0;
+  display: flex; flex-direction: column; gap: 24px;
 }
 .feat li {
-  display: flex; gap: 14px; align-items: flex-start;
+  display: flex; gap: 16px; align-items: flex-start;
 }
 .fi {
-  width: 36px; height: 36px;
-  border-radius: 10px; flex-shrink: 0;
+  width: 40px; height: 40px;
+  border-radius: 11px; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
   color: #fff; transition: transform .2s;
 }
@@ -283,10 +284,10 @@ async function submit() {
 .feat li:hover .fi { transform: scale(1.1); }
 
 .feat strong {
-  display: block; font-size: 15px; font-weight: 650; color: #fff; margin-bottom: 3px;
+  display: block; font-size: 16px; font-weight: 650; color: #fff; margin-bottom: 4px;
 }
 .feat span {
-  font-size: 13px; line-height: 1.5; color: rgba(255,255,255,.6);
+  font-size: 14px; line-height: 1.5; color: rgba(255,255,255,.6);
 }
 
 /* ==================== 右侧面板 ==================== */
@@ -295,11 +296,16 @@ async function submit() {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 48px;
+  padding: 64px 56px;
 }
 
 .form-block {
-  width: 100%; max-width: 420px;
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 100%;
 }
 
 .head, .seg, form, .sw {
@@ -355,7 +361,7 @@ async function submit() {
 .msg-enter-from, .msg-leave-to { opacity: 0; transform: translateY(-6px); }
 
 /* 表单 */
-form { display: flex; flex-direction: column; gap: 20px; }
+form { display: flex; flex-direction: column; gap: 20px; flex: 1; justify-content: center; }
 
 .fld label {
   display: block; font-size: 14px; font-weight: 600;
