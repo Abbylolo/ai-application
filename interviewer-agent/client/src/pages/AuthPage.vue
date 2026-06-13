@@ -231,11 +231,12 @@ async function submit() {
 
 .brand-inner {
   position: relative; z-index: 1;
-  padding: 72px 72px 222px 96px;
+  padding: 80px 72px 80px 96px;
   max-width: 700px;
   width: 100%;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   min-height: 100vh;
 }
 
@@ -277,8 +278,8 @@ async function submit() {
   letter-spacing: .02em;
 }
 
-/* slogan 在 logo 下方适当留白 */
-.mid { margin-top: 72px; }
+/* slogan */
+.mid { margin-top: 64px; }
 .mid h1 {
   font-size: 60px; font-weight: 900; line-height: 1.1;
   letter-spacing: -.04em; color: #fff; margin: 0 0 28px;
@@ -288,11 +289,10 @@ async function submit() {
   max-width: 560px; margin: 0;
 }
 
-/* 功能列表推到底部 */
+/* 功能列表 */
 .feat {
   list-style: none; padding: 0; margin: auto 0 0;
   display: flex; flex-direction: column; gap: 22px;
-  padding-bottom: 4px;
 }
 .feat li {
   display: flex; gap: 16px; align-items: flex-start;
@@ -321,7 +321,7 @@ async function submit() {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 48px;
+  padding: 80px 48px;
 }
 
 .form-block {
