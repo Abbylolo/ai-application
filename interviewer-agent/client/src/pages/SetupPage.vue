@@ -156,7 +156,11 @@ async function handleParseResume() {
     if (result.strengths?.length) form.value.strengths = ensureString(result.strengths)
     if (result.weaknesses?.length) form.value.weaknesses = ensureString(result.weaknesses)
   } catch (err) {
-    parseError.value = '解析失败：' + err.message
+    if (err.name === 'AbortError') {
+      parseError.value = '解析请求超时（2分钟）。可能原因：模型响应慢或网络问题，请检查模型配置后重试'
+    } else {
+      parseError.value = '解析失败：' + (err.message || '未知错误')
+    }
   } finally {
     isParsing.value = false
   }

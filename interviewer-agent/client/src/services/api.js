@@ -27,10 +27,21 @@ function getHeaders() {
 const BASE = '/api'
 
 /**
- * LLM 聊天
+ * LLM 聊天（带超时）
  */
+async function fetchWithTimeout(url, options, timeout = 120000) {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), timeout)
+  try {
+    const res = await fetch(url, { ...options, signal: controller.signal })
+    return res
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
 export async function chatLLM({ system, messages, temperature = 0.3, max_tokens = 4096 }) {
-  const res = await fetch(`${BASE}/llm/chat`, {
+  const res = await fetchWithTimeout(`${BASE}/llm/chat`, {
     method: 'POST',
     headers: getHeaders(),
     body: JSON.stringify({ system, messages, temperature, max_tokens })
@@ -60,11 +71,11 @@ export async function testConnection(config) {
  * 解析简历
  */
 export async function parseResume(resumeText) {
-  const res = await fetch(`${BASE}/resume/parse`, {
+  const res = await fetchWithTimeout(`${BASE}/resume/parse`, {
     method: 'POST',
     headers: getHeaders(),
     body: JSON.stringify({ resumeText })
-  })
+  }, 120000)
   return res.json()
 }
 

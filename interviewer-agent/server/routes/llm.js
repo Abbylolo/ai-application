@@ -56,7 +56,7 @@ llmRouter.post('/chat', async (req, res) => {
  * 调用 Anthropic Messages API
  */
 export async function callAnthropic(apiKey, model, system, messages, temperature, max_tokens) {
-  const anthropic = new Anthropic({ apiKey })
+  const anthropic = new Anthropic({ apiKey, timeout: 60000 })
 
   // 转换消息格式: OpenAI 格式 -> Anthropic 格式
   const systemMessages = []
@@ -95,6 +95,8 @@ export async function callOpenAICompatible(apiKey, apiEndpoint, model, system, m
   const openai = new OpenAI({
     apiKey,
     baseURL: baseURL.endsWith('/v1') ? baseURL : `${baseURL}/v1`,
+    timeout: 60000,
+    maxRetries: 1
   })
 
   const formattedMessages = []
