@@ -20,7 +20,10 @@ resumeRouter.post('/parse', async (req, res) => {
     const apiEndpoint = req.headers['x-api-endpoint'] || ''
     const model = req.headers['x-model'] || 'claude-sonnet-4-6'
 
+    console.log('📄 简历解析请求:', { providerType, model, apiKey: apiKey ? '***已设置***' : '❌未设置', textLength: resumeText.length })
+
     if (!apiKey) {
+      console.log('❌ 缺少 API Key')
       return res.status(400).json({ error: '缺少 API Key，请先在设置中配置模型' })
     }
 
@@ -44,6 +47,7 @@ resumeRouter.post('/parse', async (req, res) => {
       { role: 'user', content: `请解析以下简历：\n\n${resumeText}` }
     ]
 
+    console.log('🔄 调用 LLM 解析简历...')
     const content = await callLLM({
       providerType, apiKey, apiEndpoint, model,
       system: systemPrompt,
@@ -51,6 +55,7 @@ resumeRouter.post('/parse', async (req, res) => {
       temperature: 0.1,
       max_tokens: 4096
     })
+    console.log('✅ LLM 返回内容长度:', content?.length)
 
     // 尝试解析 JSON（剥离可能的 markdown 代码块）
     let cleaned = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()

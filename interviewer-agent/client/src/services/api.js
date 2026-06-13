@@ -1,20 +1,23 @@
 /**
  * 后端 API 调用封装
  */
+import db from '@/db/database.js'
 
-// 从 localStorage 获取当前模型配置
-function getModelConfig() {
+// 从 IndexedDB 直接获取当前模型配置（避免 localStorage 同步问题）
+async function getModelConfig() {
   try {
     const configId = localStorage.getItem('currentModelConfigId')
-    const configs = JSON.parse(localStorage.getItem('modelConfigs') || '[]')
-    return configs.find(c => c.id === configId) || configs[0] || {}
+    const allConfigs = await db.modelConfigs.toArray()
+    // 同步到 localStorage 确保一致
+    localStorage.setItem('modelConfigs', JSON.stringify(allConfigs))
+    return allConfigs.find(c => c.id === configId) || allConfigs[0] || {}
   } catch {
     return {}
   }
 }
 
-function getHeaders() {
-  const config = getModelConfig()
+async function getHeaders() {
+  const config = await getModelConfig()
   return {
     'Content-Type': 'application/json',
     'x-provider-type': config.providerType || 'anthropic',
@@ -41,9 +44,10 @@ async function fetchWithTimeout(url, options, timeout = 120000) {
 }
 
 export async function chatLLM({ system, messages, temperature = 0.3, max_tokens = 4096 }) {
+  const headers = await getHeaders()
   const res = await fetchWithTimeout(`${BASE}/llm/chat`, {
     method: 'POST',
-    headers: getHeaders(),
+    headers,
     body: JSON.stringify({ system, messages, temperature, max_tokens })
   })
   return res.json()
@@ -71,9 +75,10 @@ export async function testConnection(config) {
  * 解析简历
  */
 export async function parseResume(resumeText) {
+  const headers = await getHeaders()
   const res = await fetchWithTimeout(`${BASE}/resume/parse`, {
     method: 'POST',
-    headers: getHeaders(),
+    headers,
     body: JSON.stringify({ resumeText })
   }, 120000)
   return res.json()
@@ -83,11 +88,12 @@ export async function parseResume(resumeText) {
  * 解析岗位描述
  */
 export async function parseJD(jdText) {
-  const res = await fetch(`${BASE}/jd/parse`, {
+  const headers = await getHeaders()
+  const res = await fetchWithTimeout(`${BASE}/jd/parse`, {
     method: 'POST',
-    headers: getHeaders(),
+    headers,
     body: JSON.stringify({ jdText })
-  })
+  }, 120000)
   return res.json()
 }
 
