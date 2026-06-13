@@ -236,7 +236,6 @@ async function submit() {
   width: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   min-height: 100vh;
 }
 
@@ -282,7 +281,7 @@ async function submit() {
 .mid { margin-top: 64px; }
 .mid h1 {
   font-size: 60px; font-weight: 900; line-height: 1.1;
-  letter-spacing: -.04em; color: #fff; margin: 0 0 28px;
+  letter-spacing: 0.24em; color: #fff; margin: 0 0 28px;
 }
 .mid p {
   font-size: 18px; line-height: 1.7; color: rgba(255,255,255,.72);
@@ -292,7 +291,7 @@ async function submit() {
 /* 功能列表 */
 .feat {
   list-style: none; padding: 0; margin: auto 0 0;
-  display: flex; flex-direction: column; gap: 22px;
+  display: flex; flex-direction: column; gap: 32px;
 }
 .feat li {
   display: flex; gap: 16px; align-items: flex-start;
