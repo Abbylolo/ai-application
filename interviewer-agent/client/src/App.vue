@@ -146,11 +146,11 @@ async function handleLogout() {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 9px 12px;
+  padding: 10px 14px;
   border-radius: 10px;
   color: var(--text-muted);
   text-decoration: none;
-  font-size: 13.5px;
+  font-size: 14.5px;
   font-weight: 500;
   transition: color .12s, background .12s;
   letter-spacing: .01em;
