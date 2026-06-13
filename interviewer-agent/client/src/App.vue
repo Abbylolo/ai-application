@@ -100,13 +100,15 @@ async function handleLogout() {
 /* === 侧边栏 === */
 .sidebar {
   width: 220px;
-  background: var(--bg-sidebar);
+  background: rgba(255,255,255,0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   color: var(--text-secondary);
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  border-right: 1px solid var(--border-color);
-  box-shadow: 1px 0 8px rgba(0,0,0,0.04), 2px 0 16px rgba(0,0,0,0.03);
+  border-right: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 1px 0 12px rgba(0,0,0,0.04);
   transition: background .3s, color .3s;
   position: relative;
   z-index: 2;
@@ -148,7 +150,7 @@ async function handleLogout() {
   gap: 10px;
   padding: 10px 14px;
   border-radius: 10px;
-  color: var(--text-muted);
+  color: #5b6070;
   text-decoration: none;
   font-size: 14.5px;
   font-weight: 500;
@@ -157,13 +159,13 @@ async function handleLogout() {
 }
 
 .nav-item:hover {
-  color: var(--text-secondary);
-  background: var(--bg-hover);
+  color: #191b2a;
+  background: rgba(0,0,0,0.04);
 }
 
 .nav-item--active {
-  color: var(--text-primary);
-  background: var(--accent-bg);
+  color: #191b2a;
+  background: rgba(79,110,247,0.08);
   font-weight: 560;
 }
 
@@ -177,13 +179,13 @@ async function handleLogout() {
   display: flex;
   align-items: center;
   gap: 8px;
-  border-top: 1px solid rgba(0,0,0,0.1);
+  border-top: 1px solid rgba(0,0,0,0.06);
 }
 
 .user-info {
   flex: 1;
   font-size: 12.5px;
-  color: var(--text-muted);
+  color: #5b6070;
   display: flex;
   align-items: center;
   gap: 7px;
@@ -195,15 +197,15 @@ async function handleLogout() {
 .sidebar-btn {
   width: 32px; height: 32px;
   display: flex; align-items: center; justify-content: center;
-  border: 1.5px solid var(--border-color);
+  border: 1px solid rgba(0,0,0,0.08);
   border-radius: 10px;
   background: transparent;
   cursor: pointer;
   font-size: 15px;
-  color: var(--text-muted);
+  color: #5b6070;
   transition: all .12s;
 }
-.sidebar-btn:hover { background: var(--bg-hover); color: var(--text-secondary); }
+.sidebar-btn:hover { background: rgba(0,0,0,0.04); color: #191b2a; }
 
 /* === 主区域 === */
 .main-content {
