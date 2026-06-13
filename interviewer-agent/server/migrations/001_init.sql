@@ -5,6 +5,7 @@
 CREATE TABLE IF NOT EXISTS user_profiles (
   id SERIAL PRIMARY KEY,
   user_id UUID REFERENCES auth.users(id),
+  avatar TEXT DEFAULT '👤',
   name TEXT,
   position TEXT,
   years_of_experience INTEGER DEFAULT 0,
