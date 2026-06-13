@@ -1,11 +1,11 @@
 import { Router } from 'express'
-import { llmRouter as llm } from './llm.js'
+import { callLLM } from './llm.js'
 
 export const resumeRouter = Router()
 
 /**
  * 简历解析接口
- * 接收简历文本，调用 LLM 提取结构化信息
+ * 接收简历文本，直接调用 LLM 提取结构化信息
  */
 resumeRouter.post('/parse', async (req, res) => {
   try {
@@ -15,8 +15,15 @@ resumeRouter.post('/parse', async (req, res) => {
       return res.status(400).json({ error: '缺少简历文本' })
     }
 
-    // 转发到 LLM（复用 llm 路由的调用逻辑）
-    // 这里构造一个内部请求
+    const providerType = req.headers['x-provider-type'] || 'anthropic'
+    const apiKey = req.headers['x-api-key']
+    const apiEndpoint = req.headers['x-api-endpoint'] || ''
+    const model = req.headers['x-model'] || 'claude-sonnet-4-6'
+
+    if (!apiKey) {
+      return res.status(400).json({ error: '缺少 API Key，请先在设置中配置模型' })
+    }
+
     const systemPrompt = `你是一个专业的简历解析器。从简历文本中提取信息，严格返回如下JSON格式（不要输出其他内容）：
 {
   "name": "姓名",
@@ -37,42 +44,24 @@ resumeRouter.post('/parse', async (req, res) => {
       { role: 'user', content: `请解析以下简历：\n\n${resumeText}` }
     ]
 
-    // 构造 LLM 请求
-    const response = await fetch(`http://localhost:${process.env.PORT || 5200}/api/llm/chat`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-provider-type': req.headers['x-provider-type'] || 'anthropic',
-        'x-api-key': req.headers['x-api-key'],
-        'x-api-endpoint': req.headers['x-api-endpoint'] || '',
-        'x-model': req.headers['x-model'] || 'claude-sonnet-4-6'
-      },
-      body: JSON.stringify({
-        system: systemPrompt,
-        messages,
-        temperature: 0.1,
-        max_tokens: 4096
-      })
+    const content = await callLLM({
+      providerType, apiKey, apiEndpoint, model,
+      system: systemPrompt,
+      messages,
+      temperature: 0.1,
+      max_tokens: 4096
     })
 
-    const result = await response.json()
-
-    if (result.error) {
-      return res.status(500).json(result)
-    }
-
     // 尝试解析 JSON（剥离可能的 markdown 代码块）
-    let content = result.content || ''
-    content = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
+    let cleaned = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
 
     try {
-      const parsed = JSON.parse(content)
+      const parsed = JSON.parse(cleaned)
       res.json(parsed)
-    } catch (parseError) {
-      // JSON 解析失败，返回原始内容
+    } catch {
       res.json({
-        rawContent: result.content,
-        parseError: '无法解析为 JSON，请检查简历文本格式'
+        rawContent: content,
+        parseError: '无法解析为 JSON，请检查简历文本格式。提示：确保文本包含足够的工作经历和技术信息。'
       })
     }
   } catch (error) {

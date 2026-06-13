@@ -55,7 +55,7 @@ llmRouter.post('/chat', async (req, res) => {
 /**
  * 调用 Anthropic Messages API
  */
-async function callAnthropic(apiKey, model, system, messages, temperature, max_tokens) {
+export async function callAnthropic(apiKey, model, system, messages, temperature, max_tokens) {
   const anthropic = new Anthropic({ apiKey })
 
   // 转换消息格式: OpenAI 格式 -> Anthropic 格式
@@ -89,7 +89,7 @@ async function callAnthropic(apiKey, model, system, messages, temperature, max_t
 /**
  * 调用 OpenAI 兼容 API (DeepSeek, 通义千问, Ollama 等)
  */
-async function callOpenAICompatible(apiKey, apiEndpoint, model, system, messages, temperature, max_tokens) {
+export async function callOpenAICompatible(apiKey, apiEndpoint, model, system, messages, temperature, max_tokens) {
   const baseURL = apiEndpoint?.replace(/\/+$/, '') || 'https://api.openai.com/v1'
 
   const openai = new OpenAI({
@@ -117,6 +117,19 @@ async function callOpenAICompatible(apiKey, apiEndpoint, model, system, messages
   })
 
   return response.choices[0]?.message?.content || ''
+}
+
+/**
+ * 统一的 LLM 调用入口（供其他路由直接调用，避免 HTTP 自引用）
+ */
+export async function callLLM({ providerType, apiKey, apiEndpoint, model, system, messages, temperature = 0.3, max_tokens = 4096 }) {
+  if (!apiKey) throw new Error('缺少 API Key')
+
+  if (providerType === 'anthropic') {
+    return await callAnthropic(apiKey, model, system, messages, temperature, max_tokens)
+  } else {
+    return await callOpenAICompatible(apiKey, apiEndpoint, model, system, messages, temperature, max_tokens)
+  }
 }
 
 /**
