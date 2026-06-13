@@ -44,9 +44,8 @@ async function handleLogout() {
         </template>
         <button class="collapse-btn" @click="sidebarCollapsed = !sidebarCollapsed" title="折叠侧栏">
           <svg viewBox="0 0 20 20" fill="none" width="16" height="16">
-            <rect x="3" y="4" width="14" height="12" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
-            <path d="M3 8h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            <path d="M3 12h9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M12 5l-5 5 5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M17 5l-5 5 5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
       </div>
@@ -145,7 +144,7 @@ async function handleLogout() {
   transition: all .12s;
 }
 .collapse-btn:hover { background: var(--surface-hover); color: var(--text-primary); }
-.collapsed .collapse-btn svg { transform: rotate(180deg); }
+.collapsed .collapse-btn svg { transform: scaleX(-1); }
 
 .brand-logo {
   color: var(--accent-color);
