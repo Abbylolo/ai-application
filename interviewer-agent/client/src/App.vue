@@ -106,7 +106,7 @@ async function handleLogout() {
 /* === 侧边栏 === */
 .sidebar {
   width: 220px;
-  background: rgba(255,255,255,0.55);
+  background: rgba(223,229,250,0.65);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   color: var(--text-secondary);
