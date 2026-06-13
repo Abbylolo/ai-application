@@ -176,7 +176,6 @@ async function submit() {
   position: relative;
   overflow: hidden;
   background: linear-gradient(155deg, #4338ca 0%, #4f46e5 45%, #6366f1 100%);
-  display: flex;
 }
 
 /* 动态光球 */
@@ -226,6 +225,7 @@ async function submit() {
   width: 100%;
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
 }
 
 /* 入场动效 */
@@ -241,7 +241,7 @@ async function submit() {
 }
 
 .top {
-  display: flex; align-items: center; gap: 12px; margin-bottom: 56px;
+  display: flex; align-items: center; gap: 12px;
 }
 .logo {
   width: 48px; height: 48px;
@@ -257,7 +257,8 @@ async function submit() {
   font-size: 19px; font-weight: 700; color: #fff; letter-spacing: -.01em;
 }
 
-.mid { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; }
+/* slogan 在 logo 下方适当留白 */
+.mid { margin-top: 72px; }
 .mid h1 {
   font-size: 52px; font-weight: 850; line-height: 1.14;
   letter-spacing: -.04em; color: #fff; margin: 0 0 24px;
@@ -267,10 +268,11 @@ async function submit() {
   max-width: 520px; margin: 0;
 }
 
+/* 功能列表推到底部 */
 .feat {
   list-style: none; padding: 0; margin: auto 0 0;
   display: flex; flex-direction: column; gap: 22px;
-  padding-top: 40px;
+  padding-bottom: 4px;
 }
 .feat li {
   display: flex; gap: 16px; align-items: flex-start;
