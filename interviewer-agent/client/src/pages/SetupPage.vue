@@ -21,15 +21,35 @@ const form = ref({
   techStack: [],
   projects: [],
   education: { degree: '', major: '', school: '' },
-  strengths: [],
-  weaknesses: [],
+  strengths: '',
+  weaknesses: '',
   resumeRaw: ''
 })
+
+// 数组 ↔ 逗号分隔字符串的辅助函数
+function ensureArray(val) {
+  if (Array.isArray(val)) return val
+  if (typeof val === 'string') return val.split(',').map(s => s.trim()).filter(Boolean)
+  return []
+}
+function ensureString(val) {
+  if (Array.isArray(val)) return val.join(', ')
+  return val || ''
+}
 
 // 加载当前 profile（如有）
 onMounted(() => {
   if (userStore.currentProfile) {
-    form.value = { ...userStore.currentProfile }
+    const p = userStore.currentProfile
+    form.value = {
+      ...p,
+      strengths: ensureString(p.strengths),
+      weaknesses: ensureString(p.weaknesses),
+      projects: (p.projects || []).map(proj => ({
+        ...proj,
+        techUsed: ensureString(proj.techUsed)
+      }))
+    }
   }
 })
 
@@ -107,8 +127,8 @@ async function handleParseResume() {
     if (result.techStack?.length) form.value.techStack = result.techStack
     if (result.projects?.length) form.value.projects = result.projects
     if (result.education) form.value.education = { ...form.value.education, ...result.education }
-    if (result.strengths?.length) form.value.strengths = result.strengths
-    if (result.weaknesses?.length) form.value.weaknesses = result.weaknesses
+    if (result.strengths?.length) form.value.strengths = ensureString(result.strengths)
+    if (result.weaknesses?.length) form.value.weaknesses = ensureString(result.weaknesses)
   } catch (err) {
     parseError.value = '解析失败：' + err.message
   } finally {
@@ -117,8 +137,17 @@ async function handleParseResume() {
 }
 
 async function handleSave() {
-  form.value.updatedAt = new Date()
-  await userStore.saveProfile({ ...form.value })
+  const data = { ...form.value }
+  // 转换逗号分隔字符串为数组
+  data.strengths = ensureArray(form.value.strengths)
+  data.weaknesses = ensureArray(form.value.weaknesses)
+  // 确保 projects 中的 techUsed 是数组
+  data.projects = data.projects.map(p => ({
+    ...p,
+    techUsed: ensureArray(p.techUsed)
+  }))
+  data.updatedAt = new Date()
+  await userStore.saveProfile(data)
   alert('保存成功！')
   router.push('/')
 }
