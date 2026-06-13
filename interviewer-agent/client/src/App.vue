@@ -115,7 +115,7 @@ async function handleLogout() {
 /* === 侧边栏 === */
 .sidebar {
   width: 220px;
-  background: var(--surface-sidebar);
+  background: linear-gradient(165deg, #6162e7, #7678f0, #6162e7);
   color: rgba(255,255,255,.85);
   display: flex;
   flex-direction: column;
@@ -125,6 +125,15 @@ async function handleLogout() {
   transition: width .2s ease, background .3s, color .3s;
   position: relative;
   z-index: 2;
+}
+.sidebar::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
 }
 .sidebar.collapsed {
   width: 60px;
