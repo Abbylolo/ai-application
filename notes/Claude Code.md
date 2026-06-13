@@ -4,6 +4,7 @@
 2. 使用方式：桌面端应用、网页端、IDE插件、终端（推荐）
 3. `Claude Code` 官网概述（含安装方式）：<https://code.claude.com/docs/en/overview>
 4. 使用`cc-switch`多模型管理与切换，用户手册（含安装方式）：<https://github.com/farion1231/cc-switch/blob/main/docs/user-manual/zh/README.md>
+5. `CCR`安装后，如果更改配置，需重启`ccr restart`；使用`ccr code`启动CC，如果在`cc switch`中配置代理地址后可以直接`claude`命令运行。`ccr ui`支持可视化配置
 
 
 
@@ -141,14 +142,14 @@ curl https://raw.githubusercontent.com/forrestchang/andrej-karpathy-skills/main/
     1. 打开钉钉群 → 右上角「群设置」→「智能群助手」→「添加机器人」
     2. 选择「自定义」机器人
     3. 配置机器人
-
+    
     - 填写机器人名称（如：Claude 通知）
     - 安全设置选择「自定义关键词」，填入 任务完成（或你想要的关键词）
-
+    
     4. 复制 Webhook 地址
-
+    
     - 创建完成后会显示类似：https://oapi.dingtalk.com/robot/send?access_token=xxxxxxxx
-
+    
     5. 把 Webhook 地址发给CC，CC来配置 Hook
 
 
