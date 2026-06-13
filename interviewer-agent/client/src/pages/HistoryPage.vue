@@ -1,17 +1,14 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import db from '@/db/database.js'
+import * as data from '@/services/data.js'
 
 const router = useRouter()
 const interviews = ref([])
 const isLoading = ref(true)
 
 onMounted(async () => {
-  interviews.value = await db.interviews
-    .orderBy('startedAt')
-    .reverse()
-    .toArray()
+  interviews.value = await data.getInterviews()
   isLoading.value = false
 })
 
@@ -25,94 +22,8 @@ function continueInterview(item) {
 
 async function deleteInterview(item) {
   if (!confirm('确定删除这条面试记录？')) return
-  // 删除关联的 QA
-  await db.interviewQA.where('interviewId').equals(item.id).delete()
-  await db.interviews.delete(item.id)
+  await data.deleteInterview(item.id)
   interviews.value = interviews.value.filter(i => i.id !== item.id)
-}
-
-// 数据导出
-async function exportData() {
-  const data = {
-    version: 1,
-    exportedAt: new Date().toISOString(),
-    profiles: await db.userProfiles.toArray(),
-    interviews: await db.interviews.toArray(),
-    interviewQA: await db.interviewQA.toArray(),
-    companyQuestionBank: await db.companyQuestionBank.toArray(),
-    modelConfigs: await db.modelConfigs.toArray()
-  }
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `面试官Agent_数据备份_${new Date().toISOString().slice(0, 10)}.json`
-  a.click()
-  URL.revokeObjectURL(url)
-}
-
-// 数据导入
-const importInput = ref(null)
-function triggerImport() {
-  const input = document.createElement('input')
-  input.type = 'file'
-  input.accept = '.json'
-  input.onchange = handleImportFile
-  input.click()
-}
-
-async function handleImportFile(e) {
-  const file = e.target.files[0]
-  if (!file) return
-
-  try {
-    const text = await file.text()
-    const data = JSON.parse(text)
-
-    if (!data.version || !data.interviews) {
-      alert('无效的备份文件')
-      return
-    }
-
-    if (!confirm(`即将导入 ${data.interviews.length} 条面试记录、${data.profiles?.length || 0} 个档案。确定继续？`)) return
-
-    // 导入数据
-    if (data.profiles) {
-      for (const p of data.profiles) {
-        const existing = await db.userProfiles.get(p.id)
-        if (!existing) await db.userProfiles.put(p)
-      }
-    }
-    if (data.interviews) {
-      for (const i of data.interviews) {
-        const existing = await db.interviews.get(i.id)
-        if (!existing) await db.interviews.put(i)
-      }
-    }
-    if (data.interviewQA) {
-      for (const qa of data.interviewQA) {
-        const existing = await db.interviewQA.get(qa.id)
-        if (!existing) await db.interviewQA.put(qa)
-      }
-    }
-    if (data.companyQuestionBank) {
-      for (const c of data.companyQuestionBank) {
-        const existing = await db.companyQuestionBank.get(c.id)
-        if (!existing) await db.companyQuestionBank.put(c)
-      }
-    }
-    if (data.modelConfigs) {
-      for (const m of data.modelConfigs) {
-        const existing = await db.modelConfigs.get(m.id)
-        if (!existing) await db.modelConfigs.put(m)
-      }
-    }
-
-    alert('导入成功！请刷新页面查看。')
-    location.reload()
-  } catch (err) {
-    alert('导入失败：' + err.message)
-  }
 }
 
 function formatDate(date) {

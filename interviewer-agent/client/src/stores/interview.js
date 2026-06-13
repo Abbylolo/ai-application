@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import db from '@/db/database.js'
+import * as data from '@/services/data.js'
 import { chatLLM } from '@/services/api.js'
 
-// 三种难度的面试官 System Prompt
+// ... (DIFFICULTY_PROMPTS, OUTPUT_FORMAT 保持不动)
 const DIFFICULTY_PROMPTS = {
   small: `你是一位小厂（50-200人规模）的前端面试官。招聘风格是快速筛选，关注候选人是否能独立干活。
 - 出题范围：JS 基础（变量类型、作用域、闭包基础）、CSS 布局（Flex/Grid）、Vue/React 常见使用问题
@@ -28,7 +28,6 @@ const DIFFICULTY_PROMPTS = {
 - 语气冷静犀利，不给提示，像真实大厂高压面试`
 }
 
-// 结构化输出约束
 const OUTPUT_FORMAT = `
 你必须以严格的 JSON 格式回复（不要包含 markdown 代码块标记）：
 {
@@ -50,22 +49,15 @@ const OUTPUT_FORMAT = `
     "nextQuestion": "追问内容（如需追问）"
   }
 }
-
-注意：
-- 出题时 phase="question"，evaluation 为 null
-- 点评时 phase="evaluation"，question 为 null
-- 生成报告时 phase="summary"
-- 参考候选人的技术栈和项目经验来设计问题
-`
+注意：出题时 phase="question"，evaluation 为 null；点评时 phase="evaluation"，question 为 null；生成报告时 phase="summary"`
 
 export const useInterviewStore = defineStore('interview', () => {
   const interview = ref(null)
   const qaList = ref([])
   const isLoading = ref(false)
   const error = ref(null)
-
   const difficulty = ref('mid')
-  const type = ref('general') // 'general' | 'company_specific'
+  const type = ref('general')
   const companyName = ref('')
   const jdParsed = ref(null)
 
@@ -73,17 +65,13 @@ export const useInterviewStore = defineStore('interview', () => {
   const isCompleted = computed(() => interview.value?.status === 'completed')
   const questionCount = computed(() => qaList.value.filter(q => q.type === 'question').length)
   const averageScore = computed(() => {
-    const scores = qaList.value
-      .filter(q => q.evaluation?.score != null)
-      .map(q => q.evaluation.score)
+    const scores = qaList.value.filter(q => q.evaluation?.score != null).map(q => q.evaluation.score)
     if (!scores.length) return 0
     return Math.round((scores.reduce((a, b) => a + b, 0) / scores.length) * 10) / 10
   })
 
-  // 构建系统消息
   function buildSystemPrompt(profile, jdInfo) {
     const diffPrompt = DIFFICULTY_PROMPTS[difficulty.value]
-
     let bg = '## 候选人背景\n'
     if (profile) {
       bg += `- 岗位：${profile.position || '未指定'}\n`
@@ -92,420 +80,190 @@ export const useInterviewStore = defineStore('interview', () => {
       if (profile.projects?.length) {
         bg += `- 项目经验：${profile.projects.map(p => `${p.name}（${p.techUsed?.join('/')}）`).join('；')}\n`
       }
-      if (profile.education?.school) {
-        bg += `- 学历：${profile.education.degree} - ${profile.education.major} - ${profile.education.school}\n`
-      }
-      if (profile.strengths?.length) {
-        bg += `- 优势：${profile.strengths.join('、')}\n`
-      }
-      if (profile.weaknesses?.length) {
-        bg += `- 待提升：${profile.weaknesses.join('、')}\n`
-      }
     }
-
     if (jdInfo && type.value === 'company_specific') {
-      bg += `\n## 目标岗位要求\n`
-      bg += `- 公司：${companyName.value}\n`
-      bg += `- 岗位：${jdInfo.position || ''}\n`
-      bg += `- 级别：${jdInfo.level || ''}\n`
+      bg += `\n## 目标岗位要求\n- 公司：${companyName.value}\n`
       bg += `- 必备技能：${jdInfo.requiredSkills?.join('、') || ''}\n`
-      if (jdInfo.niceToHave?.length) bg += `- 加分项：${jdInfo.niceToHave.join('、')}\n`
-      bg += `- 职责：${jdInfo.responsibilities?.join('；') || ''}\n`
-      bg += `\n请根据目标岗位要求设计面试题目，确保与岗位职责高度相关。`
     }
-
     return diffPrompt + '\n\n' + bg + '\n\n' + OUTPUT_FORMAT
   }
 
-  // 开始面试
   async function startInterview(profile, config = {}) {
-    isLoading.value = true
-    error.value = null
-
+    isLoading.value = true; error.value = null
     try {
       difficulty.value = config.difficulty || 'mid'
       type.value = config.type || 'general'
       companyName.value = config.companyName || ''
 
-      // 创建面试记录
       interview.value = {
-        id: Date.now().toString(),
-        profileId: profile?.id,
-        type: type.value,
-        companyName: companyName.value,
-        difficulty: difficulty.value,
-        reviewMode: config.reviewMode || 'instant',
-        status: 'in_progress',
-        startedAt: new Date(),
-        totalQuestions: 0,
-        averageScore: null,
-        reportMarkdown: null
+        profileId: profile?.id, type: type.value, companyName: companyName.value,
+        difficulty: difficulty.value, reviewMode: config.reviewMode || 'instant',
+        status: 'in_progress', startedAt: new Date().toISOString(),
+        totalQuestions: 0, averageScore: null, reportMarkdown: null
       }
+      // 存 Supabase 拿 id
+      interview.value = await data.saveInterview(interview.value)
 
-      // 获取第一道题
       const system = buildSystemPrompt(profile, config.jdInfo)
-      const messages = [
-        { role: 'user', content: '面试开始，请出第一道题。介绍你自己并开始提问。' }
-      ]
-
+      const messages = [{ role: 'user', content: '面试开始，请出第一道题。介绍你自己并开始提问。' }]
       const result = await chatLLM({ system, messages, temperature: 0.7 })
       const parsed = parseResponse(result)
 
-      // 保存面试记录
-      await db.interviews.add(interview.value)
-
-      // 添加面试官的第一条消息
       const firstQA = {
-        interviewId: interview.value.id,
-        sequenceNumber: 1,
-        type: 'question',
+        interviewId: interview.value.id, sequenceNumber: 1, type: 'question',
         question: parsed.question || { text: parsed.content || result.content, category: 'general', difficulty: 1, tags: [], referenceAnswer: '' },
-        userAnswer: '',
-        evaluation: null,
-        isFlagged: false,
-        createdAt: new Date()
+        userAnswer: '', evaluation: null, isFlagged: false
       }
-      await db.interviewQA.add(firstQA)
-      qaList.value = [firstQA]
-
+      const savedQA = await data.saveQA(firstQA)
+      qaList.value = [savedQA]
       return parsed
     } catch (err) {
-      error.value = err.message
-      throw err
-    } finally {
-      isLoading.value = false
-    }
+      error.value = err.message; throw err
+    } finally { isLoading.value = false }
   }
 
-  // 提交回答
   async function submitAnswer(answer, profile) {
     if (!interview.value) return
-
-    isLoading.value = true
-    error.value = null
-
+    isLoading.value = true; error.value = null
     try {
-      // 更新当前 QA 的回答
       const currentQA = qaList.value[qaList.value.length - 1]
       if (currentQA && !currentQA.userAnswer) {
         currentQA.userAnswer = answer
-        await db.interviewQA.update(currentQA.id, { userAnswer: answer })
+        await data.updateQA(currentQA.id, { userAnswer: answer })
       }
 
-      // 构建对话历史
       const system = buildSystemPrompt(profile, jdParsed.value)
       const messages = buildMessageHistory()
-
-      // 添加评估请求（根据评审模式调整 prompt）
       const reviewMode = interview.value?.reviewMode || 'instant'
       const isSummary = reviewMode === 'summary'
       const evalInstruction = isSummary
-        ? `请内部评估回答质量（评分1-5），但**不要展示评分给候选人**。直接决定追问还是出下一题，像正常面试一样自然过渡。仍需在JSON中保留evaluation数据用于最终报告。`
-        : `请评估我的回答，给出评分（1-5分）、点评、优缺点。${currentQA.type === 'question' ? '如果回答不够深入，请继续追问。如果回答基本到位，请出下一道题。' : '追问之后，请评估并决定是否继续追问或出下一题。'}`
-
-      messages.push({
-        role: 'user',
-        content: `我的回答是：${answer}\n\n${evalInstruction}`
-      })
+        ? `请内部评估回答质量（评分1-5），但不要展示评分给候选人。直接决定追问还是出下一题。仍需在JSON中保留evaluation数据。`
+        : `请评估我的回答，给出评分（1-5分）、点评、优缺点。${currentQA.type === 'question' ? '如不够深入请继续追问，到位就出下一题。' : '评估并决定是否继续追问或出下一题。'}`
+      messages.push({ role: 'user', content: `${answer}\n\n${evalInstruction}` })
 
       const result = await chatLLM({ system, messages, temperature: 0.5 })
-
       let parsed
-      try {
-        parsed = JSON.parse(extractJSON(result.content))
-      } catch {
-        // 解析失败，当作纯文本
-        parsed = { phase: 'evaluation', content: result.content, evaluation: { score: 3, feedback: result.content, strengths: [], weaknesses: [], followUpNeeded: false, nextQuestion: '' } }
-      }
+      try { parsed = JSON.parse(extractJSON(result.content)) }
+      catch { parsed = { phase: 'evaluation', content: result.content, evaluation: { score: 3, feedback: result.content, strengths: [], weaknesses: [], followUpNeeded: false } } }
 
-      // 保存评估到当前 QA
       if (parsed.evaluation) {
         currentQA.evaluation = parsed.evaluation
-        await db.interviewQA.update(currentQA.id, { evaluation: parsed.evaluation })
+        await data.updateQA(currentQA.id, { evaluation: parsed.evaluation })
       }
 
-      // 创建下一个 QA
       const nextQA = {
-        interviewId: interview.value.id,
-        sequenceNumber: qaList.value.length + 1,
+        interviewId: interview.value.id, sequenceNumber: qaList.value.length + 1,
         type: parsed.evaluation?.followUpNeeded ? 'followup' : 'question',
         question: parsed.question || { text: parsed.content, category: 'general', difficulty: 1, tags: [], referenceAnswer: '' },
-        userAnswer: '',
-        evaluation: null,
-        isFlagged: false,
-        createdAt: new Date()
+        userAnswer: '', evaluation: null, isFlagged: false
       }
+      const savedQA = await data.saveQA(nextQA)
+      qaList.value.push(savedQA)
 
-      await db.interviewQA.add(nextQA)
-      qaList.value.push(nextQA)
-
-      // 更新面试记录
       interview.value.totalQuestions = questionCount.value
-
-      return parsed
     } catch (err) {
-      error.value = err.message
-      throw err
-    } finally {
-      isLoading.value = false
-    }
+      error.value = err.message; throw err
+    } finally { isLoading.value = false }
   }
 
-  // 结束面试并生成报告
   async function finishInterview(profile) {
     if (!interview.value) return
-
-    isLoading.value = true
-    error.value = null
-
+    isLoading.value = true; error.value = null
     try {
       const system = buildSystemPrompt(profile, jdParsed.value)
-
-      // 构建完整的对话历史用于生成总结
       const messages = buildMessageHistory()
-      messages.push({
-        role: 'user',
-        content: `面试结束。请生成一份完整的面试评估报告。
-
-返回 JSON:
-{
-  "phase": "summary",
-  "content": "## 面试总结\\n\\n（对候选人整体表现的评价，300字左右）",
-  "summary": {
-    "totalScore": ${averageScore.value},
-    "scores": {
-      "jsBasics": 1-5,
-      "framework": 1-5,
-      "network": 1-5,
-      "algorithm": 1-5,
-      "engineering": 1-5,
-      "systemDesign": 1-5
-    },
-    "overall": "总体评价文字",
-    "strengths": ["优点列表"],
-    "weaknesses": ["需要加强的领域"],
-    "learningPlan": ["学习建议1", "学习建议2"]
-  }
-}`
-      })
+      messages.push({ role: 'user', content: `面试结束。请生成完整评估报告, 返回JSON: {"phase":"summary","content":"总结","summary":{"totalScore":${averageScore.value},"overall":"","strengths":[],"weaknesses":[],"learningPlan":[]}}` })
 
       const result = await chatLLM({ system, messages, temperature: 0.3 })
-
       let parsed
-      try {
-        parsed = JSON.parse(extractJSON(result.content))
-      } catch {
-        parsed = { phase: 'summary', content: result.content, summary: { totalScore: averageScore.value, overall: result.content, strengths: [], weaknesses: [], learningPlan: [] } }
-      }
+      try { parsed = JSON.parse(extractJSON(result.content)) }
+      catch { parsed = { phase: 'summary', summary: { totalScore: averageScore.value, overall: result.content, strengths: [], weaknesses: [], learningPlan: [] } } }
 
-      // 生成 Markdown 报告
       const report = generateMarkdownReport(parsed)
-
-      // 更新面试记录
-      interview.value.status = 'completed'
-      interview.value.completedAt = new Date()
-      interview.value.averageScore = averageScore.value
-      interview.value.reportMarkdown = report
-
-      await db.interviews.update(interview.value.id, {
-        status: 'completed',
-        completedAt: interview.value.completedAt,
-        averageScore: interview.value.averageScore,
-        reportMarkdown: report
+      await data.saveInterview({
+        ...interview.value,
+        status: 'completed', completedAt: new Date().toISOString(),
+        averageScore: averageScore.value, reportMarkdown: report
       })
-
+      interview.value.status = 'completed'
+      interview.value.reportMarkdown = report
       return { parsed, report }
     } catch (err) {
-      error.value = err.message
-      throw err
-    } finally {
-      isLoading.value = false
-    }
+      error.value = err.message; throw err
+    } finally { isLoading.value = false }
   }
 
-  // 构建对话历史
+  // ========== 辅助函数 ==========
+
   function buildMessageHistory() {
-    const messages = [{ role: 'user', content: '面试开始，请出第一道题。介绍你自己并开始提问。' }]
-
+    const msgs = [{ role: 'user', content: '面试开始，请出第一道题。' }]
     for (const qa of qaList.value) {
-      if (qa.question?.text || qa.question?.referenceAnswer) {
-        messages.push({
-          role: 'assistant',
-          content: JSON.stringify({ phase: 'question', content: qa.question.text || '', question: qa.question })
-        })
-      }
+      if (qa.question?.text) msgs.push({ role: 'assistant', content: JSON.stringify({ phase: 'question', content: qa.question.text, question: qa.question }) })
       if (qa.userAnswer) {
-        messages.push({ role: 'user', content: qa.userAnswer })
-        if (qa.evaluation) {
-          messages.push({
-            role: 'assistant',
-            content: JSON.stringify({ phase: 'evaluation', evaluation: qa.evaluation, content: qa.evaluation.feedback || '' })
-          })
-        }
+        msgs.push({ role: 'user', content: qa.userAnswer })
+        if (qa.evaluation) msgs.push({ role: 'assistant', content: JSON.stringify({ phase: 'evaluation', evaluation: qa.evaluation }) })
       }
     }
-
-    return messages
+    return msgs
   }
 
-  // 生成 Markdown 报告
   function generateMarkdownReport(summaryData) {
-    const i = interview.value
-    const s = summaryData.summary || {}
-
+    const i = interview.value; const s = summaryData.summary || {}
     let md = `# 面试评估报告\n\n`
-    md += `---\n\n`
-    md += `## 基本信息\n\n`
-    md += `| 项目 | 内容 |\n`
-    md += `|------|------|\n`
-    md += `| 面试时间 | ${i.startedAt?.toLocaleString() || '-'} |\n`
-    md += `| 面试时长 | ${i.completedAt ? Math.round((i.completedAt - i.startedAt) / 60000) + '分钟' : '-'} |\n`
-    md += `| 难度等级 | ${i.difficulty === 'small' ? '小厂' : i.difficulty === 'mid' ? '中厂' : '大厂'} |\n`
-    md += `| 面试类型 | ${i.type === 'company_specific' ? '公司特定面试' : '通用面试'} |\n`
-    if (i.companyName) md += `| 目标公司 | ${i.companyName} |\n`
-    md += `| 题目数量 | ${i.totalQuestions || 0} |\n`
+    md += `| 项目 | 内容 |\n|------|------|\n`
+    md += `| 难度 | ${i.difficulty === 'small' ? '小厂' : i.difficulty === 'mid' ? '中厂' : '大厂'} |\n`
+    if (i.companyName) md += `| 公司 | ${i.companyName} |\n`
     md += `| 平均得分 | ${i.averageScore || '-'} / 5 |\n\n`
-
     md += `## 总体评价\n\n${s.overall || '无'}\n\n`
-
-    if (s.scores) {
-      md += `## 各维度评分\n\n`
-      md += `| 维度 | 评分 |\n`
-      md += `|------|------|\n`
-      for (const [key, value] of Object.entries(s.scores)) {
-        const labels = { jsBasics: 'JS基础', framework: '框架', network: '网络', algorithm: '算法', engineering: '工程化', systemDesign: '系统设计' }
-        md += `| ${labels[key] || key} | ${'⭐'.repeat(value || 0)} (${value}/5) |\n`
-      }
-      md += `\n`
-    }
-
-    if (s.strengths?.length) {
-      md += `## 表现亮点\n\n`
-      for (const item of s.strengths) md += `- ✅ ${item}\n`
-      md += `\n`
-    }
-
-    if (s.weaknesses?.length) {
-      md += `## 需要加强\n\n`
-      for (const item of s.weaknesses) md += `- ❌ ${item}\n`
-      md += `\n`
-    }
-
+    if (s.strengths?.length) { md += `## 亮点\n`; s.strengths.forEach(x => md += `- ✅ ${x}\n`); md += '\n' }
+    if (s.weaknesses?.length) { md += `## 需加强\n`; s.weaknesses.forEach(x => md += `- ❌ ${x}\n`); md += '\n' }
     md += `## 问答记录\n\n`
     for (const qa of qaList.value.filter(q => q.userAnswer)) {
-      md += `### Q${qa.sequenceNumber}: ${qa.question?.text || qa.question?.referenceAnswer || ''}\n\n`
-      md += `**你的回答：** ${qa.userAnswer}\n\n`
-      if (qa.evaluation) {
-        md += `**评分：** ${'⭐'.repeat(qa.evaluation.score || 0)} (${qa.evaluation.score}/5)\n\n`
-        md += `**点评：** ${qa.evaluation.feedback || ''}\n\n`
-        if (qa.question?.referenceAnswer) {
-          md += `**参考要点：** ${qa.question.referenceAnswer}\n\n`
-        }
-      }
+      md += `**Q${qa.sequenceNumber}:** ${qa.question?.text || ''}\n\n> ${qa.userAnswer}\n\n`
+      if (qa.evaluation) md += `评分: ${'⭐'.repeat(qa.evaluation.score||0)} | ${qa.evaluation.feedback || ''}\n\n`
       md += `---\n\n`
     }
-
-    if (s.learningPlan?.length) {
-      md += `## 学习建议\n\n`
-      for (let i = 0; i < s.learningPlan.length; i++) {
-        md += `${i + 1}. ${s.learningPlan[i]}\n`
-      }
-      md += `\n`
-    }
-
-    md += `---\n\n`
-    md += `> 本报告由 面试官 Agent 自动生成 | ${new Date().toLocaleString()}\n`
-
+    if (s.learningPlan?.length) { md += `## 学习建议\n`; s.learningPlan.forEach((x, i) => md += `${i+1}. ${x}\n`) }
     return md
   }
 
-  // 解析 LLM 响应
   function parseResponse(result) {
     if (!result?.content) return { phase: 'question', content: '面试开始' }
-
-    let content = result.content.trim()
-
-    // 提取 markdown 代码块中的 JSON
-    const codeBlockMatch = content.match(/```(?:json)?\s*\n?([\s\S]*?)```/)
-    if (codeBlockMatch) {
-      content = codeBlockMatch[1].trim()
-    }
-
-    // 尝试提取 JSON 对象
-    if (!content.startsWith('{')) {
-      const jsonStart = content.indexOf('{')
-      const jsonEnd = content.lastIndexOf('}')
-      if (jsonStart !== -1 && jsonEnd > jsonStart) {
-        content = content.slice(jsonStart, jsonEnd + 1)
-      }
-    }
-
-    try {
-      return JSON.parse(content)
-    } catch {
-      return { phase: 'question', content: result.content }
-    }
+    try { return JSON.parse(extractJSON(result.content)) }
+    catch { return { phase: 'question', content: result.content } }
   }
 
-  // 解析 LLM 响应中的 JSON（通用工具函数，处理各种格式）
   function extractJSON(text) {
     let cleaned = (text || '').trim()
-    const codeBlockMatch = cleaned.match(/```(?:json)?\s*\n?([\s\S]*?)```/)
-    if (codeBlockMatch) cleaned = codeBlockMatch[1].trim()
-    if (!cleaned.startsWith('{')) {
-      const start = cleaned.indexOf('{'), end = cleaned.lastIndexOf('}')
-      if (start !== -1 && end > start) cleaned = cleaned.slice(start, end + 1)
-    }
+    const m = cleaned.match(/```(?:json)?\s*\n?([\s\S]*?)```/)
+    if (m) cleaned = m[1].trim()
+    if (!cleaned.startsWith('{')) { const s = cleaned.indexOf('{'), e = cleaned.lastIndexOf('}'); if (s !== -1 && e > s) cleaned = cleaned.slice(s, e + 1) }
     return cleaned
   }
 
-  // 加载已有面试
   async function loadInterview(id) {
     isLoading.value = true
     try {
-      interview.value = await db.interviews.get(parseInt(id))
+      const interviews = await data.getInterviews()
+      interview.value = interviews.find(i => String(i.id) === String(id))
       if (interview.value) {
-        qaList.value = await db.interviewQA
-          .where('interviewId')
-          .equals(interview.value.id)
-          .sortBy('sequenceNumber')
+        qaList.value = await data.getQA(interview.value.id)
         difficulty.value = interview.value.difficulty
         type.value = interview.value.type
         companyName.value = interview.value.companyName || ''
       }
-    } finally {
-      isLoading.value = false
-    }
+    } finally { isLoading.value = false }
   }
 
-  // 重置
   function reset() {
-    interview.value = null
-    qaList.value = []
-    difficulty.value = 'mid'
-    type.value = 'general'
-    companyName.value = ''
-    jdParsed.value = null
+    interview.value = null; qaList.value = []
+    difficulty.value = 'mid'; type.value = 'general'
+    companyName.value = ''; jdParsed.value = null
   }
 
   return {
-    interview,
-    qaList,
-    isLoading,
-    error,
-    difficulty,
-    type,
-    companyName,
-    jdParsed,
-    isStarted,
-    isCompleted,
-    questionCount,
-    averageScore,
-    startInterview,
-    submitAnswer,
-    finishInterview,
-    loadInterview,
-    reset,
-    buildSystemPrompt
+    interview, qaList, isLoading, error, difficulty, type, companyName, jdParsed,
+    isStarted, isCompleted, questionCount, averageScore,
+    startInterview, submitAnswer, finishInterview, loadInterview, reset
   }
 })

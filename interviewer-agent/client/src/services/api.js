@@ -1,16 +1,15 @@
 /**
  * 后端 API 调用封装
  */
-import db from '@/db/database.js'
+import * as data from '@/services/data.js'
 
-// 从 IndexedDB 直接获取当前模型配置（避免 localStorage 同步问题）
+// 从 Supabase 直接获取当前模型配置
 async function getModelConfig() {
   try {
     const configId = localStorage.getItem('currentModelConfigId')
-    const allConfigs = await db.modelConfigs.toArray()
-    // 同步到 localStorage 确保一致
+    const allConfigs = await data.getModelConfigs()
     localStorage.setItem('modelConfigs', JSON.stringify(allConfigs))
-    return allConfigs.find(c => c.id === configId) || allConfigs[0] || {}
+    return allConfigs.find(c => String(c.id) === String(configId)) || allConfigs[0] || {}
   } catch {
     return {}
   }

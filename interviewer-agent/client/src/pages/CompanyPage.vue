@@ -5,7 +5,7 @@ import { useUserStore } from '@/stores/user.js'
 import { useSettingsStore } from '@/stores/settings.js'
 import { useInterviewStore } from '@/stores/interview.js'
 import { parseJD, searchInterviewExperience } from '@/services/api.js'
-import db from '@/db/database.js'
+import * as data from '@/services/data.js'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -21,10 +21,7 @@ const isSearching = ref(false)
 const companyRecords = ref([])
 
 onMounted(async () => {
-  companyRecords.value = await db.companyQuestionBank
-    .orderBy('updatedAt')
-    .reverse()
-    .toArray()
+  companyRecords.value = await data.getCompanyQuestions()
 })
 
 async function handleParseJD() {
@@ -72,18 +69,16 @@ async function startCompanyInterview() {
 // 保存公司面经
 async function saveCompanyRecord() {
   if (!companyName.value.trim()) return
-  await db.companyQuestionBank.add({
+  await data.saveCompanyQuestion({
     companyName: companyName.value.trim(),
     position: jdParsed.value?.position || '',
     jdContent: jdText.value,
     source: 'user_upload',
     questions: [],
-    tags: jdParsed.value?.requiredSkills || [],
-    createdAt: new Date(),
-    updatedAt: new Date()
+    tags: jdParsed.value?.requiredSkills || []
   })
   alert('保存成功！')
-  companyRecords.value = await db.companyQuestionBank.orderBy('updatedAt').reverse().toArray()
+  companyRecords.value = await data.getCompanyQuestions()
 }
 </script>
 

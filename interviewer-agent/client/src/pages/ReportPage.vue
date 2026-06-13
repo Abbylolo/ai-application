@@ -3,7 +3,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useInterviewStore } from '@/stores/interview.js'
 import { marked } from 'marked'
-import db from '@/db/database.js'
+import * as data from '@/services/data.js'
 
 const router = useRouter()
 const route = useRoute()
@@ -15,21 +15,19 @@ const flaggedIds = ref(new Set())
 
 // 加载已标记的 QA
 async function loadFlagged() {
-  const flagged = await db.interviewQA
-    .where({ interviewId: parseInt(route.params.id), isFlagged: 1 })
-    .toArray()
+  const allQA = await data.getQA(route.params.id)
+  const flagged = allQA.filter(q => q.isFlagged)
   flaggedIds.value = new Set(flagged.map(q => q.id))
 }
 
 async function toggleFlag(qaId) {
-  if (flaggedIds.value.has(qaId)) {
-    await db.interviewQA.update(qaId, { isFlagged: 0 })
-    flaggedIds.value.delete(qaId)
-  } else {
-    await db.interviewQA.update(qaId, { isFlagged: 1 })
+  const newFlagged = !flaggedIds.value.has(qaId)
+  await data.updateQA(qaId, { isFlagged: newFlagged })
+  if (newFlagged) {
     flaggedIds.value.add(qaId)
+  } else {
+    flaggedIds.value.delete(qaId)
   }
-  // 强制刷新
   flaggedIds.value = new Set(flaggedIds.value)
 }
 

@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, nextTick, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import db from '@/db/database.js'
+import * as data from '@/services/data.js'
 
 const router = useRouter()
 const isLoading = ref(true)
@@ -22,16 +22,11 @@ async function getEcharts() {
 
 onMounted(async () => {
   // 加载所有已完成的面试
-  interviews.value = await db.interviews
-    .where('status').equals('completed')
-    .reverse()
-    .sortBy('completedAt')
+  const all = await data.getInterviews()
+  interviews.value = all.filter(i => i.status === 'completed')
 
   // 加载所有 QA
-  const allIds = interviews.value.map(i => i.id)
-  const qaArrays = await Promise.all(allIds.map(id =>
-    db.interviewQA.where('interviewId').equals(id).toArray()
-  ))
+  const qaArrays = await Promise.all(interviews.value.map(i => data.getQA(i.id)))
   allQA.value = qaArrays.flat()
 
   isLoading.value = false
