@@ -121,7 +121,7 @@ async function handleLogout() {
   flex-direction: column;
   flex-shrink: 0;
   border-right: none;
-  box-shadow: 1px 0 8px rgba(0,0,0,0.03);
+  box-shadow: 2px 0 24px rgba(0,0,0,0.1), 4px 0 48px rgba(0,0,0,0.06);
   transition: width .2s ease, background .3s, color .3s;
   position: relative;
   z-index: 2;
@@ -133,6 +133,14 @@ async function handleLogout() {
     linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px);
   background-size: 40px 40px;
+  pointer-events: none;
+}
+.sidebar::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 40px;
+  background: linear-gradient(90deg, transparent, rgba(0,0,0,0.06));
   pointer-events: none;
 }
 .sidebar.collapsed {
