@@ -13,8 +13,11 @@ export const useUserStore = defineStore('user', () => {
   async function loadProfiles() {
     try {
       const result = await data.getProfiles()
-      console.log('📂 loadProfiles 返回:', result?.length, '条, currentProfileId:', currentProfileId.value)
       profiles.value = result
+      // 有数据但没选中时，自动选第一条
+      if (result.length && !currentProfileId.value) {
+        setCurrentProfile(result[0].id)
+      }
     } catch (e) {
       console.error('加载档案失败:', e.message)
     }
