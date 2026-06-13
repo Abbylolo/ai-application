@@ -31,6 +31,12 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() })
 })
 
+// 全局错误处理：确保任何未捕获错误都返回 JSON
+app.use((err, req, res, next) => {
+  console.error('服务器错误:', err.message)
+  res.status(500).json({ error: '服务器内部错误', message: err.message })
+})
+
 app.listen(PORT, () => {
   console.log(`🤖 面试官 Agent 后端代理已启动: http://localhost:${PORT}`)
 })

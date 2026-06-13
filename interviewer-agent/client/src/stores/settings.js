@@ -19,9 +19,11 @@ export const useSettingsStore = defineStore('settings', () => {
 
   async function saveConfig(config) {
     config.updatedAt = new Date()
+    // 确保 isDefault 是布尔值
+    config.isDefault = !!config.isDefault
 
     if (config.id) {
-      await db.modelConfigs.update(config.id, config)
+      await db.modelConfigs.update(String(config.id), config)
     } else {
       config.id = Date.now().toString()
       config.createdAt = new Date()
@@ -30,15 +32,24 @@ export const useSettingsStore = defineStore('settings', () => {
 
     // 如果标记为默认，取消其他默认
     if (config.isDefault) {
-      await db.modelConfigs.where('isDefault').equals(true).modify({ isDefault: false })
-      await db.modelConfigs.update(config.id, { isDefault: true })
+      try {
+        // 先查出所有标记为默认的，逐个改（避免 where equals 在空值时崩溃）
+        const all = await db.modelConfigs.toArray()
+        for (const c of all) {
+          if (c.id !== config.id && c.isDefault) {
+            await db.modelConfigs.update(String(c.id), { isDefault: false })
+          }
+        }
+      } catch (e) {
+        console.warn('取消默认标记失败:', e)
+      }
     }
 
     await loadConfigs()
 
     // 如果是第一个配置，自动设为当前
     if (modelConfigs.value.length === 1) {
-      setCurrentConfig(config.id)
+      setCurrentConfig(String(config.id))
     }
   }
 

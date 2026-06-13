@@ -95,7 +95,9 @@ export async function callAnthropic(apiKey, model, system, messages, temperature
     textLen: response.content?.[0]?.text?.length
   })
 
-  return response.content[0]?.text || ''
+  // 遍历 content 找 text 类型（DeepSeek会先返回thinking块）
+  const textBlocks = response.content?.filter(c => c.type === 'text') || []
+  return textBlocks.map(c => c.text).join('') || ''
 }
 
 /**
@@ -173,9 +175,9 @@ llmRouter.post('/test', async (req, res) => {
 
     let content
     if (providerType === 'anthropic') {
-      content = await callAnthropic(apiKey, model, '你是一个测试助手。', testMessages, 0, 100, apiEndpoint)
+      content = await callAnthropic(apiKey, model, '你是一个测试助手。', testMessages, 0, 500, apiEndpoint)
     } else {
-      content = await callOpenAICompatible(apiKey, apiEndpoint, model, '你是一个测试助手。', testMessages, 0, 100)
+      content = await callOpenAICompatible(apiKey, apiEndpoint, model, '你是一个测试助手。', testMessages, 0, 500)
     }
 
     res.json({ success: true, content, model })
