@@ -106,15 +106,13 @@ async function handleLogout() {
 /* === 侧边栏 === */
 .sidebar {
   width: 220px;
-  background: rgba(223,229,250,0.65);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: var(--surface-sidebar);
   color: var(--text-secondary);
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  border-right: 1px solid rgba(0,0,0,0.06);
-  box-shadow: 1px 0 12px rgba(0,0,0,0.04);
+  border-right: 1px solid var(--border-light);
+  box-shadow: 1px 0 8px rgba(0,0,0,0.03);
   transition: background .3s, color .3s;
   position: relative;
   z-index: 2;
@@ -157,7 +155,7 @@ async function handleLogout() {
 .nav-group + .nav-group {
   margin-top: 10px;
   padding-top: 10px;
-  border-top: 1px solid rgba(0,0,0,0.05);
+  border-top: 1px solid var(--border-light);
 }
 
 .nav-item {
@@ -166,7 +164,7 @@ async function handleLogout() {
   gap: 10px;
   padding: 10px 14px;
   border-radius: 10px;
-  color: #5b6070;
+  color: var(--text-secondary);
   text-decoration: none;
   font-size: 14.5px;
   font-weight: 500;
@@ -175,13 +173,13 @@ async function handleLogout() {
 }
 
 .nav-item:hover {
-  color: #191b2a;
-  background: rgba(0,0,0,0.04);
+  color: var(--text-primary);
+  background: var(--surface-hover);
 }
 
 .nav-item--active {
-  color: #191b2a;
-  background: rgba(79,110,247,0.08);
+  color: var(--text-primary);
+  background: var(--color-primary-bg);
   font-weight: 560;
 }
 
@@ -195,14 +193,14 @@ async function handleLogout() {
   display: flex;
   align-items: center;
   gap: 8px;
-  border-top: 1px solid rgba(0,0,0,0.06);
+  border-top: 1px solid var(--border-light);
 }
 
 .user-info {
   flex: 1;
   font-size: 14px;
   font-weight: 500;
-  color: #5b6070;
+  color: var(--text-secondary);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -214,15 +212,15 @@ async function handleLogout() {
 .sidebar-btn {
   width: 32px; height: 32px;
   display: flex; align-items: center; justify-content: center;
-  border: 1px solid rgba(0,0,0,0.08);
+  border: 1px solid var(--border-light);
   border-radius: 10px;
   background: transparent;
   cursor: pointer;
   font-size: 15px;
-  color: #5b6070;
+  color: var(--text-secondary);
   transition: all .12s;
 }
-.sidebar-btn:hover { background: rgba(0,0,0,0.04); color: #191b2a; }
+.sidebar-btn:hover { background: var(--surface-hover); color: var(--text-primary); }
 
 /* === 主区域 === */
 .main-content {

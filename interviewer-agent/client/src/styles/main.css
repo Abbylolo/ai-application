@@ -1,29 +1,58 @@
 /* ========== CSS 变量 — 精致暗色 ========== */
 :root {
-  --bg-primary: #f7f8fc;
-  --bg-sidebar: #dfe5fa;
-  --bg-card: #ffffff;
-  --bg-hover: #f0f2f8;
-  --bg-input: #f7f8fc;
-  --bg-code: #f3f4f9;
-  --bg-tag: #eef0f7;
-  --accent-bg: #eef1ff;
-  --accent-color: #4f6ef7;
-  --accent-hover: #3b54d4;
-  --text-primary: #191b2a;
-  --text-secondary: #5e6377;
-  --text-muted: #979bac;
-  --border-color: #e5e7f0;
-  --border-input: #d8dae3;
-  --success: #36a377;
-  --warning: #d6892b;
-  --danger: #e04848;
+  /* ===== 主色调 ===== */
+  --color-primary: #4f6ef7;
+  --color-primary-hover: #3d54d6;
+  --color-primary-bg: #eef2ff;
+
+  /* ===== 中性色 ===== */
+  --surface-page: #f6f7fb;
+  --surface-sidebar: #eef0f8;
+  --surface-card: #ffffff;
+  --surface-hover: #f0f2f9;
+  --surface-input: #f5f6fb;
+
+  /* ===== 文字 ===== */
+  --text-primary: #1a1c2e;
+  --text-secondary: #5b5f70;
+  --text-tertiary: #8e919e;
+
+  /* ===== 边框 ===== */
+  --border-light: #e5e8f0;
+  --border-medium: #d5d8e2;
+
+  /* ===== 功能色 ===== */
+  --color-success: #35a074;
+  --color-warning: #d48628;
+  --color-danger: #df4444;
+
+  /* ===== 阴影 ===== */
   --shadow-sm: 0 1px 2px rgba(20,24,60,0.04);
   --shadow-md: 0 1px 3px rgba(20,24,60,0.05), 0 4px 14px rgba(20,24,60,0.05);
   --shadow-lg: 0 1px 2px rgba(20,24,60,0.05), 0 10px 30px rgba(20,24,60,0.06);
+
+  /* ===== 圆角 ===== */
   --radius-sm: 10px;
   --radius-md: 14px;
   --radius-lg: 20px;
+
+  /* ===== 兼容旧变量 ===== */
+  --bg-primary: var(--surface-page);
+  --bg-sidebar: var(--surface-sidebar);
+  --bg-card: var(--surface-card);
+  --bg-hover: var(--surface-hover);
+  --bg-input: var(--surface-input);
+  --bg-code: var(--surface-hover);
+  --bg-tag: var(--surface-hover);
+  --accent-bg: var(--color-primary-bg);
+  --accent-color: var(--color-primary);
+  --accent-hover: var(--color-primary-hover);
+  --text-muted: var(--text-tertiary);
+  --border-color: var(--border-light);
+  --border-input: var(--border-medium);
+  --success: var(--color-success);
+  --warning: var(--color-warning);
+  --danger: var(--color-danger);
 }
 
 /* ========== 全局重置 ========== */
