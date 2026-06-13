@@ -183,12 +183,13 @@ async function submit() {
 .right {
   width: 460px; flex-shrink: 0;
   background: #18181b;
-  display: flex; align-items: center; justify-content: center;
   padding: 48px 44px;
+  display: flex; flex-direction: column;
+  justify-content: space-between;
 }
 
 .form {
-  width: 100%; max-width: 360px;
+  width: 100%;
 }
 
 .tabs {
@@ -209,7 +210,7 @@ async function submit() {
 .alert-err { background: rgba(239,68,68,.08); color: #fca5a5; border: 1px solid rgba(239,68,68,.15); }
 .alert-ok  { background: rgba(34,197,94,.08); color: #86efac; border: 1px solid rgba(34,197,94,.15); }
 
-form { display: flex; flex-direction: column; gap: 14px; }
+form { display: flex; flex-direction: column; gap: 14px; flex: 1; justify-content: center; padding: 24px 0; }
 
 label {
   font-size: 12px; font-weight: 600; color: #71717a;
