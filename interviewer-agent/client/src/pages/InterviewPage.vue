@@ -178,23 +178,21 @@ const isWaitingAnswer = () => {
     <!-- 面试进行中 -->
     <template v-else-if="interviewStore.isStarted">
       <!-- 顶部信息栏 -->
-      <header class="interview-header">
-        <div class="header-left">
-          <span class="header-title">🤖 面试进行中</span>
-          <span class="header-timer">⏱ {{ interviewTime }}</span>
-          <span class="tag" :class="{
-            'tag-yellow': interviewStore.difficulty === 'big',
-            'tag-green': interviewStore.difficulty === 'mid'
-          }">{{ difficultyLabels[interviewStore.difficulty] || interviewStore.difficulty }}</span>
-          <span class="text-secondary" style="font-size:12px">
-            {{ interviewStore.questionCount }} 题 · 均分 {{ interviewStore.averageScore }}
-          </span>
+      <header class="topbar">
+        <div class="tb-left">
+          <div class="tb-badge">🤖</div>
+          <div>
+            <div class="tb-title">面试进行中</div>
+            <div class="tb-meta">
+              <span class="tb-time">⏱ {{ interviewTime }}</span>
+              <span>·</span>
+              <span>{{ difficultyLabels[interviewStore.difficulty] || interviewStore.difficulty }}</span>
+              <span>·</span>
+              <span>{{ interviewStore.questionCount }} 题</span>
+            </div>
+          </div>
         </div>
-        <div class="header-right">
-          <button class="btn btn-danger btn-sm" @click="handleFinish">
-            ⏹ 结束面试
-          </button>
-        </div>
+        <button class="tb-end" @click="handleFinish">结束面试</button>
       </header>
 
       <!-- 聊天区 -->
@@ -225,14 +223,18 @@ const isWaitingAnswer = () => {
   display: flex; flex-direction: column; height: 100vh;
 }
 
-.interview-header {
+.topbar {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 10px 20px; border-bottom: 1px solid var(--border-color);
+  padding: 12px 24px; border-bottom: 1px solid var(--border-color);
   background: var(--bg-card); flex-shrink: 0;
 }
-.header-left { display: flex; align-items: center; gap: 10px; }
-.header-title { font-weight: 700; font-size: 15px; }
-.header-timer { font-size: 16px; font-weight: 700; color: var(--accent-color); font-variant-numeric: tabular-nums; }
+.tb-left { display: flex; align-items: center; gap: 12px; }
+.tb-badge { width: 38px; height: 38px; border-radius: 12px; background: var(--accent-bg); display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.tb-title { font-weight: 700; font-size: 14px; color: var(--text-primary); }
+.tb-meta { display: flex; gap: 8px; font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.tb-time { color: var(--accent-color); font-weight: 600; font-variant-numeric: tabular-nums; }
+.tb-end { padding: 7px 16px; border: 1.5px solid var(--danger); border-radius: 10px; background: none; color: var(--danger); font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer; transition: all .15s; }
+.tb-end:hover { background: #fef2f2; }
 
 .difficulty-grid {
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
