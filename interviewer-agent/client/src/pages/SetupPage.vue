@@ -146,8 +146,10 @@ async function handleSave() {
   data.strengths = ensureArray(form.value.strengths)
   data.weaknesses = ensureArray(form.value.weaknesses)
   data.projects = data.projects.map(p => ({ ...p, techUsed: ensureArray(p.techUsed) }))
+  console.log('💾 保存数据 avatar:', data.avatar)
   await userStore.saveProfile(data)
   await loadProfile()
+  console.log('📥 回读 avatar:', form.value.avatar)
   isEditing.value = false
   alert('保存成功！')
 }
