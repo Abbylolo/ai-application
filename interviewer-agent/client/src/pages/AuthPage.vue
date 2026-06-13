@@ -31,54 +31,15 @@ async function submit() {
 </script>
 
 <template>
-  <div class="root">
-    <div class="left">
-      <div>
+  <div class="page">
+    <div class="wrap">
+      <div class="brand">
         <div class="logo">🤖</div>
         <h1>面试官 Agent</h1>
-        <p class="sub">AI 驱动的模拟技术面试平台</p>
+        <p>AI 驱动的模拟技术面试平台</p>
       </div>
 
-      <div class="grid">
-        <div class="item">
-          <div class="n">01</div>
-          <strong>真实面试模拟</strong>
-          <span>大厂 / 中厂 / 小厂三种难度，智能追问策略，还原真实面试压力</span>
-        </div>
-        <div class="item">
-          <div class="n">02</div>
-          <strong>即时评估反馈</strong>
-          <span>每题评分 + 标准答案 + 薄弱点分析 + 个性化学习建议</span>
-        </div>
-        <div class="item">
-          <div class="n">03</div>
-          <strong>公司定制面试</strong>
-          <span>上传 JD 精准匹配岗位要求，已支持 字节/阿里/腾讯 等公司</span>
-        </div>
-        <div class="item">
-          <div class="n">04</div>
-          <strong>简历智能解析</strong>
-          <span>上传 PDF 自动提取技能画像，面试题目贴合你的技术背景</span>
-        </div>
-        <div class="item">
-          <div class="n">05</div>
-          <strong>数据统计分析</strong>
-          <span>技能雷达图 + 分数趋势 + 高频薄弱点，追踪成长轨迹</span>
-        </div>
-        <div class="item">
-          <div class="n">06</div>
-          <strong>面试历史回顾</strong>
-          <span>逐题回放 + 标记复习，重要题目不再遗忘</span>
-        </div>
-      </div>
-
-      <p class="tags">
-        覆盖 JavaScript · CSS · React · Vue · Node.js · 算法 · 网络 · 工程化 · 系统设计
-      </p>
-    </div>
-
-    <div class="right">
-      <div class="form">
+      <div class="card">
         <div class="tabs">
           <button :class="{ on: mode === 'login' }" @click="mode = 'login'; err = ''; ok = ''">登录</button>
           <button :class="{ on: mode === 'register' }" @click="mode = 'register'; err = ''; ok = ''">注册</button>
@@ -90,127 +51,103 @@ async function submit() {
         <form @submit.prevent="submit">
           <label>邮箱</label>
           <input v-model="email" type="email" placeholder="name@company.com" />
-
           <label>密码</label>
           <input v-model="password" type="password" placeholder="至少 6 位" minlength="6" />
-
           <button type="submit" :disabled="loading">
             <span v-if="loading" class="spin"></span>
             <span v-else>{{ mode === 'login' ? '登录' : '创建账号' }}</span>
           </button>
         </form>
 
-        <p class="switch-link">
+        <p class="switch">
           {{ mode === 'login' ? '还没有账号？' : '已有账号？' }}
           <a href="#" @click.prevent="mode = mode === 'login' ? 'register' : 'login'; err = ''; ok = ''">
             {{ mode === 'login' ? '立即注册' : '去登录' }}
           </a>
         </p>
       </div>
+
+      <div class="features">
+        <span>大厂 / 中厂 / 小厂</span>
+        <span>JS · React · Vue · Node</span>
+        <span>面试报告 + 数据分析</span>
+        <span>简历解析 + 公司定制</span>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-/* ========== 全视口布局 ========== */
-.root {
+.page {
+  min-height: 100vh;
   display: flex;
-  height: 100vh;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  background: #0c0c0e;
   font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', sans-serif;
 }
 
-/* ========== 左侧 ========== */
-.left {
-  flex: 1;
-  background: #0c0c0e;
-  display: flex;
-  flex-direction: column;
-  padding: 56px 52px 40px;
-  color: #fafafa;
-  gap: 0;
+.wrap {
+  width: 100%;
+  max-width: 440px;
+}
+
+/* 品牌 */
+.brand {
+  text-align: center;
+  margin-bottom: 36px;
 }
 
 .logo {
-  width: 44px; height: 44px;
-  border-radius: 12px;
+  width: 52px; height: 52px;
+  border-radius: 14px;
   background: linear-gradient(135deg, #4f46e5, #6366f1);
   display: flex; align-items: center; justify-content: center;
-  font-size: 22px;
-  margin-bottom: 16px;
-  box-shadow: 0 8px 24px rgba(79,70,229,.3);
+  font-size: 24px;
+  margin: 0 auto 16px;
+  box-shadow: 0 8px 28px rgba(79,70,229,.35);
 }
 
-.left h1 {
-  font-size: 30px; font-weight: 800;
-  letter-spacing: -.03em; margin-bottom: 4px;
+.brand h1 {
+  font-size: 26px; font-weight: 800;
+  color: #fafafa; letter-spacing: -.03em;
 }
 
-.sub {
-  font-size: 15px; color: #71717a;
+.brand p {
+  font-size: 15px; color: #71717a; margin-top: 4px;
 }
 
-/* 6宫格功能 */
-.grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px 36px;
-  margin: auto 0;
-  padding: 24px 0;
+/* 卡片 */
+.card {
+  background: rgba(24,24,27,.8);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 20px;
+  padding: 36px 32px;
+  backdrop-filter: blur(20px);
 }
 
-.item .n {
-  font-size: 11px; font-weight: 700; color: #4f46e5;
-  letter-spacing: .08em; margin-bottom: 4px;
-}
-
-.item strong {
-  display: block; font-size: 14px; color: #e4e4e7;
-  margin-bottom: 3px; font-weight: 600;
-}
-
-.item span {
-  font-size: 12px; color: #52525b; line-height: 1.5;
-  display: block;
-}
-
-.tags {
-  font-size: 12px; color: #3f3f46;
-  letter-spacing: .03em;
-  padding-top: 8px;
-}
-
-/* ========== 右侧 ========== */
-.right {
-  width: 460px; flex-shrink: 0;
-  background: #18181b;
-  padding: 48px 44px;
-  display: flex; flex-direction: column;
-  justify-content: space-between;
-}
-
-.form {
-  width: 100%;
-}
-
+/* 切换 */
 .tabs {
   display: flex; gap: 24px; margin-bottom: 28px;
 }
 
 .tabs button {
   border: none; background: none;
-  font-size: 18px; font-weight: 700; color: #52525b;
+  font-size: 17px; font-weight: 700; color: #52525b;
   cursor: pointer; font-family: inherit; padding: 0;
-  transition: color .15s;
 }
 .tabs button.on { color: #fafafa; }
 
+/* 消息 */
 .alert {
   padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 16px;
 }
 .alert-err { background: rgba(239,68,68,.08); color: #fca5a5; border: 1px solid rgba(239,68,68,.15); }
 .alert-ok  { background: rgba(34,197,94,.08); color: #86efac; border: 1px solid rgba(34,197,94,.15); }
 
-form { display: flex; flex-direction: column; gap: 14px; flex: 1; justify-content: center; padding: 24px 0; }
+/* 表单 */
+form { display: flex; flex-direction: column; gap: 14px; }
 
 label {
   font-size: 12px; font-weight: 600; color: #71717a;
@@ -229,7 +166,7 @@ input::placeholder { color: #3f3f46; }
 input:focus { border-color: rgba(79,70,229,.5); }
 
 button[type="submit"] {
-  width: 100%; margin-top: 8px; padding: 13px;
+  width: 100%; margin-top: 6px; padding: 12px;
   background: #fafafa; border: none; border-radius: 12px;
   font-size: 15px; font-weight: 600; color: #0c0c0e;
   cursor: pointer; font-family: inherit;
@@ -239,12 +176,28 @@ button[type="submit"] {
 button[type="submit"]:hover { background: #fff; }
 button[type="submit"]:disabled { opacity: .4; cursor: not-allowed; }
 
-.switch-link {
-  text-align: center; margin-top: 22px;
+.switch {
+  text-align: center; margin-top: 20px;
   font-size: 13px; color: #52525b;
 }
-.switch-link a { color: #818cf8; text-decoration: none; font-weight: 500; }
+.switch a { color: #818cf8; text-decoration: none; font-weight: 500; }
 
+/* 底部功能标签 */
+.features {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 12px;
+  margin-top: 28px;
+}
+
+.features span {
+  padding: 6px 14px;
+  border-radius: 9999px;
+  background: rgba(255,255,255,.04);
+  color: #52525b;
+  font-size: 13px;
+  border: 1px solid rgba(255,255,255,.05);
+}
+
+/* 加载 */
 .spin {
   width: 20px; height: 20px;
   border: 2px solid rgba(0,0,0,.15);
@@ -254,11 +207,11 @@ button[type="submit"]:disabled { opacity: .4; cursor: not-allowed; }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ========== 响应式 ========== */
-@media (max-width: 768px) {
-  .root { flex-direction: column-reverse; height: auto; min-height: 100vh; }
-  .left { padding: 40px 28px; }
-  .grid { grid-template-columns: 1fr; gap: 16px; }
-  .right { width: 100%; padding: 36px 28px; }
+/* 响应式 */
+@media (max-width: 480px) {
+  .page { padding: 24px 16px; }
+  .brand { margin-bottom: 28px; }
+  .card { padding: 28px 22px; border-radius: 16px; }
+  .brand h1 { font-size: 22px; }
 }
 </style>
