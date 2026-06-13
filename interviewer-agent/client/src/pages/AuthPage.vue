@@ -103,12 +103,12 @@ async function submit() {
   display: flex;
   min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', sans-serif;
+  background: linear-gradient(160deg, #f8fafc 0%, #f1f5f9 40%, #eef2ff 100%);
 }
 
-/* ====== 左侧 ====== */
+/* ====== 左侧 70% ====== */
 .left {
-  flex: 1;
-  background: linear-gradient(160deg, #f8fafc 0%, #f1f5f9 40%, #eef2ff 100%);
+  flex: 7;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -116,7 +116,7 @@ async function submit() {
 }
 
 .left-inner {
-  max-width: 520px;
+  max-width: 560px;
 }
 
 .logo-row {
@@ -189,16 +189,19 @@ async function submit() {
   font-size: 13px; color: #94a3b8; line-height: 1.5;
 }
 
-/* ====== 右侧 ====== */
+/* ====== 右侧 30% ====== */
 .right {
-  width: 500px; flex-shrink: 0;
-  background: #fff;
+  flex: 3;
   display: flex; align-items: center; justify-content: center;
-  padding: 64px 56px;
+  padding: 40px;
 }
 
 .card {
-  width: 100%;
+  width: 100%; max-width: 400px;
+  background: #fff;
+  border-radius: 20px;
+  padding: 44px 36px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.04), 0 12px 40px rgba(0,0,0,.06);
 }
 
 .tabs {
@@ -266,9 +269,10 @@ button[type="submit"]:disabled { opacity: .5; cursor: not-allowed; }
 
 @media (max-width: 900px) {
   .root { flex-direction: column; }
-  .left { padding: 48px 32px; }
+  .left { flex: auto; padding: 48px 32px; }
   .left h1 { font-size: 28px; }
   .stats { gap: 32px; }
-  .right { width: 100%; padding: 40px 32px; }
+  .right { flex: auto; padding: 24px 32px 48px; }
+  .card { max-width: 100%; }
 }
 </style>
