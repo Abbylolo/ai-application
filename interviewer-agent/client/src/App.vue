@@ -36,7 +36,7 @@ async function handleLogout() {
     <aside class="sidebar">
       <div class="sidebar-brand">
         <span class="brand-icon">🤖</span>
-        <span class="brand-text">PrepAI</span>
+        <span class="brand-text">JobPrep</span>
       </div>
       <nav class="sidebar-nav">
         <router-link to="/" class="nav-item" active-class="nav-item--active">

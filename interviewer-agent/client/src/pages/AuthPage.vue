@@ -65,7 +65,7 @@ async function submit() {
               <path d="M12 12l9-5M12 12v10M12 12L3 7" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
             </svg>
           </div>
-          <span class="logo-name">PrepAI</span>
+          <span class="logo-name">JobPrep</span>
         </div>
 
         <!-- 主标题 -->
