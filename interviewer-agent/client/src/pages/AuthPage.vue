@@ -31,25 +31,53 @@ async function submit() {
 </script>
 
 <template>
-  <div class="page">
-    <div class="wrap">
-      <div class="brand">
-        <div class="logo">🤖</div>
-        <h1>面试官 Agent</h1>
-        <p>AI 驱动的模拟技术面试平台</p>
-      </div>
+  <div class="root">
+    <div class="left">
+      <div class="left-inner">
+        <div>
+          <div class="logo-row">
+            <div class="logo">🤖</div>
+            <span class="logo-text">InterviewAgent</span>
+          </div>
+          <h1>模拟真实面试<br>精准提升技术能力</h1>
+          <p class="desc">基于 AI 大模型的智能面试训练平台，覆盖大厂、中厂、小厂面试场景，助你从容应对每一次技术面试。</p>
+        </div>
 
+        <div class="stats">
+          <div class="stat"><strong>3</strong><span>难度等级</span></div>
+          <div class="stat"><strong>200+</strong><span>高频考题</span></div>
+          <div class="stat"><strong>10+</strong><span>技术领域</span></div>
+        </div>
+
+        <div class="highlights">
+          <div class="hl">
+            <div class="hl-icon">🎯</div>
+            <div class="hl-text"><strong>真实面试模拟</strong><span>AI 面试官根据你的背景动态出题，智能追问，还原高压面试场景</span></div>
+          </div>
+          <div class="hl">
+            <div class="hl-icon">⚡</div>
+            <div class="hl-text"><strong>即时评估反馈</strong><span>每题评分 + 标准答案 + 薄弱点分析，面试结束自动生成报告</span></div>
+          </div>
+          <div class="hl">
+            <div class="hl-icon">🏢</div>
+            <div class="hl-text"><strong>公司定制面试</strong><span>上传 JD 精准匹配岗位要求，针对字节、阿里、腾讯等公司定向训练</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="right">
       <div class="card">
         <div class="tabs">
           <button :class="{ on: mode === 'login' }" @click="mode = 'login'; err = ''; ok = ''">登录</button>
           <button :class="{ on: mode === 'register' }" @click="mode = 'register'; err = ''; ok = ''">注册</button>
         </div>
 
-        <div v-if="err" class="alert alert-err">{{ err }}</div>
-        <div v-if="ok" class="alert alert-ok">{{ ok }}</div>
+        <div v-if="err" class="msg msg-err">{{ err }}</div>
+        <div v-if="ok" class="msg msg-ok">{{ ok }}</div>
 
         <form @submit.prevent="submit">
-          <label>邮箱</label>
+          <label>邮箱地址</label>
           <input v-model="email" type="email" placeholder="name@company.com" />
           <label>密码</label>
           <input v-model="password" type="password" placeholder="至少 6 位" minlength="6" />
@@ -59,159 +87,188 @@ async function submit() {
           </button>
         </form>
 
-        <p class="switch">
+        <p class="foot">
           {{ mode === 'login' ? '还没有账号？' : '已有账号？' }}
           <a href="#" @click.prevent="mode = mode === 'login' ? 'register' : 'login'; err = ''; ok = ''">
             {{ mode === 'login' ? '立即注册' : '去登录' }}
           </a>
         </p>
       </div>
-
-      <div class="features">
-        <span>大厂 / 中厂 / 小厂</span>
-        <span>JS · React · Vue · Node</span>
-        <span>面试报告 + 数据分析</span>
-        <span>简历解析 + 公司定制</span>
-      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.page {
-  min-height: 100vh;
+.root {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 24px;
-  background: #0c0c0e;
+  min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', sans-serif;
 }
 
-.wrap {
-  width: 100%;
-  max-width: 580px;
+/* ====== 左侧 ====== */
+.left {
+  flex: 1;
+  background: linear-gradient(160deg, #f8fafc 0%, #f1f5f9 40%, #eef2ff 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 64px;
 }
 
-/* 品牌 */
-.brand {
-  text-align: center;
-  margin-bottom: 44px;
+.left-inner {
+  max-width: 520px;
+}
+
+.logo-row {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 36px;
 }
 
 .logo {
-  width: 64px; height: 64px;
-  border-radius: 18px;
+  width: 40px; height: 40px;
+  border-radius: 10px;
   background: linear-gradient(135deg, #4f46e5, #6366f1);
   display: flex; align-items: center; justify-content: center;
-  font-size: 30px;
-  margin: 0 auto 20px;
-  box-shadow: 0 12px 36px rgba(79,70,229,.35);
+  font-size: 20px;
 }
 
-.brand h1 {
-  font-size: 32px; font-weight: 800;
-  color: #fafafa; letter-spacing: -.03em;
+.logo-text {
+  font-size: 16px; font-weight: 700; color: #1e293b;
+  letter-spacing: -.01em;
 }
 
-.brand p {
-  font-size: 16px; color: #71717a; margin-top: 6px;
+.left h1 {
+  font-size: 36px; font-weight: 800; color: #0f172a;
+  line-height: 1.25; letter-spacing: -.03em; margin-bottom: 16px;
 }
 
-/* 卡片 */
+.desc {
+  font-size: 15px; color: #64748b; line-height: 1.7;
+}
+
+/* 数据 */
+.stats {
+  display: flex; gap: 48px;
+  margin: 36px 0;
+  padding: 24px 0;
+  border-top: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.stat strong {
+  display: block; font-size: 28px; font-weight: 800;
+  color: #4f46e5; letter-spacing: -.02em;
+}
+
+.stat span {
+  font-size: 13px; color: #94a3b8; margin-top: 2px; display: block;
+}
+
+/* 亮点 */
+.highlights {
+  display: flex; flex-direction: column; gap: 20px;
+}
+
+.hl {
+  display: flex; gap: 14px; align-items: flex-start;
+}
+
+.hl-icon {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  background: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,.04);
+}
+
+.hl-text strong {
+  display: block; font-size: 14px; color: #1e293b; margin-bottom: 3px;
+}
+
+.hl-text span {
+  font-size: 13px; color: #94a3b8; line-height: 1.5;
+}
+
+/* ====== 右侧 ====== */
+.right {
+  width: 500px; flex-shrink: 0;
+  background: #fff;
+  display: flex; align-items: center; justify-content: center;
+  padding: 64px 56px;
+}
+
 .card {
-  background: rgba(24,24,27,.8);
-  border: 1px solid rgba(255,255,255,.06);
-  border-radius: 24px;
-  padding: 44px 40px;
-  backdrop-filter: blur(20px);
+  width: 100%;
 }
 
-/* 切换 */
 .tabs {
-  display: flex; gap: 32px; margin-bottom: 32px;
+  display: flex; gap: 28px; margin-bottom: 32px;
 }
 
 .tabs button {
   border: none; background: none;
-  font-size: 20px; font-weight: 700; color: #52525b;
+  font-size: 20px; font-weight: 700; color: #94a3b8;
   cursor: pointer; font-family: inherit; padding: 0;
+  letter-spacing: -.02em;
 }
-.tabs button.on { color: #fafafa; }
+.tabs button.on { color: #0f172a; }
 
-/* 消息 */
-.alert {
+.msg {
   padding: 12px 16px; border-radius: 10px; font-size: 14px; margin-bottom: 20px;
 }
-.alert-err { background: rgba(239,68,68,.08); color: #fca5a5; border: 1px solid rgba(239,68,68,.15); }
-.alert-ok  { background: rgba(34,197,94,.08); color: #86efac; border: 1px solid rgba(34,197,94,.15); }
+.msg-err { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+.msg-ok  { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
 
-/* 表单 */
-form { display: flex; flex-direction: column; gap: 18px; }
+form { display: flex; flex-direction: column; gap: 16px; }
 
 label {
-  font-size: 13px; font-weight: 600; color: #71717a;
-  text-transform: uppercase; letter-spacing: .06em;
+  font-size: 13px; font-weight: 600; color: #475569;
 }
 
 input {
-  width: 100%; padding: 14px 18px;
-  background: rgba(255,255,255,.04);
-  border: 1px solid rgba(255,255,255,.08);
-  border-radius: 12px;
-  font-size: 16px; color: #fafafa; font-family: inherit; outline: none;
+  width: 100%; padding: 12px 16px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 15px; color: #0f172a; font-family: inherit; outline: none;
   box-sizing: border-box;
+  transition: border-color .15s, box-shadow .15s;
 }
-input::placeholder { color: #3f3f46; }
-input:focus { border-color: rgba(79,70,229,.5); }
+input::placeholder { color: #cbd5e1; }
+input:focus { border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79,70,229,.08); }
 
 button[type="submit"] {
-  width: 100%; margin-top: 8px; padding: 15px;
-  background: #fafafa; border: none; border-radius: 14px;
-  font-size: 17px; font-weight: 600; color: #0c0c0e;
+  width: 100%; margin-top: 8px; padding: 13px;
+  background: #4f46e5; border: none; border-radius: 10px;
+  font-size: 16px; font-weight: 600; color: #fff;
   cursor: pointer; font-family: inherit;
   display: flex; align-items: center; justify-content: center;
-  min-height: 52px;
+  min-height: 48px;
+  transition: background .15s;
 }
-button[type="submit"]:hover { background: #fff; }
-button[type="submit"]:disabled { opacity: .4; cursor: not-allowed; }
+button[type="submit"]:hover { background: #4338ca; }
+button[type="submit"]:disabled { opacity: .5; cursor: not-allowed; }
 
-.switch {
+.foot {
   text-align: center; margin-top: 24px;
-  font-size: 14px; color: #52525b;
+  font-size: 14px; color: #94a3b8;
 }
-.switch a { color: #818cf8; text-decoration: none; font-weight: 600; }
+.foot a { color: #4f46e5; text-decoration: none; font-weight: 600; }
+.foot a:hover { text-decoration: underline; }
 
-/* 底部功能标签 */
-.features {
-  display: flex; flex-wrap: wrap; justify-content: center; gap: 14px;
-  margin-top: 36px;
-}
-
-.features span {
-  padding: 8px 18px;
-  border-radius: 9999px;
-  background: rgba(255,255,255,.04);
-  color: #52525b;
-  font-size: 14px;
-  border: 1px solid rgba(255,255,255,.05);
-}
-
-/* 加载 */
 .spin {
   width: 20px; height: 20px;
-  border: 2px solid rgba(0,0,0,.15);
-  border-top-color: #0c0c0e;
+  border: 2px solid rgba(255,255,255,.25);
+  border-top-color: #fff;
   border-radius: 50%;
   animation: spin .5s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* 响应式 */
-@media (max-width: 480px) {
-  .page { padding: 24px 16px; }
-  .brand { margin-bottom: 28px; }
-  .card { padding: 28px 22px; border-radius: 16px; }
-  .brand h1 { font-size: 22px; }
+@media (max-width: 900px) {
+  .root { flex-direction: column; }
+  .left { padding: 48px 32px; }
+  .left h1 { font-size: 28px; }
+  .stats { gap: 32px; }
+  .right { width: 100%; padding: 40px 32px; }
 }
 </style>
