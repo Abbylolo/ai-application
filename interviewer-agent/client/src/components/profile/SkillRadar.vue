@@ -1,6 +1,5 @@
 <script setup>
 import { ref, onMounted, watch, nextTick, onUnmounted } from 'vue'
-import * as echarts from 'echarts'
 
 const props = defineProps({
   techStack: { type: Array, default: () => [] }
@@ -44,13 +43,14 @@ function buildRadarData() {
   return { indicators, values }
 }
 
-function renderChart() {
+async function renderChart() {
   if (!chartContainer.value) return
 
   const data = buildRadarData()
   if (!data) return
 
   if (!chart) {
+    const echarts = await import('echarts')
     chart = echarts.init(chartContainer.value)
   }
 

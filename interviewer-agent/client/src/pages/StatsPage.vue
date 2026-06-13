@@ -2,7 +2,6 @@
 import { ref, onMounted, nextTick, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import db from '@/db/database.js'
-import * as echarts from 'echarts'
 
 const router = useRouter()
 const isLoading = ref(true)
@@ -14,6 +13,12 @@ const trendChartRef = ref(null)
 const categoryChartRef = ref(null)
 let trendChart = null
 let categoryChart = null
+let echartsModule = null
+
+async function getEcharts() {
+  if (!echartsModule) echartsModule = await import('echarts')
+  return echartsModule
+}
 
 onMounted(async () => {
   // 加载所有已完成的面试
@@ -73,9 +78,12 @@ const categoryScores = computed(() => {
   }))
 })
 
-function renderTrendChart() {
+async function renderTrendChart() {
   if (!trendChartRef.value || !interviews.value.length) return
-  if (!trendChart) trendChart = echarts.init(trendChartRef.value)
+  if (!trendChart) {
+    const echarts = await getEcharts()
+    trendChart = echarts.init(trendChartRef.value)
+  }
 
   const data = interviews.value
     .filter(i => i.averageScore)
@@ -110,9 +118,14 @@ function renderTrendChart() {
   })
 }
 
-function renderCategoryChart() {
+async function renderCategoryChart() {
   if (!categoryChartRef.value || !categoryScores.value.length) return
-  if (!categoryChart) categoryChart = echarts.init(categoryChartRef.value)
+  if (!categoryChart) {
+    const echarts = await getEcharts()
+    categoryChart = echarts.init(categoryChartRef.value)
+  }
+
+  const echarts = await getEcharts()
 
   const catLabels = {
     js_basics: 'JS基础', react_vue: '框架', network: '网络',
