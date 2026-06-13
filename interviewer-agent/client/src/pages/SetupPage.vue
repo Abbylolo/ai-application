@@ -51,9 +51,13 @@ function ensureString(val) {
   return val || ''
 }
 
-// 加载当前 profile（如有）
-onMounted(() => {
+// 加载档案（从 Supabase 重新拉取）
+const hasProfile = ref(false)
+
+async function loadProfile() {
+  await userStore.loadProfiles()
   if (userStore.currentProfile) {
+    hasProfile.value = true
     const p = userStore.currentProfile
     form.value = {
       ...p,
@@ -64,8 +68,12 @@ onMounted(() => {
         techUsed: ensureString(proj.techUsed)
       }))
     }
+  } else {
+    hasProfile.value = false
   }
-})
+}
+
+onMounted(loadProfile)
 
 // 新技能输入
 const newSkillName = ref('')
@@ -212,18 +220,17 @@ async function handleParseResume() {
 
 async function handleSave() {
   const data = { ...form.value }
-  // 转换逗号分隔字符串为数组
   data.strengths = ensureArray(form.value.strengths)
   data.weaknesses = ensureArray(form.value.weaknesses)
-  // 确保 projects 中的 techUsed 是数组
   data.projects = data.projects.map(p => ({
     ...p,
     techUsed: ensureArray(p.techUsed)
   }))
   data.updatedAt = new Date()
   await userStore.saveProfile(data)
+  // 保存后重新从数据库加载，确保数据同步
+  await loadProfile()
   alert('保存成功！')
-  router.push('/')
 }
 
 // 删除项目
@@ -242,8 +249,11 @@ const levelLabels = { proficient: '精通', familiar: '熟悉', learning: '学�
 
 <template>
   <div class="page">
-    <div class="page-title">📝 {{ userStore.currentProfile ? '编辑档案' : '创建技术档案' }}</div>
-    <div class="page-subtitle">上传简历自动解析，或手动填写</div>
+    <div class="page-title">
+      📝 {{ hasProfile ? '编辑技术档案' : '创建技术档案' }}
+      <button v-if="hasProfile" class="btn btn-secondary btn-sm" @click="router.push(`/profile/${userStore.currentProfile?.id}`)" style="margin-left:12px">📊 查看画像</button>
+    </div>
+    <div class="page-subtitle">上传简历自动解析，或手动填写。保存后可查看技能画像分析。</div>
 
     <!-- 简历上传区 -->
     <div class="card mb-4">
