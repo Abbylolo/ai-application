@@ -1,6 +1,6 @@
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted, computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useSettingsStore } from '@/stores/settings.js'
 import { useThemeStore } from '@/stores/theme.js'
 import { getCurrentUser, signOut } from '@/services/auth.js'
@@ -8,7 +8,11 @@ import { getCurrentUser, signOut } from '@/services/auth.js'
 const settingsStore = useSettingsStore()
 const themeStore = useThemeStore()
 const router = useRouter()
+const route = useRoute()
 const userEmail = ref('')
+
+// 登录页全屏，不显示侧边栏
+const hideSidebar = computed(() => route.meta?.hideSidebar === true)
 
 onMounted(async () => {
   const user = await getCurrentUser()
@@ -22,7 +26,13 @@ async function handleLogout() {
 </script>
 
 <template>
-  <div class="app-container">
+  <!-- 登录页：全屏无侧边栏 -->
+  <div v-if="hideSidebar" class="app-container">
+    <router-view />
+  </div>
+
+  <!-- 正常页面：带侧边栏 -->
+  <div v-else class="app-container">
     <aside class="sidebar">
       <div class="sidebar-brand">
         <span class="brand-icon">🤖</span>

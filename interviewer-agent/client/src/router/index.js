@@ -5,7 +5,8 @@ const routes = [
   {
     path: '/auth',
     name: 'Auth',
-    component: () => import('@/pages/AuthPage.vue')
+    component: () => import('@/pages/AuthPage.vue'),
+    meta: { hideSidebar: true }
   },
   {
     path: '/',
