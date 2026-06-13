@@ -40,13 +40,13 @@ async function submit() {
 
 <template>
   <div class="auth">
-    <section class="brand">
-      <!-- 动态背景 -->
-      <div class="bg-orb orb-a"></div>
-      <div class="bg-orb orb-b"></div>
-      <div class="bg-orb orb-c"></div>
-      <div class="bg-line"></div>
+    <!-- 动态背景 - 全局 -->
+    <div class="bg-orb orb-a"></div>
+    <div class="bg-orb orb-b"></div>
+    <div class="bg-orb orb-c"></div>
+    <div class="bg-line"></div>
 
+    <section class="brand">
       <div class="brand-inner" :class="{ in: show }">
         <!-- Logo -->
         <div class="top" style="--d:0ms">
@@ -168,16 +168,17 @@ async function submit() {
   min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', sans-serif;
   background: linear-gradient(155deg, #4338ca 0%, #4f46e5 45%, #6366f1 100%);
+  position: relative;
+  overflow: hidden;
 }
 
 /* ==================== 左侧品牌区 ==================== */
 .brand {
   flex: 1.4;
   position: relative;
-  overflow: hidden;
 }
 
-/* 动态光球 */
+/* 动态光球 - 全局 */
 .bg-orb {
   position: absolute;
   border-radius: 50%;
