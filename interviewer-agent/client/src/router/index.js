@@ -1,56 +1,83 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
+import { getCurrentUser } from '@/services/auth.js'
 
 const routes = [
   {
+    path: '/auth',
+    name: 'Auth',
+    component: () => import('@/pages/AuthPage.vue')
+  },
+  {
     path: '/',
     name: 'Home',
-    component: () => import('@/pages/HomePage.vue')
+    component: () => import('@/pages/HomePage.vue'),
+    meta: { requiresAuth: true }
   },
   {
     path: '/setup',
     name: 'Setup',
-    component: () => import('@/pages/SetupPage.vue')
+    component: () => import('@/pages/SetupPage.vue'),
+    meta: { requiresAuth: true }
   },
   {
     path: '/profile/:id?',
     name: 'Profile',
-    component: () => import('@/pages/ProfilePage.vue')
+    component: () => import('@/pages/ProfilePage.vue'),
+    meta: { requiresAuth: true }
   },
   {
     path: '/interview/:id?',
     name: 'Interview',
-    component: () => import('@/pages/InterviewPage.vue')
+    component: () => import('@/pages/InterviewPage.vue'),
+    meta: { requiresAuth: true }
   },
   {
     path: '/report/:id',
     name: 'Report',
-    component: () => import('@/pages/ReportPage.vue')
+    component: () => import('@/pages/ReportPage.vue'),
+    meta: { requiresAuth: true }
   },
   {
     path: '/history',
     name: 'History',
-    component: () => import('@/pages/HistoryPage.vue')
+    component: () => import('@/pages/HistoryPage.vue'),
+    meta: { requiresAuth: true }
   },
   {
     path: '/company',
     name: 'Company',
-    component: () => import('@/pages/CompanyPage.vue')
+    component: () => import('@/pages/CompanyPage.vue'),
+    meta: { requiresAuth: true }
   },
   {
     path: '/stats',
     name: 'Stats',
-    component: () => import('@/pages/StatsPage.vue')
+    component: () => import('@/pages/StatsPage.vue'),
+    meta: { requiresAuth: true }
   },
   {
     path: '/settings',
     name: 'Settings',
-    component: () => import('@/pages/SettingsPage.vue')
+    component: () => import('@/pages/SettingsPage.vue'),
+    meta: { requiresAuth: true }
   }
 ]
 
 const router = createRouter({
   history: createWebHashHistory(),
   routes
+})
+
+router.beforeEach(async (to, from, next) => {
+  if (to.meta.requiresAuth) {
+    const user = await getCurrentUser()
+    if (!user) return next('/auth')
+  }
+  if (to.path === '/auth') {
+    const user = await getCurrentUser()
+    if (user) return next('/')
+  }
+  next()
 })
 
 export default router

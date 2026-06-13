@@ -1,92 +1,101 @@
 import { Router } from 'express'
 import { supabase } from '../supabase.js'
+import { authMiddleware } from '../middleware/auth.js'
 
 export const dbRouter = Router()
 
+// 所有数据库操作需要登录
+dbRouter.use(authMiddleware)
+
+// 获取当前用户 ID
+function uid(req) { return req.userId }
+
 // ========== 用户档案 ==========
 
-// 获取所有档案
 dbRouter.get('/profiles', async (req, res) => {
-  const { data, error } = await supabase.from('user_profiles').select('*').order('updated_at', { ascending: false })
+  const { data, error } = await supabase.from('user_profiles')
+    .select('*').eq('user_id', uid(req)).order('updated_at', { ascending: false })
   if (error) return res.status(500).json({ error: error.message })
   res.json(data)
 })
 
-// 保存档案
 dbRouter.post('/profiles', async (req, res) => {
-  const profile = req.body
-  let result
+  const profile = { ...req.body, user_id: uid(req) }
 
   if (profile.id) {
-    // 更新
-    const { data, error } = await supabase
-      .from('user_profiles')
-      .update({ ...profile, updated_at: new Date().toISOString() })
-      .eq('id', profile.id)
-      .select()
-      .single()
-    result = { data, error }
+    const { data, error } = await supabase.from('user_profiles')
+      .update(profile).eq('id', profile.id).eq('user_id', uid(req)).select().single()
+    if (!data) return res.status(404).json({ error: '记录不存在' })
+    res.json(data)
   } else {
-    // 新建
-    const { data, error } = await supabase
-      .from('user_profiles')
-      .insert({ ...profile, created_at: new Date().toISOString(), updated_at: new Date().toISOString() })
-      .select()
-      .single()
-    result = { data, error }
+    const { data, error } = await supabase.from('user_profiles')
+      .insert(profile).select().single()
+    if (error) return res.status(500).json({ error: error.message })
+    res.json(data)
   }
-
-  if (result.error) return res.status(500).json({ error: result.error.message })
-  res.json(result.data)
 })
 
-// 删除档案
 dbRouter.delete('/profiles/:id', async (req, res) => {
-  const { error } = await supabase.from('user_profiles').delete().eq('id', req.params.id)
+  await supabase.from('user_profiles').delete().eq('id', req.params.id).eq('user_id', uid(req))
+  res.json({ success: true })
+})
+
+// ========== 模型配置 ==========
+
+dbRouter.get('/model-configs', async (req, res) => {
+  const { data, error } = await supabase.from('model_configs')
+    .select('*').eq('user_id', uid(req)).order('created_at', { ascending: false })
   if (error) return res.status(500).json({ error: error.message })
+  res.json(data)
+})
+
+dbRouter.post('/model-configs', async (req, res) => {
+  const config = { ...req.body, user_id: uid(req) }
+
+  // 如果设为默认，取消该用户其他默认
+  if (config.is_default) {
+    await supabase.from('model_configs').update({ is_default: false })
+      .eq('user_id', uid(req)).neq('id', config.id || '')
+  }
+
+  const { data, error } = await supabase.from('model_configs')
+    .upsert(config, { onConflict: 'id' }).select().single()
+  if (error) return res.status(500).json({ error: error.message })
+  res.json(data)
+})
+
+dbRouter.delete('/model-configs/:id', async (req, res) => {
+  await supabase.from('model_configs').delete().eq('id', req.params.id).eq('user_id', uid(req))
   res.json({ success: true })
 })
 
 // ========== 面试记录 ==========
 
 dbRouter.get('/interviews', async (req, res) => {
-  const { data, error } = await supabase
-    .from('interviews')
-    .select('*')
-    .order('started_at', { ascending: false })
-    .limit(50)
+  const { data, error } = await supabase.from('interviews')
+    .select('*').eq('user_id', uid(req)).order('started_at', { ascending: false }).limit(100)
   if (error) return res.status(500).json({ error: error.message })
   res.json(data)
 })
 
 dbRouter.post('/interviews', async (req, res) => {
-  const interview = req.body
-  let result
+  const interview = { ...req.body, user_id: uid(req) }
 
   if (interview.id) {
-    const { data, error } = await supabase
-      .from('interviews')
-      .update(interview)
-      .eq('id', interview.id)
-      .select()
-      .single()
-    result = { data, error }
+    const { data, error } = await supabase.from('interviews')
+      .update(interview).eq('id', interview.id).eq('user_id', uid(req)).select().single()
+    if (!data) return res.status(404).json({ error: '记录不存在' })
+    res.json(data)
   } else {
-    const { data, error } = await supabase
-      .from('interviews')
-      .insert(interview)
-      .select()
-      .single()
-    result = { data, error }
+    const { data, error } = await supabase.from('interviews')
+      .insert(interview).select().single()
+    if (error) return res.status(500).json({ error: error.message })
+    res.json(data)
   }
-
-  if (result.error) return res.status(500).json({ error: result.error.message })
-  res.json(result.data)
 })
 
 dbRouter.delete('/interviews/:id', async (req, res) => {
-  const { error } = await supabase.from('interviews').delete().eq('id', req.params.id)
-  if (error) return res.status(500).json({ error: error.message })
+  await supabase.from('interviews').delete().eq('id', req.params.id).eq('user_id', uid(req))
   res.json({ success: true })
 })
 
@@ -96,83 +105,38 @@ dbRouter.get('/qa', async (req, res) => {
   const interviewId = req.query.interviewId
   if (!interviewId) return res.status(400).json({ error: '缺少 interviewId' })
 
-  const { data, error } = await supabase
-    .from('interview_qa')
-    .select('*')
-    .eq('interview_id', interviewId)
+  const { data, error } = await supabase.from('interview_qa')
+    .select('*').eq('interview_id', interviewId).eq('user_id', uid(req))
     .order('sequence_number', { ascending: true })
   if (error) return res.status(500).json({ error: error.message })
   res.json(data)
 })
 
 dbRouter.post('/qa', async (req, res) => {
-  const { data, error } = await supabase.from('interview_qa').insert(req.body).select().single()
+  const { data, error } = await supabase.from('interview_qa')
+    .insert({ ...req.body, user_id: uid(req) }).select().single()
   if (error) return res.status(500).json({ error: error.message })
   res.json(data)
 })
 
 dbRouter.put('/qa/:id', async (req, res) => {
-  const { data, error } = await supabase
-    .from('interview_qa')
-    .update(req.body)
-    .eq('id', req.params.id)
-    .select()
-    .single()
-  if (error) return res.status(500).json({ error: error.message })
-  res.json(data)
+  await supabase.from('interview_qa')
+    .update(req.body).eq('id', req.params.id).eq('user_id', uid(req))
+  res.json({ success: true })
 })
 
 // ========== 公司题库 ==========
 
 dbRouter.get('/company-questions', async (req, res) => {
-  const { data, error } = await supabase
-    .from('company_question_bank')
-    .select('*')
-    .order('updated_at', { ascending: false })
+  const { data, error } = await supabase.from('company_question_bank')
+    .select('*').eq('user_id', uid(req)).order('updated_at', { ascending: false })
   if (error) return res.status(500).json({ error: error.message })
   res.json(data)
 })
 
 dbRouter.post('/company-questions', async (req, res) => {
-  const { data, error } = await supabase
-    .from('company_question_bank')
-    .insert(req.body)
-    .select()
-    .single()
+  const { data, error } = await supabase.from('company_question_bank')
+    .insert({ ...req.body, user_id: uid(req) }).select().single()
   if (error) return res.status(500).json({ error: error.message })
   res.json(data)
-})
-
-// ========== 模型配置 ==========
-
-dbRouter.get('/model-configs', async (req, res) => {
-  const { data, error } = await supabase
-    .from('model_configs')
-    .select('*')
-    .order('created_at', { ascending: false })
-  if (error) return res.status(500).json({ error: error.message })
-  res.json(data)
-})
-
-dbRouter.post('/model-configs', async (req, res) => {
-  const config = req.body
-  // 如果设为默认，取消其他默认
-  if (config.is_default) {
-    await supabase.from('model_configs').update({ is_default: false }).neq('id', config.id || '')
-  }
-
-  // upsert: 有则更新，无则插入
-  const { data, error } = await supabase
-    .from('model_configs')
-    .upsert(config, { onConflict: 'id' })
-    .select()
-    .single()
-  if (error) return res.status(500).json({ error: error.message })
-  res.json(data)
-})
-
-dbRouter.delete('/model-configs/:id', async (req, res) => {
-  const { error } = await supabase.from('model_configs').delete().eq('id', req.params.id)
-  if (error) return res.status(500).json({ error: error.message })
-  res.json({ success: true })
 })

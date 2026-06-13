@@ -1,8 +1,24 @@
 <script setup>
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useSettingsStore } from '@/stores/settings.js'
 import { useThemeStore } from '@/stores/theme.js'
+import { getCurrentUser, signOut } from '@/services/auth.js'
+
 const settingsStore = useSettingsStore()
 const themeStore = useThemeStore()
+const router = useRouter()
+const userEmail = ref('')
+
+onMounted(async () => {
+  const user = await getCurrentUser()
+  userEmail.value = user?.email || ''
+})
+
+async function handleLogout() {
+  await signOut()
+  router.push('/auth')
+}
 </script>
 
 <template>
@@ -40,9 +56,15 @@ const themeStore = useThemeStore()
         </router-link>
       </nav>
       <div class="sidebar-footer">
-        <button class="theme-toggle" @click="themeStore.toggle" :title="themeStore.theme === 'light' ? '切换暗色模式' : '切换亮色模式'">
-          {{ themeStore.theme === 'light' ? '🌙' : '☀️' }}
-        </button>
+        <div v-if="userEmail" class="user-info mb-2" :title="userEmail">
+          👤 {{ userEmail.split('@')[0] }}
+        </div>
+        <div class="flex gap-2">
+          <button class="theme-toggle" @click="themeStore.toggle">
+            {{ themeStore.theme === 'light' ? '🌙' : '☀️' }}
+          </button>
+          <button class="theme-toggle" @click="handleLogout" title="退出登录">🚪</button>
+        </div>
       </div>
     </aside>
     <main class="main-content">
@@ -114,6 +136,11 @@ const themeStore = useThemeStore()
 .sidebar-footer {
   margin-top: auto; padding: 12px 16px; border-top: 1px solid var(--border-color);
 }
+.user-info {
+  font-size: 12px; color: var(--text-secondary);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.mb-2 { margin-bottom: 8px; }
 .theme-toggle {
   width: 100%; padding: 8px; border: 1px solid var(--border-color);
   border-radius: var(--radius-sm); background: var(--bg-card);

@@ -4,6 +4,7 @@
 -- 用户档案
 CREATE TABLE IF NOT EXISTS user_profiles (
   id SERIAL PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id),
   name TEXT,
   position TEXT,
   years_of_experience INTEGER DEFAULT 0,
@@ -20,6 +21,7 @@ CREATE TABLE IF NOT EXISTS user_profiles (
 -- 模型配置
 CREATE TABLE IF NOT EXISTS model_configs (
   id TEXT PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id),
   name TEXT NOT NULL,
   provider_type TEXT DEFAULT 'anthropic',
   endpoint TEXT,
@@ -32,6 +34,7 @@ CREATE TABLE IF NOT EXISTS model_configs (
 -- 面试记录
 CREATE TABLE IF NOT EXISTS interviews (
   id SERIAL PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id),
   profile_id INTEGER REFERENCES user_profiles(id),
   type TEXT DEFAULT 'general',
   company_name TEXT,
@@ -48,6 +51,7 @@ CREATE TABLE IF NOT EXISTS interviews (
 -- 面试问答
 CREATE TABLE IF NOT EXISTS interview_qa (
   id SERIAL PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id),
   interview_id INTEGER REFERENCES interviews(id) ON DELETE CASCADE,
   sequence_number INTEGER,
   type TEXT,
@@ -61,6 +65,7 @@ CREATE TABLE IF NOT EXISTS interview_qa (
 -- 公司题库
 CREATE TABLE IF NOT EXISTS company_question_bank (
   id SERIAL PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id),
   company_name TEXT NOT NULL,
   position TEXT,
   jd_content TEXT,
