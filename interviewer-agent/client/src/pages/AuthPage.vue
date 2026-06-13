@@ -323,7 +323,7 @@ async function submit() {
 
 .brand-inner {
   position: relative; z-index: 1;
-  padding: 80px 72px 210px 96px;
+  padding: 80px 72px 130px 96px;
   max-width: 700px;
   width: 100%;
   display: flex;
