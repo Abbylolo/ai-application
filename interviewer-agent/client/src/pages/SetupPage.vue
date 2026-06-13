@@ -12,6 +12,8 @@ const settingsStore = useSettingsStore()
 const isParsing = ref(false)
 const parseError = ref('')
 const resumeText = ref('')
+const parseElapsed = ref(0)
+let parseTimer = null
 const resumeFile = ref(null)
 
 const form = ref({
@@ -134,6 +136,8 @@ async function handleParseResume() {
   console.log('📤 发送解析请求, 配置:', settingsStore.currentConfig?.modelName)
   isParsing.value = true
   parseError.value = ''
+  parseElapsed.value = 0
+  parseTimer = setInterval(() => { parseElapsed.value++ }, 1000)
 
   try {
     const result = await parseResume(resumeText.value)
@@ -141,6 +145,8 @@ async function handleParseResume() {
 
     if (result.error) {
       parseError.value = result.error
+      clearInterval(parseTimer)
+      isParsing.value = false
       return
     }
 
@@ -148,6 +154,8 @@ async function handleParseResume() {
       console.log('LLM原始返回:', result.rawContent)
       console.log('清洗后:', result.cleanedContent)
       parseError.value = result.parseError
+      clearInterval(parseTimer)
+      isParsing.value = false
       return
     }
 
@@ -169,6 +177,7 @@ async function handleParseResume() {
       parseError.value = '解析失败：' + (err.message || '未知错误')
     }
   } finally {
+    clearInterval(parseTimer)
     isParsing.value = false
   }
 }
@@ -229,15 +238,26 @@ const levelLabels = { proficient: '精通', familiar: '熟悉', learning: '学�
         rows="6"
         placeholder="或直接粘贴简历文本内容..."
       ></textarea>
-      <div class="mt-2 flex gap-2 items-center">
-        <button
-          class="btn btn-primary btn-sm"
-          @click="handleParseResume"
-          :disabled="isParsing || !resumeText.trim()"
-        >
-          {{ isParsing ? '🤖 解析中...' : '🤖 智能解析' }}
-        </button>
-        <span class="form-hint">使用 AI 自动提取岗位、技能、项目等信息</span>
+      <div class="mt-2">
+        <div class="flex gap-2 items-center">
+          <button
+            class="btn btn-primary btn-sm"
+            @click="handleParseResume"
+            :disabled="isParsing || !resumeText.trim()"
+          >
+            {{ isParsing ? '🤖 解析中...' : '🤖 智能解析' }}
+          </button>
+          <span class="form-hint">使用 AI 自动提取岗位、技能、项目等信息</span>
+        </div>
+        <!-- 解析进度条 -->
+        <div v-if="isParsing" class="parse-progress mt-2">
+          <div class="progress-bar">
+            <div class="progress-fill"></div>
+          </div>
+          <div class="progress-text">
+            🤖 AI 正在分析简历，请耐心等待... 已耗时 {{ parseElapsed }} 秒
+          </div>
+        </div>
       </div>
       <div v-if="parseError" class="error-message mt-2">{{ parseError }}</div>
     </div>
@@ -381,5 +401,37 @@ const levelLabels = { proficient: '精通', familiar: '熟悉', learning: '学�
   border-radius: var(--radius-md);
   padding: 16px;
   margin-bottom: 12px;
+}
+
+.parse-progress {
+  padding: 12px 16px;
+  background: var(--accent-bg);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--accent-color);
+}
+.progress-bar {
+  height: 6px;
+  background: var(--bg-hover);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.progress-fill {
+  height: 100%;
+  width: 70%;
+  background: linear-gradient(90deg, var(--accent-color), #818cf8);
+  border-radius: 3px;
+  animation: progress-slide 1.5s ease-in-out infinite;
+}
+@keyframes progress-slide {
+  0% { width: 10%; }
+  50% { width: 75%; }
+  100% { width: 10%; }
+}
+.progress-text {
+  font-size: 13px;
+  color: var(--accent-color);
+  font-weight: 500;
+  text-align: center;
 }
 </style>
