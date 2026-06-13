@@ -220,8 +220,8 @@ async function submit() {
 }
 @keyframes drift {
   0%, 100% { transform: translate(0,0) scale(1); }
-  33%  { transform: translate(40px,-30px) scale(1.06); }
-  66%  { transform: translate(-25px,20px) scale(.95); }
+  33%  { transform: translate(80px,-50px) scale(1.1); }
+  66%  { transform: translate(-50px,40px) scale(.92); }
 }
 
 /* 浮动圆点 */
@@ -232,39 +232,39 @@ async function submit() {
     radial-gradient(circle, rgba(255,255,255,.1) 1.5px, transparent 1.5px);
   background-size: 60px 60px, 90px 90px;
   background-position: 0 0, 30px 20px;
-  animation: dot-float 20s linear infinite;
+  animation: dot-float 15s linear infinite;
   pointer-events: none;
 }
 @keyframes dot-float {
   0% { background-position: 0 0, 30px 20px; }
-  100% { background-position: 60px 60px, 90px 80px; }
+  100% { background-position: 120px 120px, 180px 160px; }
 }
 
 /* 浮动光环 */
 .bg-ring {
   position: absolute;
   border-radius: 50%;
-  border: 1.5px solid rgba(255,255,255,.08);
+  border: 1.5px solid rgba(255,255,255,.1);
   pointer-events: none;
 }
 .ring-1 {
   width: 300px; height: 300px;
-  top: 20%; right: -80px;
-  animation: ring-drift 12s ease-in-out infinite;
+  top: 20%; right: -120px;
+  animation: ring-drift 10s ease-in-out infinite;
 }
 .ring-2 {
   width: 200px; height: 200px;
-  bottom: 15%; left: -40px;
-  animation: ring-drift 16s ease-in-out infinite reverse;
+  bottom: 15%; left: -80px;
+  animation: ring-drift 14s ease-in-out infinite reverse;
 }
 .ring-3 {
   width: 400px; height: 400px;
   top: 55%; left: 50%;
-  animation: ring-drift 20s ease-in-out infinite;
+  animation: ring-drift 18s ease-in-out infinite;
 }
 @keyframes ring-drift {
-  0%, 100% { transform: translate(0,0) scale(1); opacity: 0.5; }
-  50% { transform: translate(20px,-15px) scale(1.1); opacity: 0.8; }
+  0%, 100% { transform: translate(0,0) scale(1); opacity: 0.3; }
+  50% { transform: translate(60px,-30px) scale(1.25); opacity: 0.7; }
 }
 
 .bg-line {
