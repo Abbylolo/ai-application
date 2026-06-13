@@ -65,7 +65,7 @@ async function submit() {
               <path d="M12 12l9-5M12 12v10M12 12L3 7" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
             </svg>
           </div>
-          <span class="logo-name">InterviewAgent</span>
+          <span class="logo-name">PrepAI</span>
         </div>
 
         <!-- 主标题 -->
@@ -178,7 +178,6 @@ async function submit() {
   font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', sans-serif;
   background: linear-gradient(155deg, #4338ca 0%, #4f46e5 45%, #6366f1 100%);
   position: relative;
-  overflow: hidden;
 }
 
 /* ==================== 左侧品牌区 ==================== */
@@ -229,7 +228,7 @@ async function submit() {
 
 .brand-inner {
   position: relative; z-index: 1;
-  padding: 72px 72px 72px 96px;
+  padding: 72px 72px 222px 96px;
   max-width: 700px;
   width: 100%;
   display: flex;
@@ -308,8 +307,9 @@ async function submit() {
 .panel {
   flex: 1;
   display: flex;
+  align-items: center;
   justify-content: center;
-  padding: 64px 48px 48px;
+  padding: 48px;
 }
 
 .form-block {
@@ -317,9 +317,8 @@ async function submit() {
   max-width: 420px;
   background: #fff;
   border-radius: 20px;
-  padding: 48px 48px 52px;
+  padding: 44px 40px;
   box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 16px 48px rgba(0,0,0,.12);
-  overflow: visible;
 }
 
 .head { margin-bottom: 26px; }
