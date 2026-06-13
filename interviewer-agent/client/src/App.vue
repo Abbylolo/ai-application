@@ -107,8 +107,8 @@ async function handleLogout() {
   border-bottom: 1px solid var(--border-color);
 }
 
-.brand-icon { font-size: 24px; }
-.brand-text { font-size: 15px; font-weight: 700; color: var(--text-primary); }
+.brand-icon { font-size: 28px; }
+.brand-text { font-size: 18px; font-weight: 800; color: var(--text-primary); letter-spacing: -.02em; }
 
 .sidebar-nav {
   padding: 12px 8px;

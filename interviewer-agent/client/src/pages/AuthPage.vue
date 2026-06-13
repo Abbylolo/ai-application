@@ -262,7 +262,7 @@ async function submit() {
 }
 .logo svg { width: 26px; height: 26px; }
 .logo-name {
-  font-size: 19px; font-weight: 700; color: #fff; letter-spacing: -.01em;
+  font-size: 24px; font-weight: 800; color: #fff; letter-spacing: -.02em;
 }
 
 /* slogan 在 logo 下方适当留白 */
