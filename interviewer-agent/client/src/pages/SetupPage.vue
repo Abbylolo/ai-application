@@ -73,25 +73,51 @@ function removeSkill(index) {
 }
 
 // 简历上传
-function handleFileUpload(e) {
+const isExtractingPDF = ref(false)
+
+async function handleFileUpload(e) {
   const file = e.target.files[0]
   if (!file) return
   resumeFile.value = file
+  parseError.value = ''
 
-  const reader = new FileReader()
-  reader.onload = async (ev) => {
-    const text = ev.target.result
-    resumeText.value = text
-    form.value.resumeRaw = text
+  if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+    // PDF 文件：用 pdf.js 提取文本
+    isExtractingPDF.value = true
+    try {
+      const pdfjsLib = await import('pdfjs-dist')
+      pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).toString()
+
+      const arrayBuffer = await file.arrayBuffer()
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
+
+      let fullText = ''
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i)
+        const content = await page.getTextContent()
+        const pageText = content.items.map(item => item.str).join(' ')
+        fullText += pageText + '\n'
+      }
+
+      resumeText.value = fullText
+      form.value.resumeRaw = fullText
+      parseError.value = ''
+    } catch (err) {
+      console.error('PDF解析失败:', err)
+      parseError.value = 'PDF 解析失败，请尝试复制文本内容粘贴到下方文本框'
+    } finally {
+      isExtractingPDF.value = false
+    }
+  } else {
+    // 纯文本文件
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      const text = ev.target.result
+      resumeText.value = text
+      form.value.resumeRaw = text
+    }
+    reader.readAsText(file)
   }
-
-  if (file.type === 'application/pdf') {
-    // PDF 需要 pdf.js 解析，这里先提示
-    parseError.value = 'PDF 解析将在后续版本支持，请复制文本内容粘贴到下方文本框'
-    return
-  }
-
-  reader.readAsText(file)
 }
 
 async function handleParseResume() {
@@ -174,13 +200,16 @@ const levelLabels = { proficient: '精通', familiar: '熟悉', learning: '学�
     <!-- 简历上传区 -->
     <div class="card mb-4">
       <div class="card-header">📄 简历解析</div>
-      <div class="flex gap-3 mb-2">
+      <div class="flex gap-3 mb-2 items-center">
         <label class="btn btn-secondary btn-sm" style="cursor:pointer">
           📁 上传简历文件
           <input type="file" accept=".txt,.md,.json,.pdf" hidden @change="handleFileUpload" />
         </label>
-        <span v-if="resumeFile" class="text-secondary" style="align-self:center;font-size:13px">
+        <span v-if="resumeFile" class="text-secondary" style="font-size:13px">
           {{ resumeFile.name }}
+        </span>
+        <span v-if="isExtractingPDF" class="text-secondary" style="font-size:12px">
+          ⏳ 正在提取PDF文本...
         </span>
       </div>
       <textarea
