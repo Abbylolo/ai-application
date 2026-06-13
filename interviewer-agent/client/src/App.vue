@@ -100,11 +100,12 @@ async function handleLogout() {
 /* === 侧边栏 === */
 .sidebar {
   width: 220px;
-  background: #0f1117;
-  color: #a1a5ac;
+  background: #fff4f0;
+  color: #8c6e6e;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
+  border-right: 1.5px solid #f2ddd5;
 }
 
 .sidebar-brand {
@@ -115,17 +116,17 @@ async function handleLogout() {
 }
 
 .brand-logo {
-  color: #5b5fe3;
+  color: #e87d8b;
   flex-shrink: 0;
 }
 
 .brand-text-group { display: flex; flex-direction: column; gap: 0; }
 .brand-text {
-  font-size: 16px; font-weight: 680; color: #edeeef;
+  font-size: 16px; font-weight: 680; color: #3d2c2c;
   letter-spacing: -.02em; line-height: 1.3;
 }
 .brand-sub {
-  font-size: 11px; color: #5a5e66; letter-spacing: .04em;
+  font-size: 11px; color: #c4a6a6; letter-spacing: .04em;
   font-weight: 500;
 }
 
@@ -142,8 +143,8 @@ async function handleLogout() {
   align-items: center;
   gap: 10px;
   padding: 9px 12px;
-  border-radius: 8px;
-  color: #818692;
+  border-radius: 10px;
+  color: #b08a8a;
   text-decoration: none;
   font-size: 13.5px;
   font-weight: 500;
@@ -152,18 +153,18 @@ async function handleLogout() {
 }
 
 .nav-item:hover {
-  color: #c5c8ce;
-  background: rgba(255,255,255,.04);
+  color: #6b5050;
+  background: #fef0ea;
 }
 
 .nav-item--active {
-  color: #edeeef;
-  background: rgba(255,255,255,.06);
+  color: #3d2c2c;
+  background: #fdf2f8;
   font-weight: 560;
 }
 
 .nav-ico { flex-shrink: 0; }
-.nav-warn { margin-left: auto; width: 7px; height: 7px; border-radius: 50%; background: #5b5fe3; }
+.nav-warn { margin-left: auto; width: 7px; height: 7px; border-radius: 50%; background: #e87d8b; }
 
 /* === 底部 === */
 .sidebar-footer {
@@ -172,13 +173,13 @@ async function handleLogout() {
   display: flex;
   align-items: center;
   gap: 8px;
-  border-top: 1px solid rgba(255,255,255,.06);
+  border-top: 1.5px solid #f2ddd5;
 }
 
 .user-info {
   flex: 1;
   font-size: 12.5px;
-  color: #818692;
+  color: #b08a8a;
   display: flex;
   align-items: center;
   gap: 7px;
@@ -190,15 +191,15 @@ async function handleLogout() {
 .sidebar-btn {
   width: 32px; height: 32px;
   display: flex; align-items: center; justify-content: center;
-  border: 1px solid rgba(255,255,255,.08);
-  border-radius: 8px;
+  border: 1.5px solid #f2ddd5;
+  border-radius: 10px;
   background: transparent;
   cursor: pointer;
   font-size: 15px;
-  color: #818692;
+  color: #b08a8a;
   transition: all .12s;
 }
-.sidebar-btn:hover { background: rgba(255,255,255,.06); color: #c5c8ce; }
+.sidebar-btn:hover { background: #fef0ea; color: #6b5050; }
 
 /* === 主区域 === */
 .main-content {

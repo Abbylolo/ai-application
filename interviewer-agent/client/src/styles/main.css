@@ -1,29 +1,29 @@
 /* ========== CSS 变量 — 精致暗色 ========== */
 :root {
-  --bg-primary: #faf9f7;
-  --bg-sidebar: #0f1117;
+  --bg-primary: #fef9f5;
+  --bg-sidebar: #fff4f0;
   --bg-card: #ffffff;
-  --bg-hover: #f4f3f0;
-  --bg-input: #faf9f7;
-  --bg-code: #f4f3f0;
-  --bg-tag: #f0eeeb;
-  --accent-bg: #f0effc;
-  --accent-color: #5b5fe3;
-  --accent-hover: #4a4ed6;
-  --text-primary: #0f1117;
-  --text-secondary: #6b6d75;
-  --text-muted: #a8aab0;
-  --border-color: #e8e7e4;
-  --border-input: #dcdbd8;
-  --success: #1a8a4a;
-  --warning: #c27a14;
-  --danger: #d13b3b;
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.03);
-  --shadow-md: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.04);
-  --shadow-lg: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 18px;
+  --bg-hover: #fff0eb;
+  --bg-input: #fffbf8;
+  --bg-code: #fef5f0;
+  --bg-tag: #fef0ea;
+  --accent-bg: #fdf2f8;
+  --accent-color: #e87d8b;
+  --accent-hover: #d46272;
+  --text-primary: #3d2c2c;
+  --text-secondary: #8c6e6e;
+  --text-muted: #c4a6a6;
+  --border-color: #f2ddd5;
+  --border-input: #ecd5cb;
+  --success: #7bb896;
+  --warning: #e8a850;
+  --danger: #d96464;
+  --shadow-sm: 0 1px 2px rgba(180,150,140,0.06);
+  --shadow-md: 0 1px 3px rgba(180,150,140,0.08), 0 4px 12px rgba(180,150,140,0.06);
+  --shadow-lg: 0 1px 2px rgba(180,150,140,0.06), 0 8px 24px rgba(180,150,140,0.08);
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
 }
 
 /* ========== 全局重置 ========== */
