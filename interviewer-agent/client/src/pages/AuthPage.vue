@@ -54,6 +54,10 @@ async function submit() {
     <div class="bg-orb orb-b"></div>
     <div class="bg-orb orb-c"></div>
     <div class="bg-line"></div>
+    <div class="bg-dots"></div>
+    <div class="bg-ring ring-1"></div>
+    <div class="bg-ring ring-2"></div>
+    <div class="bg-ring ring-3"></div>
 
     <section class="brand">
       <div class="brand-inner" :class="{ in: show }">
@@ -218,6 +222,49 @@ async function submit() {
   0%, 100% { transform: translate(0,0) scale(1); }
   33%  { transform: translate(40px,-30px) scale(1.06); }
   66%  { transform: translate(-25px,20px) scale(.95); }
+}
+
+/* 浮动圆点 */
+.bg-dots {
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(circle, rgba(255,255,255,.15) 1px, transparent 1px),
+    radial-gradient(circle, rgba(255,255,255,.1) 1.5px, transparent 1.5px);
+  background-size: 60px 60px, 90px 90px;
+  background-position: 0 0, 30px 20px;
+  animation: dot-float 20s linear infinite;
+  pointer-events: none;
+}
+@keyframes dot-float {
+  0% { background-position: 0 0, 30px 20px; }
+  100% { background-position: 60px 60px, 90px 80px; }
+}
+
+/* 浮动光环 */
+.bg-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,.08);
+  pointer-events: none;
+}
+.ring-1 {
+  width: 300px; height: 300px;
+  top: 20%; right: -80px;
+  animation: ring-drift 12s ease-in-out infinite;
+}
+.ring-2 {
+  width: 200px; height: 200px;
+  bottom: 15%; left: -40px;
+  animation: ring-drift 16s ease-in-out infinite reverse;
+}
+.ring-3 {
+  width: 400px; height: 400px;
+  top: 55%; left: 50%;
+  animation: ring-drift 20s ease-in-out infinite;
+}
+@keyframes ring-drift {
+  0%, 100% { transform: translate(0,0) scale(1); opacity: 0.5; }
+  50% { transform: translate(20px,-15px) scale(1.1); opacity: 0.8; }
 }
 
 .bg-line {
