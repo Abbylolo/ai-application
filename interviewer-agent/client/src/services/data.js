@@ -144,6 +144,7 @@ function toSupabaseProfile(p) {
   return {
     id: p.id ? Number(p.id) : undefined,
     name: p.name, position: p.position,
+    avatar: p.avatar || '👤',
     years_of_experience: p.yearsOfExperience,
     tech_stack: JSON.stringify(p.techStack || []),
     projects: JSON.stringify(p.projects || []),
@@ -199,6 +200,7 @@ function toSupabaseCompany(c) {
 function fromSupabaseProfile(p) {
   return {
     id: p.id, name: p.name, position: p.position,
+    avatar: p.avatar || '👤',
     yearsOfExperience: p.years_of_experience,
     techStack: safeJSON(p.tech_stack, []),
     projects: safeJSON(p.projects, []),
