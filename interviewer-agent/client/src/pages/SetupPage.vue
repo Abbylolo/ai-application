@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user.js'
 import { useSettingsStore } from '@/stores/settings.js'
@@ -9,463 +9,331 @@ const router = useRouter()
 const userStore = useUserStore()
 const settingsStore = useSettingsStore()
 
+const isEditing = ref(false)
+const isLoading = ref(true)
+const hasProfile = ref(false)
+
 const isParsing = ref(false)
 const parseError = ref('')
 const resumeText = ref('')
 const parseElapsed = ref(0)
-const parseProgress = ref(0)    // 0-100
-let parseTimer = null
-
-// 模拟解析阶段
-const parseSteps = [
-  '正在发送请求...',
-  '正在识别技术栈...',
-  '正在分析项目经验...',
-  '正在整理教育背景...',
-  '正在汇总结果...'
-]
+const parseProgress = ref(0)
 const parseStep = ref('')
+let parseTimer = null
 let stepIndex = 0
+
+const parseSteps = ['正在发送请求...', '正在识别技术栈...', '正在分析项目经验...', '正在整理教育背景...', '正在汇总结果...']
+
 const resumeFile = ref(null)
+const isExtractingPDF = ref(false)
 
 const form = ref({
-  name: '',
-  position: '',
-  yearsOfExperience: 0,
-  techStack: [],
-  projects: [],
-  education: { degree: '', major: '', school: '' },
-  strengths: '',
-  weaknesses: '',
-  resumeRaw: ''
+  name: '', position: '', yearsOfExperience: 0,
+  techStack: [], projects: [], education: { degree: '', major: '', school: '' },
+  strengths: '', weaknesses: '', resumeRaw: ''
 })
 
-// 数组 ↔ 逗号分隔字符串的辅助函数
-function ensureArray(val) {
-  if (Array.isArray(val)) return val
-  if (typeof val === 'string') return val.split(',').map(s => s.trim()).filter(Boolean)
-  return []
-}
-function ensureString(val) {
-  if (Array.isArray(val)) return val.join(', ')
-  return val || ''
-}
-
-// 加载档案（从 Supabase 重新拉取）
-const hasProfile = ref(false)
+// 辅助函数
+function ensureArray(val) { return Array.isArray(val) ? val : typeof val === 'string' ? val.split(',').map(s => s.trim()).filter(Boolean) : [] }
+function ensureString(val) { return Array.isArray(val) ? val.join(', ') : val || '' }
 
 async function loadProfile() {
-  await userStore.loadProfiles()
-  if (userStore.currentProfile) {
-    hasProfile.value = true
-    const p = userStore.currentProfile
-    form.value = {
-      ...p,
-      strengths: ensureString(p.strengths),
-      weaknesses: ensureString(p.weaknesses),
-      projects: (p.projects || []).map(proj => ({
-        ...proj,
-        techUsed: ensureString(proj.techUsed)
-      }))
+  isLoading.value = true
+  try {
+    await userStore.loadProfiles()
+    if (userStore.currentProfile) {
+      hasProfile.value = true
+      const p = userStore.currentProfile
+      form.value = {
+        id: p.id, name: p.name || '', position: p.position || '',
+        yearsOfExperience: p.yearsOfExperience || 0,
+        techStack: p.techStack || [],
+        projects: (p.projects || []).map(proj => ({
+          ...proj,
+          techUsed: ensureString(proj.techUsed)
+        })),
+        education: p.education || { degree: '', major: '', school: '' },
+        strengths: ensureString(p.strengths),
+        weaknesses: ensureString(p.weaknesses),
+        resumeRaw: p.resumeRaw || ''
+      }
+    } else {
+      hasProfile.value = false
     }
-  } else {
-    hasProfile.value = false
+  } catch (e) {
+    console.error('加载档案失败:', e)
+  } finally {
+    isLoading.value = false
   }
 }
 
 onMounted(loadProfile)
 
-// 新技能输入
-const newSkillName = ref('')
-const newSkillCategory = ref('framework')
-const newSkillLevel = ref('proficient')
-
+// 技能
+const newSkillName = ref(''), newSkillCategory = ref('framework'), newSkillLevel = ref('proficient')
 function addSkill() {
   if (!newSkillName.value.trim()) return
-  form.value.techStack.push({
-    name: newSkillName.value.trim(),
-    category: newSkillCategory.value,
-    level: newSkillLevel.value
-  })
+  form.value.techStack.push({ name: newSkillName.value.trim(), category: newSkillCategory.value, level: newSkillLevel.value })
   newSkillName.value = ''
 }
+function removeSkill(index) { form.value.techStack.splice(index, 1) }
 
-function removeSkill(index) {
-  form.value.techStack.splice(index, 1)
-}
-
-// 简历上传
-const isExtractingPDF = ref(false)
-
+// PDF 上传
 async function handleFileUpload(e) {
   const file = e.target.files[0]
   if (!file) return
   resumeFile.value = file
   parseError.value = ''
-
   if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
-    // PDF 文件：用 pdf.js 提取文本
     isExtractingPDF.value = true
     try {
       const pdfjsLib = await import('pdfjs-dist')
       pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).toString()
-
       const arrayBuffer = await file.arrayBuffer()
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
-
       let fullText = ''
       for (let i = 1; i <= pdf.numPages; i++) {
         const page = await pdf.getPage(i)
         const content = await page.getTextContent()
-        const pageText = content.items.map(item => item.str).join(' ')
-        fullText += pageText + '\n'
+        fullText += content.items.map(item => item.str).join(' ') + '\n'
       }
-
       resumeText.value = fullText
       form.value.resumeRaw = fullText
-      parseError.value = ''
-    } catch (err) {
-      console.error('PDF解析失败:', err)
-      parseError.value = 'PDF 解析失败，请尝试复制文本内容粘贴到下方文本框'
-    } finally {
-      isExtractingPDF.value = false
-    }
+    } catch (err) { parseError.value = 'PDF 解析失败，请粘贴文本' }
+    finally { isExtractingPDF.value = false }
   } else {
-    // 纯文本文件
     const reader = new FileReader()
-    reader.onload = (ev) => {
-      const text = ev.target.result
-      resumeText.value = text
-      form.value.resumeRaw = text
-    }
+    reader.onload = ev => { resumeText.value = ev.target.result; form.value.resumeRaw = ev.target.result }
     reader.readAsText(file)
   }
 }
 
+// AI 解析
 async function handleParseResume() {
-  console.log('🔍 handleParseResume 开始')
-  if (!resumeText.value.trim()) {
-    parseError.value = '请先上传简历文件或粘贴简历文本'
-    return
-  }
-  if (!settingsStore.currentConfig) {
-    parseError.value = '请先在设置中配置模型'
-    return
-  }
-
-  console.log('📤 发送解析请求, 配置:', settingsStore.currentConfig?.modelName)
-  isParsing.value = true
-  parseError.value = ''
-  parseElapsed.value = 0
-  parseProgress.value = 0
-  stepIndex = 0
-  parseStep.value = parseSteps[0]
+  if (!resumeText.value.trim()) { parseError.value = '请先上传简历或粘贴文本'; return }
+  if (!settingsStore.currentConfig) { parseError.value = '请先在设置中配置模型'; return }
+  isParsing.value = true; parseError.value = ''; parseElapsed.value = 0; parseProgress.value = 0
+  stepIndex = 0; parseStep.value = parseSteps[0]
   parseTimer = setInterval(() => {
     parseElapsed.value++
-    // 进度 0→90%，越往后越慢（模拟真实解析）
     parseProgress.value = Math.min(90, Math.floor(parseElapsed.value * 2.5))
-    // 根据进度切换阶段
-    const newIdx = Math.min(
-      Math.floor(parseProgress.value / 20),
-      parseSteps.length - 1
-    )
-    if (newIdx !== stepIndex) {
-      stepIndex = newIdx
-      parseStep.value = parseSteps[stepIndex]
-    }
+    const newIdx = Math.min(Math.floor(parseProgress.value / 20), parseSteps.length - 1)
+    if (newIdx !== stepIndex) { stepIndex = newIdx; parseStep.value = parseSteps[stepIndex] }
   }, 1000)
-
   try {
     const result = await parseResume(resumeText.value)
-    console.log('📥 解析返回:', result)
-
-    if (result.error) {
-      parseError.value = result.error
-      clearInterval(parseTimer)
-      isParsing.value = false
-      return
-    }
-
-    if (result.parseError) {
-      console.log('LLM原始返回:', result.rawContent)
-      console.log('清洗后:', result.cleanedContent)
-      parseError.value = result.parseError
-      clearInterval(parseTimer)
-      isParsing.value = false
-      return
-    }
-
-    // 填充表单
+    if (result.error) { parseError.value = result.error; return }
+    if (result.parseError) { parseError.value = result.parseError; return }
     if (result.name) form.value.name = result.name
     if (result.position) form.value.position = result.position
     if (result.yearsOfExperience) form.value.yearsOfExperience = result.yearsOfExperience
     if (result.techStack?.length) form.value.techStack = result.techStack
-    if (result.projects?.length) form.value.projects = result.projects
+    if (result.projects?.length) form.value.projects = result.projects.map(p => ({ ...p, techUsed: ensureString(p.techUsed) }))
     if (result.education) form.value.education = { ...form.value.education, ...result.education }
     if (result.strengths?.length) form.value.strengths = ensureString(result.strengths)
     if (result.weaknesses?.length) form.value.weaknesses = ensureString(result.weaknesses)
-    console.log('✅ 解析完成')
   } catch (err) {
-    console.error('❌ 解析异常:', err.name, err.message)
-    if (err.name === 'AbortError') {
-      parseError.value = '解析请求超时（2分钟）。可能原因：模型响应慢或网络问题，请检查模型配置后重试'
-    } else {
-      parseError.value = '解析失败：' + (err.message || '未知错误')
-    }
-  } finally {
-    clearInterval(parseTimer)
-    isParsing.value = false
-  }
+    parseError.value = err.name === 'AbortError' ? '请求超时' : '解析失败: ' + err.message
+  } finally { clearInterval(parseTimer); isParsing.value = false }
 }
 
+// 保存
 async function handleSave() {
   const data = { ...form.value }
   data.strengths = ensureArray(form.value.strengths)
   data.weaknesses = ensureArray(form.value.weaknesses)
-  data.projects = data.projects.map(p => ({
-    ...p,
-    techUsed: ensureArray(p.techUsed)
-  }))
-  data.updatedAt = new Date()
+  data.projects = data.projects.map(p => ({ ...p, techUsed: ensureArray(p.techUsed) }))
   await userStore.saveProfile(data)
-  // 保存后重新从数据库加载，确保数据同步
   await loadProfile()
+  isEditing.value = false
   alert('保存成功！')
 }
 
-// 删除项目
-function removeProject(index) {
-  form.value.projects.splice(index, 1)
-}
+function removeProject(index) { form.value.projects.splice(index, 1) }
+function addProject() { form.value.projects.push({ name: '', description: '', techUsed: '', duration: '' }) }
 
-// 添加项目
-function addProject() {
-  form.value.projects.push({ name: '', description: '', techUsed: [], duration: '' })
-}
-
-const categoryLabels = { language: '语言', framework: '框架', tool: '工具', platform: '平台', other: '其他' }
-const levelLabels = { proficient: '精通', familiar: '熟悉', learning: '学习中' }
+const catLabels = { language: '语言', framework: '框架/库', tool: '工具', platform: '平台', other: '其他' }
+const lvlLabels = { proficient: '精通', familiar: '熟悉', learning: '学习中' }
 </script>
 
 <template>
   <div class="page">
-    <div class="page-title">
-      📝 {{ hasProfile ? '编辑技术档案' : '创建技术档案' }}
-      <button v-if="hasProfile" class="btn btn-secondary btn-sm" @click="router.push(`/profile/${userStore.currentProfile?.id}`)" style="margin-left:12px">📊 查看画像</button>
-    </div>
-    <div class="page-subtitle">上传简历自动解析，或手动填写。保存后可查看技能画像分析。</div>
+    <div v-if="isLoading" class="loading-spinner">加载中...</div>
 
-    <!-- 简历上传区 -->
-    <div class="card mb-4">
-      <div class="card-header">📄 简历解析</div>
-      <div class="flex gap-3 mb-2 items-center">
-        <label class="btn btn-secondary btn-sm" style="cursor:pointer">
-          📁 上传简历文件
-          <input type="file" accept=".txt,.md,.json,.pdf" hidden @change="handleFileUpload" />
-        </label>
-        <span v-if="resumeFile" class="text-secondary" style="font-size:13px">
-          {{ resumeFile.name }}
-        </span>
-        <span v-if="isExtractingPDF" class="text-secondary" style="font-size:12px">
-          ⏳ 正在提取PDF文本...
-        </span>
+    <!-- ====== 展示模式 ====== -->
+    <template v-else-if="hasProfile && !isEditing">
+      <div class="page-title">
+        📝 我的技术档案
+        <button class="btn btn-primary btn-sm" @click="isEditing = true" style="margin-left:auto">✏️ 编辑档案</button>
       </div>
-      <textarea
-        v-model="resumeText"
-        class="form-textarea"
-        rows="6"
-        placeholder="或直接粘贴简历文本内容..."
-      ></textarea>
-      <div class="mt-2">
-        <div class="flex gap-2 items-center">
-          <button
-            class="btn btn-primary btn-sm"
-            @click="handleParseResume"
-            :disabled="isParsing || !resumeText.trim()"
-          >
-            {{ isParsing ? '🤖 解析中...' : '🤖 智能解析' }}
-          </button>
-          <span class="form-hint">使用 AI 自动提取岗位、技能、项目等信息</span>
-        </div>
-        <!-- 解析进度条 -->
-        <div v-if="isParsing" class="parse-progress mt-2">
-          <div class="progress-bar">
-            <div class="progress-fill" :style="{ width: parseProgress + '%' }"></div>
-          </div>
-          <div class="progress-text">
-            {{ parseStep }}
-            <span style="color:var(--text-muted);font-weight:400;font-size:12px">({{ parseElapsed }}秒)</span>
+
+      <div class="card mb-4">
+        <div class="profile-header">
+          <div class="ph-avatar">👤</div>
+          <div class="ph-info">
+            <h3>{{ form.name || '未命名' }}</h3>
+            <p>{{ form.position }} · {{ form.yearsOfExperience }}年经验</p>
+            <p v-if="form.education.school" class="text-secondary">🎓 {{ form.education.degree }} · {{ form.education.major }} · {{ form.education.school }}</p>
           </div>
         </div>
       </div>
-      <div v-if="parseError" class="error-message mt-2">{{ parseError }}</div>
-    </div>
 
-    <!-- 基本信息 -->
-    <div class="card mb-4">
-      <div class="card-header">👤 基本信息</div>
-      <div class="form-row">
-        <div class="form-group flex-1">
-          <label class="form-label">姓名/昵称</label>
-          <input v-model="form.name" class="form-input" placeholder="如何称呼你" />
+      <div class="card mb-4">
+        <div class="card-header">💻 技术栈</div>
+        <div v-if="form.techStack.length" class="skill-tags">
+          <span v-for="(t, i) in form.techStack" :key="i" class="skill-tag">
+            <span class="tag" :class="{ 'tag-green': t.level === 'proficient', 'tag-yellow': t.level === 'familiar' }">{{ t.name }}</span>
+          </span>
         </div>
-        <div class="form-group flex-1">
-          <label class="form-label">目标岗位</label>
-          <input v-model="form.position" class="form-input" placeholder="如：前端开发工程师" />
-        </div>
-        <div class="form-group" style="width:120px">
-          <label class="form-label">工作年限</label>
-          <input v-model.number="form.yearsOfExperience" class="form-input" type="number" min="0" max="30" />
-        </div>
+        <div v-else class="empty-state"><div class="empty-state-text">暂无技术栈</div></div>
       </div>
-    </div>
 
-    <!-- 学历 -->
-    <div class="card mb-4">
-      <div class="card-header">🎓 教育背景</div>
-      <div class="form-row">
-        <div class="form-group flex-1">
-          <label class="form-label">学位</label>
-          <select v-model="form.education.degree" class="form-select">
-            <option value="">请选择</option>
-            <option value="本科">本科</option>
-            <option value="硕士">硕士</option>
-            <option value="博士">博士</option>
-            <option value="大专">大专</option>
-            <option value="高中">高中及以下</option>
-          </select>
+      <div class="card mb-4">
+        <div class="card-header">📁 项目经验</div>
+        <div v-if="form.projects.length">
+          <div v-for="(p, i) in form.projects" :key="i" class="proj-item">
+            <div class="proj-head">
+              <strong>{{ p.name || '未命名项目' }}</strong>
+              <span v-if="p.duration" class="text-secondary">{{ p.duration }}</span>
+            </div>
+            <p v-if="p.description">{{ p.description }}</p>
+            <div v-if="p.techUsed" class="flex gap-2 mt-2">
+              <span v-for="t in ensureArray(p.techUsed)" :key="t" class="tag">{{ t }}</span>
+            </div>
+          </div>
         </div>
-        <div class="form-group flex-1">
-          <label class="form-label">专业</label>
-          <input v-model="form.education.major" class="form-input" placeholder="如：计算机科学与技术" />
-        </div>
-        <div class="form-group flex-1">
-          <label class="form-label">学校</label>
-          <input v-model="form.education.school" class="form-input" placeholder="如：清华大学" />
-        </div>
+        <div v-else class="empty-state"><div class="empty-state-text">暂无项目经验</div></div>
       </div>
-    </div>
 
-    <!-- 技术栈 -->
-    <div class="card mb-4">
-      <div class="card-header">💻 技术栈</div>
-      <div class="skill-tags mb-2">
-        <span v-for="(skill, idx) in form.techStack" :key="idx" class="skill-tag">
-          <span class="tag" :class="{
-            'tag-green': skill.level === 'proficient',
-            'tag-yellow': skill.level === 'familiar',
-          }">{{ skill.name }} · {{ levelLabels[skill.level] || skill.level }} · {{ categoryLabels[skill.category] || skill.category }}</span>
-          <button class="btn btn-ghost btn-sm" @click="removeSkill(idx)" style="padding:0 4px;font-size:12px">✕</button>
-        </span>
+      <div v-if="form.strengths || form.weaknesses" class="card">
+        <div class="card-header">🎯 自我评估</div>
+        <div v-if="form.strengths" class="mb-2"><strong>优势：</strong>{{ form.strengths }}</div>
+        <div v-if="form.weaknesses"><strong>待提升：</strong>{{ form.weaknesses }}</div>
       </div>
-      <div class="flex gap-2 items-center" style="flex-wrap:wrap">
-        <input v-model="newSkillName" class="form-input" style="width:160px" placeholder="技能名" @keyup.enter="addSkill" />
-        <select v-model="newSkillCategory" class="form-select" style="width:100px">
-          <option v-for="(label, key) in categoryLabels" :key="key" :value="key">{{ label }}</option>
-        </select>
-        <select v-model="newSkillLevel" class="form-select" style="width:90px">
-          <option v-for="(label, key) in levelLabels" :key="key" :value="key">{{ label }}</option>
-        </select>
-        <button class="btn btn-secondary btn-sm" @click="addSkill">添加</button>
-      </div>
-    </div>
 
-    <!-- 项目经验 -->
-    <div class="card mb-4">
-      <div class="card-header">
-        <span>📁 项目经验</span>
-        <button class="btn btn-secondary btn-sm" @click="addProject" style="margin-left:auto">+ 添加项目</button>
+      <div class="mt-4 text-center">
+        <router-link to="/" class="btn btn-primary">🏠 返回首页</router-link>
       </div>
-      <div v-for="(proj, idx) in form.projects" :key="idx" class="project-item">
-        <div class="flex justify-between items-center mb-2">
-          <span style="font-weight:600">项目 {{ idx + 1 }}</span>
-          <button class="btn btn-ghost btn-sm" @click="removeProject(idx)">删除</button>
+    </template>
+
+    <!-- ====== 新建模式 ====== -->
+    <template v-else-if="!hasProfile && !isEditing">
+      <div class="page-title">📝 创建技术档案</div>
+      <div class="page-subtitle">首次使用请先创建档案，可上传简历自动解析或手动填写</div>
+      <div class="text-center mt-6">
+        <button class="btn btn-primary btn-lg" @click="isEditing = true">🚀 开始创建</button>
+      </div>
+    </template>
+
+    <!-- ====== 编辑表单 ====== -->
+    <template v-if="isEditing">
+      <div class="page-title">
+        {{ hasProfile ? '✏️ 编辑档案' : '📝 创建档案' }}
+        <button v-if="hasProfile" class="btn btn-ghost btn-sm" @click="isEditing = false" style="margin-left:auto">取消编辑</button>
+      </div>
+
+      <!-- 简历解析 -->
+      <div class="card mb-4">
+        <div class="card-header">📄 简历解析</div>
+        <div class="flex gap-3 mb-2 items-center">
+          <label class="btn btn-secondary btn-sm" style="cursor:pointer">📁 上传简历 <input type="file" accept=".txt,.md,.json,.pdf" hidden @change="handleFileUpload" /></label>
+          <span v-if="resumeFile" class="text-secondary" style="font-size:13px">{{ resumeFile.name }}</span>
+          <span v-if="isExtractingPDF" class="text-secondary">⏳ 提取中...</span>
         </div>
+        <textarea v-model="resumeText" class="form-textarea" rows="5" placeholder="或直接粘贴简历文本..."></textarea>
+        <div class="mt-2">
+          <div class="flex gap-2 items-center">
+            <button class="btn btn-primary btn-sm" @click="handleParseResume" :disabled="isParsing || !resumeText.trim()">{{ isParsing ? '🤖 解析中...' : '🤖 智能解析' }}</button>
+            <span class="form-hint">AI 自动提取技能、项目等信息</span>
+          </div>
+          <div v-if="isParsing" class="parse-progress mt-2">
+            <div class="progress-bar"><div class="progress-fill" :style="{ width: parseProgress + '%' }"></div></div>
+            <div class="progress-text">{{ parseStep }} <span style="color:var(--text-muted);font-weight:400;font-size:12px">({{ parseElapsed }}秒)</span></div>
+          </div>
+        </div>
+        <div v-if="parseError" class="error-message mt-2">{{ parseError }}</div>
+      </div>
+
+      <!-- 基本信息 -->
+      <div class="card mb-4">
+        <div class="card-header">👤 基本信息</div>
         <div class="form-row">
-          <div class="form-group flex-1">
-            <label class="form-label">项目名称</label>
-            <input v-model="proj.name" class="form-input" placeholder="项目名称" />
-          </div>
-          <div class="form-group" style="width:160px">
-            <label class="form-label">时间段</label>
-            <input v-model="proj.duration" class="form-input" placeholder="如 2023-2024" />
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">项目描述</label>
-          <textarea v-model="proj.description" class="form-textarea" rows="2" placeholder="简述项目内容和你的角色"></textarea>
-        </div>
-        <div class="form-group">
-          <label class="form-label">使用技术（逗号分隔）</label>
-          <input v-model="proj.techUsed" class="form-input" placeholder="如 React, TypeScript, Node.js" />
+          <div class="form-group flex-1"><label class="form-label">姓名/昵称</label><input v-model="form.name" class="form-input" /></div>
+          <div class="form-group flex-1"><label class="form-label">目标岗位</label><input v-model="form.position" class="form-input" /></div>
+          <div class="form-group" style="width:110px"><label class="form-label">年限</label><input v-model.number="form.yearsOfExperience" class="form-input" type="number" min="0" /></div>
         </div>
       </div>
-      <div v-if="!form.projects.length" class="text-muted text-center" style="padding:16px">暂无项目，点击上方按钮添加</div>
-    </div>
 
-    <!-- 优势/待提升 -->
-    <div class="card mb-4">
-      <div class="card-header">🎯 自我评估</div>
-      <div class="form-row">
-        <div class="form-group flex-1">
-          <label class="form-label">优势领域（逗号分隔）</label>
-          <input v-model="form.strengths" class="form-input" placeholder="如 React源码理解, 工程化实践" />
-        </div>
-        <div class="form-group flex-1">
-          <label class="form-label">待提升领域（逗号分隔）</label>
-          <input v-model="form.weaknesses" class="form-input" placeholder="如 算法, 系统设计" />
+      <!-- 学历 -->
+      <div class="card mb-4">
+        <div class="card-header">🎓 教育背景</div>
+        <div class="form-row">
+          <div class="form-group flex-1"><label class="form-label">学位</label><select v-model="form.education.degree" class="form-select"><option value="">请选择</option><option>本科</option><option>硕士</option><option>博士</option><option>大专</option></select></div>
+          <div class="form-group flex-1"><label class="form-label">专业</label><input v-model="form.education.major" class="form-input" /></div>
+          <div class="form-group flex-1"><label class="form-label">学校</label><input v-model="form.education.school" class="form-input" /></div>
         </div>
       </div>
-    </div>
 
-    <div class="flex gap-2">
-      <button class="btn btn-primary btn-lg" @click="handleSave">💾 保存档案</button>
-      <button class="btn btn-secondary btn-lg" @click="router.push('/')">取消</button>
-    </div>
+      <!-- 技术栈 -->
+      <div class="card mb-4">
+        <div class="card-header">💻 技术栈</div>
+        <div class="skill-tags mb-2">
+          <span v-for="(s, i) in form.techStack" :key="i" class="skill-tag">
+            <span class="tag" :class="{ 'tag-green': s.level === 'proficient', 'tag-yellow': s.level === 'familiar' }">{{ s.name }} · {{ lvlLabels[s.level] }}</span>
+            <button class="btn btn-ghost btn-sm" @click="removeSkill(i)" style="padding:0 4px">✕</button>
+          </span>
+        </div>
+        <div class="flex gap-2 items-center">
+          <input v-model="newSkillName" class="form-input" style="width:140px" placeholder="技能名" @keyup.enter="addSkill" />
+          <select v-model="newSkillCategory" class="form-select" style="width:100px"><option v-for="(l,k) in catLabels" :key="k" :value="k">{{ l }}</option></select>
+          <select v-model="newSkillLevel" class="form-select" style="width:80px"><option v-for="(l,k) in lvlLabels" :key="k" :value="k">{{ l }}</option></select>
+          <button class="btn btn-secondary btn-sm" @click="addSkill">添加</button>
+        </div>
+      </div>
+
+      <!-- 项目 -->
+      <div class="card mb-4">
+        <div class="card-header"><span>📁 项目经验</span><button class="btn btn-secondary btn-sm" @click="addProject" style="margin-left:auto">+ 添加</button></div>
+        <div v-for="(proj, idx) in form.projects" :key="idx" class="project-item">
+          <div class="flex justify-between mb-2"><span style="font-weight:600">项目 {{ idx+1 }}</span><button class="btn btn-ghost btn-sm" @click="removeProject(idx)">删除</button></div>
+          <div class="form-row"><div class="form-group flex-1"><label class="form-label">名称</label><input v-model="proj.name" class="form-input" /></div><div class="form-group" style="width:150px"><label class="form-label">时间</label><input v-model="proj.duration" class="form-input" /></div></div>
+          <div class="form-group"><label class="form-label">描述</label><textarea v-model="proj.description" class="form-textarea" rows="2"></textarea></div>
+          <div class="form-group"><label class="form-label">技术（逗号分隔）</label><input v-model="proj.techUsed" class="form-input" /></div>
+        </div>
+      </div>
+
+      <!-- 评估 -->
+      <div class="card mb-4">
+        <div class="card-header">🎯 自我评估</div>
+        <div class="form-row">
+          <div class="form-group flex-1"><label class="form-label">优势（逗号分隔）</label><input v-model="form.strengths" class="form-input" /></div>
+          <div class="form-group flex-1"><label class="form-label">待提升（逗号分隔）</label><input v-model="form.weaknesses" class="form-input" /></div>
+        </div>
+      </div>
+
+      <div class="flex gap-2 mb-6">
+        <button class="btn btn-primary btn-lg" @click="handleSave">💾 保存档案</button>
+        <button v-if="!hasProfile" class="btn btn-secondary btn-lg" @click="router.push('/')">取消</button>
+      </div>
+    </template>
   </div>
 </template>
 
 <style scoped>
-.form-row {
-  display: flex; gap: 16px;
-}
-.skill-tags {
-  display: flex; flex-wrap: wrap; gap: 6px;
-}
-.skill-tag {
-  display: flex; align-items: center; gap: 2px;
-}
-.project-item {
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 16px;
-  margin-bottom: 12px;
-}
+.form-row { display: flex; gap: 16px; }
+.skill-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.skill-tag { display: flex; align-items: center; gap: 2px; }
+.project-item { border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px; margin-bottom: 12px; }
 
-.parse-progress {
-  padding: 12px 16px;
-  background: var(--accent-bg);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--accent-color);
-}
-.progress-bar {
-  height: 6px;
-  background: var(--bg-hover);
-  border-radius: 3px;
-  overflow: hidden;
-  margin-bottom: 8px;
-}
-.progress-fill {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg, var(--accent-color), #818cf8);
-  border-radius: 3px;
-  transition: width 0.8s ease-out;
-}
-.progress-text {
-  font-size: 13px;
-  color: var(--accent-color);
-  font-weight: 500;
-  text-align: center;
-}
+.profile-header { display: flex; align-items: center; gap: 20px; }
+.ph-avatar { width: 64px; height: 64px; border-radius: 50%; background: var(--accent-bg); display: flex; align-items: center; justify-content: center; font-size: 32px; }
+.ph-info h3 { font-size: 20px; margin-bottom: 4px; }
+
+.proj-item { padding: 12px 16px; border: 1px solid var(--border-color); border-radius: var(--radius-md); margin-bottom: 10px; }
+.proj-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+
+.parse-progress { padding: 12px 16px; background: var(--accent-bg); border-radius: var(--radius-md); border: 1px solid var(--accent-color); }
+.progress-bar { height: 6px; background: var(--bg-hover); border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
+.progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent-color), #818cf8); border-radius: 3px; transition: width .8s ease-out; }
+.progress-text { font-size: 13px; color: var(--accent-color); font-weight: 500; text-align: center; }
 </style>
