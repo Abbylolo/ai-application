@@ -1,7 +1,7 @@
 /* ========== CSS 变量 — 精致暗色 ========== */
 :root {
   --bg-primary: #f7f8fc;
-  --bg-sidebar: #e2e5f0;
+  --bg-sidebar: #dfe5fa;
   --bg-card: #ffffff;
   --bg-hover: #f0f2f8;
   --bg-input: #f7f8fc;
@@ -250,7 +250,7 @@ body {
 /* ========== 暗色模式 ========== */
 [data-theme="dark"] {
   --bg-primary: #111318;
-  --bg-sidebar: #171920;
+  --bg-sidebar: #15182a;
   --bg-card: #181a21;
   --bg-hover: #1e2129;
   --bg-input: #15171d;
