@@ -32,63 +32,75 @@ async function submit() {
 
 <template>
   <div class="root">
-    <!-- 左侧品牌 -->
     <div class="left">
-      <div class="left-top">
+      <div>
         <div class="logo">🤖</div>
         <h1>面试官 Agent</h1>
-        <p class="subtitle">AI 驱动的模拟技术面试平台</p>
+        <p class="sub">AI 驱动的模拟技术面试平台</p>
       </div>
 
-      <div class="features">
-        <div class="ft">
-          <span class="ft-icon">🎯</span>
-          <div><strong>真实面试模拟</strong><span>大厂 / 中厂 / 小厂三种难度，智能追问</span></div>
+      <div class="grid">
+        <div class="item">
+          <div class="n">01</div>
+          <strong>真实面试模拟</strong>
+          <span>大厂 / 中厂 / 小厂三种难度，智能追问策略，还原真实面试压力</span>
         </div>
-        <div class="ft">
-          <span class="ft-icon">⚡</span>
-          <div><strong>即时评估反馈</strong><span>每题评分 + 标准答案 + 薄弱分析</span></div>
+        <div class="item">
+          <div class="n">02</div>
+          <strong>即时评估反馈</strong>
+          <span>每题评分 + 标准答案 + 薄弱点分析 + 个性化学习建议</span>
         </div>
-        <div class="ft">
-          <span class="ft-icon">🏢</span>
-          <div><strong>公司定制面试</strong><span>上传 JD，精准匹配岗位要求出题</span></div>
+        <div class="item">
+          <div class="n">03</div>
+          <strong>公司定制面试</strong>
+          <span>上传 JD 精准匹配岗位要求，已支持 字节/阿里/腾讯 等公司</span>
         </div>
-        <div class="ft">
-          <span class="ft-icon">📊</span>
-          <div><strong>数据统计分析</strong><span>技能雷达图 + 分数趋势 + 历史回顾</span></div>
+        <div class="item">
+          <div class="n">04</div>
+          <strong>简历智能解析</strong>
+          <span>上传 PDF 自动提取技能画像，面试题目贴合你的技术背景</span>
+        </div>
+        <div class="item">
+          <div class="n">05</div>
+          <strong>数据统计分析</strong>
+          <span>技能雷达图 + 分数趋势 + 高频薄弱点，追踪成长轨迹</span>
+        </div>
+        <div class="item">
+          <div class="n">06</div>
+          <strong>面试历史回顾</strong>
+          <span>逐题回放 + 标记复习，重要题目不再遗忘</span>
         </div>
       </div>
 
-      <p class="left-foot">覆盖 JS / CSS / React / Vue / Node / 算法 / 工程化 / 系统设计</p>
+      <p class="tags">
+        覆盖 JavaScript · CSS · React · Vue · Node.js · 算法 · 网络 · 工程化 · 系统设计
+      </p>
     </div>
 
-    <!-- 右侧表单 -->
     <div class="right">
-      <div class="form-wrap">
+      <div class="form">
         <div class="tabs">
           <button :class="{ on: mode === 'login' }" @click="mode = 'login'; err = ''; ok = ''">登录</button>
           <button :class="{ on: mode === 'register' }" @click="mode = 'register'; err = ''; ok = ''">注册</button>
         </div>
 
-        <div v-if="err" class="msg msg-err">{{ err }}</div>
-        <div v-if="ok" class="msg msg-ok">{{ ok }}</div>
+        <div v-if="err" class="alert alert-err">{{ err }}</div>
+        <div v-if="ok" class="alert alert-ok">{{ ok }}</div>
 
         <form @submit.prevent="submit">
-          <div class="field">
-            <label>邮箱</label>
-            <input v-model="email" type="email" placeholder="name@company.com" />
-          </div>
-          <div class="field">
-            <label>密码</label>
-            <input v-model="password" type="password" placeholder="至少 6 位" minlength="6" />
-          </div>
+          <label>邮箱</label>
+          <input v-model="email" type="email" placeholder="name@company.com" />
+
+          <label>密码</label>
+          <input v-model="password" type="password" placeholder="至少 6 位" minlength="6" />
+
           <button type="submit" :disabled="loading">
-            <span v-if="loading" class="spinner"></span>
+            <span v-if="loading" class="spin"></span>
             <span v-else>{{ mode === 'login' ? '登录' : '创建账号' }}</span>
           </button>
         </form>
 
-        <p class="swap">
+        <p class="switch-link">
           {{ mode === 'login' ? '还没有账号？' : '已有账号？' }}
           <a href="#" @click.prevent="mode = mode === 'login' ? 'register' : 'login'; err = ''; ok = ''">
             {{ mode === 'login' ? '立即注册' : '去登录' }}
@@ -100,92 +112,87 @@ async function submit() {
 </template>
 
 <style scoped>
-/* ====== 布局：全视口，零留白 ====== */
+/* ========== 全视口布局 ========== */
 .root {
   display: flex;
   height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', sans-serif;
-  overflow: hidden;
 }
 
-/* ====== 左侧 ====== */
+/* ========== 左侧 ========== */
 .left {
   flex: 1;
   background: #0c0c0e;
   display: flex;
   flex-direction: column;
-  padding: 64px 56px 56px;
+  padding: 56px 52px 40px;
   color: #fafafa;
-  min-width: 0;
+  gap: 0;
 }
 
-.left-top { }
-
 .logo {
-  width: 48px; height: 48px;
+  width: 44px; height: 44px;
   border-radius: 12px;
   background: linear-gradient(135deg, #4f46e5, #6366f1);
   display: flex; align-items: center; justify-content: center;
-  font-size: 24px;
-  margin-bottom: 20px;
+  font-size: 22px;
+  margin-bottom: 16px;
   box-shadow: 0 8px 24px rgba(79,70,229,.3);
 }
 
 .left h1 {
-  font-size: 32px; font-weight: 800;
-  letter-spacing: -.03em; margin-bottom: 6px;
+  font-size: 30px; font-weight: 800;
+  letter-spacing: -.03em; margin-bottom: 4px;
 }
 
-.subtitle {
+.sub {
   font-size: 15px; color: #71717a;
 }
 
-/* 功能列表 - 居中于剩余空间 */
-.features {
-  display: flex; flex-direction: column; gap: 20px;
+/* 6宫格功能 */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px 36px;
   margin: auto 0;
+  padding: 24px 0;
 }
 
-.ft {
-  display: flex; gap: 14px; align-items: flex-start;
+.item .n {
+  font-size: 11px; font-weight: 700; color: #4f46e5;
+  letter-spacing: .08em; margin-bottom: 4px;
 }
 
-.ft-icon { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
-
-.ft strong {
-  display: block; font-size: 14px; color: #e4e4e7; margin-bottom: 2px; font-weight: 600;
+.item strong {
+  display: block; font-size: 14px; color: #e4e4e7;
+  margin-bottom: 3px; font-weight: 600;
 }
 
-.ft span {
-  font-size: 13px; color: #52525b; line-height: 1.4;
+.item span {
+  font-size: 12px; color: #52525b; line-height: 1.5;
+  display: block;
 }
 
-.left-foot {
+.tags {
   font-size: 12px; color: #3f3f46;
   letter-spacing: .03em;
+  padding-top: 8px;
 }
 
-/* ====== 右侧 ====== */
+/* ========== 右侧 ========== */
 .right {
-  width: 480px;
-  flex-shrink: 0;
+  width: 460px; flex-shrink: 0;
   background: #18181b;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 48px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 48px 44px;
 }
 
-.form-wrap {
-  width: 100%;
-  max-width: 360px;
+.form {
+  width: 100%; max-width: 360px;
 }
 
-/* 切换 */
 .tabs {
-  display: flex;
-  gap: 24px;
-  margin-bottom: 28px;
+  display: flex; gap: 24px; margin-bottom: 28px;
 }
 
 .tabs button {
@@ -194,38 +201,31 @@ async function submit() {
   cursor: pointer; font-family: inherit; padding: 0;
   transition: color .15s;
 }
+.tabs button.on { color: #fafafa; }
 
-.tabs button.on {
-  color: #fafafa;
-}
-
-/* 消息 */
-.msg {
+.alert {
   padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 16px;
 }
-.msg-err { background: rgba(239,68,68,.08); color: #fca5a5; border: 1px solid rgba(239,68,68,.15); }
-.msg-ok  { background: rgba(34,197,94,.08); color: #86efac; border: 1px solid rgba(34,197,94,.15); }
+.alert-err { background: rgba(239,68,68,.08); color: #fca5a5; border: 1px solid rgba(239,68,68,.15); }
+.alert-ok  { background: rgba(34,197,94,.08); color: #86efac; border: 1px solid rgba(34,197,94,.15); }
 
-/* 表单 */
-form { display: flex; flex-direction: column; gap: 16px; }
+form { display: flex; flex-direction: column; gap: 14px; }
 
-.field label {
-  display: block; font-size: 12px; font-weight: 600; color: #71717a;
-  text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px;
+label {
+  font-size: 12px; font-weight: 600; color: #71717a;
+  text-transform: uppercase; letter-spacing: .06em;
 }
 
-.field input {
+input {
   width: 100%; padding: 11px 14px;
   background: rgba(255,255,255,.04);
   border: 1px solid rgba(255,255,255,.08);
   border-radius: 10px;
-  font-size: 14px; color: #fafafa; font-family: inherit;
-  outline: none;
-  transition: border-color .2s;
+  font-size: 14px; color: #fafafa; font-family: inherit; outline: none;
   box-sizing: border-box;
 }
-.field input::placeholder { color: #3f3f46; }
-.field input:focus { border-color: rgba(79,70,229,.5); }
+input::placeholder { color: #3f3f46; }
+input:focus { border-color: rgba(79,70,229,.5); }
 
 button[type="submit"] {
   width: 100%; margin-top: 8px; padding: 13px;
@@ -238,16 +238,13 @@ button[type="submit"] {
 button[type="submit"]:hover { background: #fff; }
 button[type="submit"]:disabled { opacity: .4; cursor: not-allowed; }
 
-/* 底部切换 */
-.swap {
-  text-align: center; margin-top: 24px;
+.switch-link {
+  text-align: center; margin-top: 22px;
   font-size: 13px; color: #52525b;
 }
-.swap a { color: #818cf8; text-decoration: none; font-weight: 500; }
-.swap a:hover { text-decoration: underline; }
+.switch-link a { color: #818cf8; text-decoration: none; font-weight: 500; }
 
-/* 加载 */
-.spinner {
+.spin {
   width: 20px; height: 20px;
   border: 2px solid rgba(0,0,0,.15);
   border-top-color: #0c0c0e;
@@ -256,13 +253,11 @@ button[type="submit"]:disabled { opacity: .4; cursor: not-allowed; }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ====== 响应式 ====== */
+/* ========== 响应式 ========== */
 @media (max-width: 768px) {
   .root { flex-direction: column-reverse; height: auto; min-height: 100vh; }
   .left { padding: 40px 28px; }
-  .left .features { display: none; }
-  .left h1 { font-size: 26px; }
-  .left-foot { margin-top: 24px; }
+  .grid { grid-template-columns: 1fr; gap: 16px; }
   .right { width: 100%; padding: 36px 28px; }
 }
 </style>
