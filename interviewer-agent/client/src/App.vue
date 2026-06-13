@@ -173,11 +173,11 @@ async function handleLogout() {
 /* === 底部 === */
 .sidebar-footer {
   margin-top: auto;
-  padding: 14px 18px;
+  padding: 16px 18px;
   display: flex;
   align-items: center;
   gap: 8px;
-  border-top: 1.5px solid var(--border-color);
+  border-top: 1px solid rgba(0,0,0,0.1);
 }
 
 .user-info {
