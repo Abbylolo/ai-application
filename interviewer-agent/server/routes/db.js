@@ -20,6 +20,7 @@ dbRouter.get('/profiles', async (req, res) => {
 })
 
 dbRouter.post('/profiles', async (req, res) => {
+  console.log('📝 Profile save body keys:', Object.keys(req.body), 'avatar:', req.body.avatar)
   const profile = { ...req.body, user_id: uid(req) }
 
   if (profile.id) {
