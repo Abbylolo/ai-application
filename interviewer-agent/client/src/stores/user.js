@@ -15,14 +15,16 @@ export const useUserStore = defineStore('user', () => {
   }
 
   async function saveProfile(profile) {
-    profile.updatedAt = new Date()
+    // 深拷贝去掉 Vue 响应式 Proxy，否则 IndexedDB 无法存储
+    const plain = JSON.parse(JSON.stringify(profile))
+    plain.updatedAt = new Date()
 
-    if (profile.id) {
-      await db.userProfiles.update(profile.id, profile)
+    if (plain.id) {
+      await db.userProfiles.update(plain.id, plain)
     } else {
-      profile.createdAt = new Date()
-      const id = await db.userProfiles.add(profile)
-      profile.id = id
+      plain.createdAt = new Date()
+      const id = await db.userProfiles.add(plain)
+      plain.id = id
     }
 
     await loadProfiles()
