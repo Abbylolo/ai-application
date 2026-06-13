@@ -145,7 +145,9 @@ async function handleParseResume() {
     }
 
     if (result.parseError) {
-      parseError.value = '解析结果格式异常，请手动编辑'
+      console.log('LLM原始返回:', result.rawContent)
+      console.log('清洗后:', result.cleanedContent)
+      parseError.value = result.parseError
       return
     }
 

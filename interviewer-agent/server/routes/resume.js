@@ -43,8 +43,14 @@ resumeRouter.post('/parse', async (req, res) => {
   "weaknesses": ["可提升领域"]
 }`
 
+    // 限制简历文本长度（避免超出模型上下文）
+    const MAX_RESUME_LENGTH = 8000
+    const truncatedText = resumeText.length > MAX_RESUME_LENGTH
+      ? resumeText.substring(0, MAX_RESUME_LENGTH) + '\n...(文本已截断)'
+      : resumeText
+
     const messages = [
-      { role: 'user', content: `请解析以下简历：\n\n${resumeText}` }
+      { role: 'user', content: `请解析以下简历：\n\n${truncatedText}` }
     ]
 
     console.log('🔄 调用 LLM 解析简历...')
@@ -53,9 +59,9 @@ resumeRouter.post('/parse', async (req, res) => {
       system: systemPrompt,
       messages,
       temperature: 0.1,
-      max_tokens: 4096
+      max_tokens: 8192  // 增大输出限制，防止 JSON 被截断
     })
-    console.log('✅ LLM 返回内容长度:', content?.length)
+    console.log('✅ LLM 返回内容长度:', content?.length, '最后100字:', content?.slice(-100))
 
     // 尝试解析 JSON（处理各种 LLM 返回格式）
     let cleaned = content.trim()
@@ -79,10 +85,17 @@ resumeRouter.post('/parse', async (req, res) => {
       const parsed = JSON.parse(cleaned)
       res.json(parsed)
     } catch (e) {
-      console.log('JSON解析失败，原始内容前200字:', content.substring(0, 200))
+      console.log('JSON解析失败!')
+      console.log('=== 原始返回(前500字) ===')
+      console.log(content.substring(0, 500))
+      console.log('=== 清洗后(前500字) ===')
+      console.log(cleaned.substring(0, 500))
+      console.log('=== 解析错误 ===')
+      console.log(e.message)
       res.json({
         rawContent: content,
-        parseError: '无法解析为 JSON，请检查简历文本格式。提示：确保文本包含足够的工作经历和技术信息。'
+        cleanedContent: cleaned,
+        parseError: `JSON解析失败: ${e.message}。LLM返回了内容但格式不对，请重试。`
       })
     }
   } catch (error) {
