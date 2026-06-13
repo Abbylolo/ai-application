@@ -45,31 +45,37 @@ async function handleLogout() {
         </div>
       </div>
       <nav class="sidebar-nav">
-        <router-link to="/" class="nav-item" active-class="nav-item--active">
-          <svg class="nav-ico" viewBox="0 0 20 20" fill="none" width="18" height="18"><path d="M3 8l7-5 7 5v9a1 1 0 01-1 1H4a1 1 0 01-1-1V8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
-          <span>首页</span>
-        </router-link>
-        <router-link to="/setup" class="nav-item" active-class="nav-item--active">
-          <svg class="nav-ico" viewBox="0 0 20 20" fill="none" width="18" height="18"><circle cx="10" cy="8" r="4" stroke="currentColor" stroke-width="1.5"/><path d="M4 18c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <span>我的档案</span>
-        </router-link>
-        <router-link to="/history" class="nav-item" active-class="nav-item--active">
-          <svg class="nav-ico" viewBox="0 0 20 20" fill="none" width="18" height="18"><rect x="3" y="4" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M7 9h6M7 13h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <span>面试历史</span>
-        </router-link>
-        <router-link to="/company" class="nav-item" active-class="nav-item--active">
-          <svg class="nav-ico" viewBox="0 0 20 20" fill="none" width="18" height="18"><rect x="3" y="7" width="6" height="10" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="3" width="6" height="14" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>
-          <span>公司题库</span>
-        </router-link>
-        <router-link to="/stats" class="nav-item" active-class="nav-item--active">
-          <svg class="nav-ico" viewBox="0 0 20 20" fill="none" width="18" height="18"><path d="M3 17V9l4-2v10M9 17V7l4 2v8M15 17V5l2 1v11" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
-          <span>面试统计</span>
-        </router-link>
-        <router-link to="/settings" class="nav-item" active-class="nav-item--active">
-          <svg class="nav-ico" viewBox="0 0 20 20" fill="none" width="18" height="18"><circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M10 2v2m0 12v2m8-8h-2M4 10H2m13.07-5.07l-1.41 1.41M6.34 13.66l-1.41 1.41m12.14 0l-1.41-1.41M6.34 6.34L4.93 4.93" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <span>设置</span>
-          <span v-if="!settingsStore.currentConfig" class="nav-warn"></span>
-        </router-link>
+        <div class="nav-group">
+          <router-link to="/" class="nav-item" active-class="nav-item--active">
+            <svg class="nav-ico" viewBox="0 0 20 20" fill="none" width="18" height="18"><path d="M3 8l7-5 7 5v9a1 1 0 01-1 1H4a1 1 0 01-1-1V8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+            <span>首页</span>
+          </router-link>
+          <router-link to="/setup" class="nav-item" active-class="nav-item--active">
+            <svg class="nav-ico" viewBox="0 0 20 20" fill="none" width="18" height="18"><circle cx="10" cy="8" r="4" stroke="currentColor" stroke-width="1.5"/><path d="M4 18c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span>我的档案</span>
+          </router-link>
+          <router-link to="/history" class="nav-item" active-class="nav-item--active">
+            <svg class="nav-ico" viewBox="0 0 20 20" fill="none" width="18" height="18"><rect x="3" y="4" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M7 9h6M7 13h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span>面试历史</span>
+          </router-link>
+        </div>
+        <div class="nav-group">
+          <router-link to="/company" class="nav-item" active-class="nav-item--active">
+            <svg class="nav-ico" viewBox="0 0 20 20" fill="none" width="18" height="18"><rect x="3" y="7" width="6" height="10" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="3" width="6" height="14" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>
+            <span>公司题库</span>
+          </router-link>
+          <router-link to="/stats" class="nav-item" active-class="nav-item--active">
+            <svg class="nav-ico" viewBox="0 0 20 20" fill="none" width="18" height="18"><path d="M3 17V9l4-2v10M9 17V7l4 2v8M15 17V5l2 1v11" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+            <span>面试统计</span>
+          </router-link>
+        </div>
+        <div class="nav-group">
+          <router-link to="/settings" class="nav-item" active-class="nav-item--active">
+            <svg class="nav-ico" viewBox="0 0 20 20" fill="none" width="18" height="18"><circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M10 2v2m0 12v2m8-8h-2M4 10H2m13.07-5.07l-1.41 1.41M6.34 13.66l-1.41 1.41m12.14 0l-1.41-1.41M6.34 6.34L4.93 4.93" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span>设置</span>
+            <span v-if="!settingsStore.currentConfig" class="nav-warn"></span>
+          </router-link>
+        </div>
       </nav>
       <div class="sidebar-footer">
         <div v-if="userEmail" class="user-info" :title="userEmail">
@@ -141,7 +147,17 @@ async function handleLogout() {
   padding: 8px 10px;
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 2px;
+}
+.nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.nav-group + .nav-group {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(0,0,0,0.05);
 }
 
 .nav-item {
@@ -184,11 +200,12 @@ async function handleLogout() {
 
 .user-info {
   flex: 1;
-  font-size: 12.5px;
+  font-size: 14px;
+  font-weight: 500;
   color: #5b6070;
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
