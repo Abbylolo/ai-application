@@ -318,8 +318,9 @@ async function submit() {
   max-width: 420px;
   background: #fff;
   border-radius: 20px;
-  padding: 44px 40px;
+  padding: 48px 48px 52px;
   box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 16px 48px rgba(0,0,0,.12);
+  overflow: visible;
 }
 
 .head { margin-bottom: 26px; }
