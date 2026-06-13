@@ -198,19 +198,19 @@ async function submit() {
 }
 .orb-a {
   width: 520px; height: 520px;
-  background: radial-gradient(circle, rgba(129,140,248,.25) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(129,140,248,.55) 0%, transparent 70%);
   top: -180px; right: -100px;
   animation: drift 14s ease-in-out infinite;
 }
 .orb-b {
   width: 380px; height: 380px;
-  background: radial-gradient(circle, rgba(129,140,248,.18) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(99,102,241,.4) 0%, transparent 70%);
   bottom: -140px; left: -80px;
   animation: drift 18s ease-in-out infinite reverse;
 }
 .orb-c {
   width: 260px; height: 260px;
-  background: radial-gradient(circle, rgba(129,140,248,.12) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(199,210,254,.3) 0%, transparent 70%);
   top: 50%; left: 50%;
   animation: drift 22s ease-in-out infinite;
 }
