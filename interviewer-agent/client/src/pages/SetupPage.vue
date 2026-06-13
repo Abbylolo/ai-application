@@ -40,28 +40,28 @@ function ensureString(val) { return Array.isArray(val) ? val.join(', ') : val ||
 async function loadProfile() {
   isLoading.value = true
   try {
-    console.log('🔄 loadProfile 开始, currentProfileId:', userStore.currentProfileId)
     await userStore.loadProfiles()
-    console.log('📋 profiles count:', userStore.profiles.length, 'currentProfile:', userStore.currentProfile?.name)
-    if (userStore.currentProfile) {
+    const profile = userStore.currentProfile
+    if (profile) {
       hasProfile.value = true
-      const p = userStore.currentProfile
-      console.log('✅ 回填档案:', p.name, p.id)
+      // 保持 id，让后续保存走更新逻辑
       form.value = {
-        id: p.id, name: p.name || '', position: p.position || '',
-        yearsOfExperience: p.yearsOfExperience || 0,
-        techStack: p.techStack || [],
-        projects: (p.projects || []).map(proj => ({
+        id: profile.id,
+        name: profile.name || '', position: profile.position || '',
+        yearsOfExperience: profile.yearsOfExperience || 0,
+        techStack: profile.techStack || [],
+        projects: (profile.projects || []).map(proj => ({
           ...proj,
           techUsed: ensureString(proj.techUsed)
         })),
-        education: p.education || { degree: '', major: '', school: '' },
-        strengths: ensureString(p.strengths),
-        weaknesses: ensureString(p.weaknesses),
-        resumeRaw: p.resumeRaw || ''
+        education: profile.education || { degree: '', major: '', school: '' },
+        strengths: ensureString(profile.strengths),
+        weaknesses: ensureString(profile.weaknesses),
+        resumeRaw: profile.resumeRaw || ''
       }
     } else {
       hasProfile.value = false
+      form.value.id = undefined
     }
   } catch (e) {
     console.error('加载档案失败:', e)
@@ -146,11 +146,8 @@ async function handleSave() {
   data.strengths = ensureArray(form.value.strengths)
   data.weaknesses = ensureArray(form.value.weaknesses)
   data.projects = data.projects.map(p => ({ ...p, techUsed: ensureArray(p.techUsed) }))
-  console.log('💾 保存档案...')
   await userStore.saveProfile(data)
-  console.log('✅ 保存完成, currentProfileId:', userStore.currentProfileId, 'profiles:', userStore.profiles.length)
   await loadProfile()
-  console.log('🔄 loadProfile后 hasProfile:', hasProfile.value)
   isEditing.value = false
   alert('保存成功！')
 }
