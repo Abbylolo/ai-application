@@ -17,6 +17,15 @@ npm run dev                # 开发运行（同时启动Vite和Electron）
 npm run electron:build     # 打包构建
 ```
 
+### 面试官应用 (interviewer-agent/)
+
+```bash
+cd interviewer-agent/client && npm install   # 安装前端依赖
+cd interviewer-agent/server && npm install   # 安装后端依赖
+cd interviewer-agent/server && npm run dev   # 启动后端（端口5200）
+cd interviewer-agent/client && npm run dev   # 启动前端（端口5199）
+```
+
 ## 架构说明
 
 ### 番茄钟应用架构
@@ -29,6 +38,22 @@ npm run electron:build     # 打包构建
   - `hooks/` - 自定义Hooks（useTimer计时逻辑, useStorage本地存储）
   - `context/` - React Context状态管理（ThemeContext主题切换）
   - `App.jsx` - 应用根组件，组合所有功能模块
+
+### 面试官应用架构 (interviewer-agent/)
+
+- **技术栈**: Vue 3 + Vite（前端） + Express.js（后端代理）
+- **前端**: `client/src/` 目录下的 Vue 3 SPA 应用
+  - `pages/` - 页面组件（Home/Setup/Profile/Interview/Report/History/Company/Settings）
+  - `components/chat/` - 面试聊天组件（ChatPanel/QuestionCard/AnswerInput）
+  - `stores/` - Pinia 状态管理（settings/user/interview）
+  - `composables/` - 组合式函数（预留）
+  - `db/` - Dexie.js IndexedDB 数据库定义
+  - `services/` - 后端 API 调用封装
+- **后端**: `server/` 目录下的 Express.js 代理服务
+  - `routes/llm.js` - 多协议 LLM 转发（Anthropic + OpenAI兼容）
+  - `routes/resume.js` - 简历解析接口
+  - `routes/jd.js` - 岗位描述解析接口
+  - `routes/search.js` - 面经搜索接口
 
 ### 状态管理
 
