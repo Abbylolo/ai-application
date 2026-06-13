@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user.js'
 import { useSettingsStore } from '@/stores/settings.js'
 import { parseResume } from '@/services/api.js'
+import * as data from '@/services/data.js'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -40,20 +41,18 @@ function ensureString(val) { return Array.isArray(val) ? val.join(', ') : val ||
 async function loadProfile() {
   isLoading.value = true
   try {
-    await userStore.loadProfiles()
-    const profile = userStore.currentProfile
+    // 直调 data.js 从 Supabase 加载，绕过 store
+    const profiles = await data.getProfiles()
+    const profile = profiles?.[0]
     if (profile) {
       hasProfile.value = true
-      // 保持 id，让后续保存走更新逻辑
+      userStore.setCurrentProfile(profile.id)
       form.value = {
         id: profile.id,
         name: profile.name || '', position: profile.position || '',
         yearsOfExperience: profile.yearsOfExperience || 0,
         techStack: profile.techStack || [],
-        projects: (profile.projects || []).map(proj => ({
-          ...proj,
-          techUsed: ensureString(proj.techUsed)
-        })),
+        projects: (profile.projects || []).map(p => ({ ...p, techUsed: ensureString(p.techUsed) })),
         education: profile.education || { degree: '', major: '', school: '' },
         strengths: ensureString(profile.strengths),
         weaknesses: ensureString(profile.weaknesses),
@@ -61,10 +60,9 @@ async function loadProfile() {
       }
     } else {
       hasProfile.value = false
-      form.value.id = undefined
     }
   } catch (e) {
-    console.error('加载档案失败:', e)
+    console.error('加载档案失败:', e.message)
   } finally {
     isLoading.value = false
   }
