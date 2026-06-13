@@ -100,13 +100,16 @@ async function handleLogout() {
 /* === 侧边栏 === */
 .sidebar {
   width: 220px;
-  background: var(--bg-sidebar, #fff4f0);
-  color: var(--text-secondary, #8c6e6e);
+  background: var(--bg-sidebar);
+  color: var(--text-secondary);
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  border-right: 1.5px solid var(--border-color, #f2ddd5);
+  border-right: 1px solid var(--border-color);
+  box-shadow: 1px 0 8px rgba(0,0,0,0.04), 2px 0 16px rgba(0,0,0,0.03);
   transition: background .3s, color .3s;
+  position: relative;
+  z-index: 2;
 }
 
 .sidebar-brand {
