@@ -8,10 +8,11 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "express": "^4.19.2",
+    "@anthropic-ai/sdk": "^0.30.0",
+    "@supabase/supabase-js": "^2.108.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "@anthropic-ai/sdk": "^0.30.0",
+    "express": "^4.19.2",
     "openai": "^4.52.0"
   }
 }

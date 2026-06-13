@@ -23,6 +23,10 @@ app.use('/api/resume', resumeRouter)
 // JD 解析路由
 app.use('/api/jd', jdRouter)
 
+// 数据库操作路由
+import { dbRouter } from './routes/db.js'
+app.use('/api/db', dbRouter)
+
 // 网络搜索路由
 app.use('/api/search', searchRouter)
 
