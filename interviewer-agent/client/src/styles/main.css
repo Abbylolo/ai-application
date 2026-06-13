@@ -7,7 +7,7 @@
 
   /* ===== 中性色 ===== */
   --surface-page: #f6f7fb;
-  --surface-sidebar: #e0ddf5;
+  --surface-sidebar: #dee4f8;
   --surface-card: #ffffff;
   --surface-hover: #f0f2f9;
   --surface-input: #f5f6fb;
@@ -279,7 +279,7 @@ body {
 /* ========== 暗色模式 ========== */
 [data-theme="dark"] {
   --surface-page: #111318;
-  --surface-sidebar: #1a1840;
+  --surface-sidebar: #181d38;
   --surface-card: #181a21;
   --surface-hover: #1e2129;
   --surface-input: #15171d;
