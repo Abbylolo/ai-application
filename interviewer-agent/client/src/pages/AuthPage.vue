@@ -58,6 +58,11 @@ async function submit() {
     <div class="bg-ring ring-1"></div>
     <div class="bg-ring ring-2"></div>
     <div class="bg-ring ring-3"></div>
+    <div class="bg-ring ring-4"></div>
+    <div class="bg-ring ring-5"></div>
+    <div class="bg-shape shape-a"></div>
+    <div class="bg-shape shape-b"></div>
+    <div class="bg-shape shape-c"></div>
 
     <section class="brand">
       <div class="brand-inner" :class="{ in: show }">
@@ -265,6 +270,45 @@ async function submit() {
 @keyframes ring-drift {
   0%, 100% { transform: translate(0,0) scale(1); opacity: 0.3; }
   50% { transform: translate(60px,-30px) scale(1.25); opacity: 0.7; }
+}
+.ring-4 {
+  width: 160px; height: 160px;
+  top: 65%; left: 35%;
+  animation: ring-drift 22s ease-in-out infinite reverse;
+}
+.ring-5 {
+  width: 350px; height: 350px;
+  top: 8%; left: 40%;
+  animation: ring-drift 25s ease-in-out infinite;
+}
+
+/* 浮动几何块 */
+.bg-shape {
+  position: absolute;
+  border-radius: 18px;
+  background: rgba(255,255,255,.04);
+  pointer-events: none;
+}
+.shape-a {
+  width: 80px; height: 80px;
+  top: 30%; left: 60%;
+  animation: shape-drift 8s ease-in-out infinite;
+}
+.shape-b {
+  width: 50px; height: 50px;
+  border-radius: 50%;
+  top: 70%; left: 20%;
+  animation: shape-drift 11s ease-in-out infinite reverse;
+}
+.shape-c {
+  width: 100px; height: 60px;
+  border-radius: 30px;
+  top: 15%; left: 75%;
+  animation: shape-drift 9s ease-in-out infinite .5s;
+}
+@keyframes shape-drift {
+  0%, 100% { transform: translate(0,0) rotate(0deg); opacity: .4; }
+  50% { transform: translate(30px,-25px) rotate(15deg); opacity: .8; }
 }
 
 .bg-line {
