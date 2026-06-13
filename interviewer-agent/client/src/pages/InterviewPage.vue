@@ -185,6 +185,8 @@ const isWaitingAnswer = () => {
         :interviewType="interviewStore.type"
         :companyName="interviewStore.companyName"
         :reviewMode="interviewStore.interview?.reviewMode || 'instant'"
+        :userName="userStore.currentProfile?.name || '你'"
+        :userAvatar="userStore.currentProfile?.avatar || '👤'"
       />
 
       <!-- 输入区 -->

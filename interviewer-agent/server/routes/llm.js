@@ -98,7 +98,10 @@ export async function callAnthropic(apiKey, model, system, messages, temperature
 
   // 遍历 content 找 text 类型（DeepSeek会先返回thinking块）
   const textBlocks = response.content?.filter(c => c.type === 'text') || []
-  return textBlocks.map(c => c.text).join('') || ''
+  const result = textBlocks.map(c => c.text).join('') || ''
+  const fs = await import('fs')
+  fs.writeFileSync('/tmp/last_llm_response.txt', result.slice(0, 2000))
+  return result
 }
 
 /**

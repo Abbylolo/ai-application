@@ -106,21 +106,23 @@ export const useInterviewStore = defineStore('interview', () => {
 
       const system = buildSystemPrompt(profile, config.jdInfo)
       const messages = [{ role: 'user', content: '面试开始，请出第一道题。介绍你自己并开始提问。' }]
-      const result = await chatLLM({ system, messages, temperature: 0.7 })
+      const result = await chatLLM({ system, messages, temperature: 0.7, max_tokens: 8192 })
       const parsed = parseResponse(result)
 
+      const q = parsed.question || {}
       const firstQA = {
         interviewId: interview.value.id, sequenceNumber: 1, type: 'question',
         question: {
-          ...(parsed.question || {}),
-          text: parsed.content || (parsed.question || {}).text || '',
-          category: (parsed.question || {}).category || 'general',
-          difficulty: (parsed.question || {}).difficulty || 1,
-          tags: (parsed.question || {}).tags || [],
-          referenceAnswer: (parsed.question || {}).referenceAnswer || ''
+          id: q.id || 'q1',
+          text: parsed.content || q.text || '',
+          category: q.category || 'general',
+          difficulty: q.difficulty || 1,
+          tags: q.tags || [],
+          referenceAnswer: q.referenceAnswer || ''
         },
         userAnswer: '', evaluation: null, isFlagged: false
       }
+      console.log('🔍 firstQA before save:', JSON.stringify(firstQA.question).slice(0, 200))
       const savedQA = await data.saveQA(firstQA)
       qaList.value = [savedQA]
       return parsed
@@ -148,7 +150,7 @@ export const useInterviewStore = defineStore('interview', () => {
         : `请评估我的回答，给出评分（1-5分）、点评、优缺点。${currentQA.type === 'question' ? '如不够深入请继续追问，到位就出下一题。' : '评估并决定是否继续追问或出下一题。'}`
       messages.push({ role: 'user', content: `${answer}\n\n${evalInstruction}` })
 
-      const result = await chatLLM({ system, messages, temperature: 0.5 })
+      const result = await chatLLM({ system, messages, temperature: 0.5, max_tokens: 8192 })
       let parsed
       try { parsed = JSON.parse(extractJSON(result.content)) }
       catch { parsed = { phase: 'evaluation', content: result.content, evaluation: { score: 3, feedback: result.content, strengths: [], weaknesses: [], followUpNeeded: false } } }
@@ -158,16 +160,17 @@ export const useInterviewStore = defineStore('interview', () => {
         await data.updateQA(currentQA.id, { evaluation: parsed.evaluation })
       }
 
+      const nq = parsed.question || {}
       const nextQA = {
         interviewId: interview.value.id, sequenceNumber: qaList.value.length + 1,
         type: parsed.evaluation?.followUpNeeded ? 'followup' : 'question',
         question: {
-          ...(parsed.question || {}),
-          text: parsed.content || (parsed.question || {}).text || '',
-          category: (parsed.question || {}).category || 'general',
-          difficulty: (parsed.question || {}).difficulty || 1,
-          tags: (parsed.question || {}).tags || [],
-          referenceAnswer: (parsed.question || {}).referenceAnswer || ''
+          id: nq.id || ('q' + (qaList.value.length + 1)),
+          text: parsed.content || nq.text || '',
+          category: nq.category || 'general',
+          difficulty: nq.difficulty || 1,
+          tags: nq.tags || [],
+          referenceAnswer: nq.referenceAnswer || ''
         },
         userAnswer: '', evaluation: null, isFlagged: false
       }
@@ -188,7 +191,7 @@ export const useInterviewStore = defineStore('interview', () => {
       const messages = buildMessageHistory()
       messages.push({ role: 'user', content: `面试结束。请生成完整评估报告, 返回JSON: {"phase":"summary","content":"总结","summary":{"totalScore":${averageScore.value},"overall":"","strengths":[],"weaknesses":[],"learningPlan":[]}}` })
 
-      const result = await chatLLM({ system, messages, temperature: 0.3 })
+      const result = await chatLLM({ system, messages, temperature: 0.3, max_tokens: 8192 })
       let parsed
       try { parsed = JSON.parse(extractJSON(result.content)) }
       catch { parsed = { phase: 'summary', summary: { totalScore: averageScore.value, overall: result.content, strengths: [], weaknesses: [], learningPlan: [] } } }

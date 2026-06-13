@@ -7,7 +7,9 @@ const props = defineProps({
   isLoading: { type: Boolean, default: false },
   interviewType: { type: String, default: 'general' },
   companyName: { type: String, default: '' },
-  reviewMode: { type: String, default: 'instant' }
+  reviewMode: { type: String, default: 'instant' },
+  userName: { type: String, default: '你' },
+  userAvatar: { type: String, default: '👤' }
 })
 
 const chatContainer = ref(null)
@@ -74,10 +76,10 @@ const categoryLabels = {
       <!-- 用户回答 -->
       <div v-if="qa.userAnswer" class="chat-bubble chat-bubble--user">
         <div class="bubble-content">
-          <div class="bubble-role">你的回答</div>
+          <div class="bubble-role">{{ userName }}</div>
           <div class="bubble-text user-answer">{{ qa.userAnswer }}</div>
         </div>
-        <div class="bubble-avatar">👤</div>
+        <div class="bubble-avatar">{{ userAvatar }}</div>
       </div>
 
       <!-- 评估结果（即时点评模式才显示） -->

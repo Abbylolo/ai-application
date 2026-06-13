@@ -28,8 +28,10 @@ const parseSteps = ['正在发送请求...', '正在识别技术栈...', '正在
 const resumeFile = ref(null)
 const isExtractingPDF = ref(false)
 
+const avatarOptions = ['👤','👨‍💻','👩‍💻','🧑‍💻','🦸','🦹','🧙','🧑‍🎓','👨‍🎓','👩‍🎓','🤓','😎','🦊','🐱','🐶','🦄','🐼','🐨','🐙','👾']
+
 const form = ref({
-  name: '', position: '', yearsOfExperience: 0,
+  name: '', position: '', yearsOfExperience: 0, avatar: '👤',
   techStack: [], projects: [], education: { degree: '', major: '', school: '' },
   strengths: '', weaknesses: '', resumeRaw: ''
 })
@@ -50,7 +52,7 @@ async function loadProfile() {
       form.value = {
         id: profile.id,
         name: profile.name || '', position: profile.position || '',
-        yearsOfExperience: profile.yearsOfExperience || 0,
+        yearsOfExperience: profile.yearsOfExperience || 0, avatar: profile.avatar || '👤',
         techStack: profile.techStack || [],
         projects: (profile.projects || []).map(p => ({ ...p, techUsed: ensureString(p.techUsed) })),
         education: profile.education || { degree: '', major: '', school: '' },
@@ -170,7 +172,7 @@ const lvlLabels = { proficient: '精通', familiar: '熟悉', learning: '学习�
 
       <div class="card mb-4">
         <div class="profile-header">
-          <div class="ph-avatar">👤</div>
+          <div class="ph-avatar">{{ form.avatar }}</div>
           <div class="ph-info">
             <h3>{{ form.name || '未命名' }}</h3>
             <p>{{ form.position }} · {{ form.yearsOfExperience }}年经验</p>
@@ -258,6 +260,11 @@ const lvlLabels = { proficient: '精通', familiar: '熟悉', learning: '学习�
       <!-- 基本信息 -->
       <div class="card mb-4">
         <div class="card-header">👤 基本信息</div>
+        <div class="form-group"><label class="form-label">头像</label>
+          <div class="avatar-picker">
+            <button v-for="a in avatarOptions" :key="a" class="avatar-opt" :class="{ sel: form.avatar === a }" @click="form.avatar = a">{{ a }}</button>
+          </div>
+        </div>
         <div class="form-row">
           <div class="form-group flex-1"><label class="form-label">姓名/昵称</label><input v-model="form.name" class="form-input" /></div>
           <div class="form-group flex-1"><label class="form-label">目标岗位</label><input v-model="form.position" class="form-input" /></div>
@@ -337,4 +344,9 @@ const lvlLabels = { proficient: '精通', familiar: '熟悉', learning: '学习�
 .progress-bar { height: 6px; background: var(--bg-hover); border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
 .progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent-color), #818cf8); border-radius: 3px; transition: width .8s ease-out; }
 .progress-text { font-size: 13px; color: var(--accent-color); font-weight: 500; text-align: center; }
+
+.avatar-picker { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.avatar-opt { width: 42px; height: 42px; border-radius: 10px; border: 2px solid transparent; background: var(--bg-hover); font-size: 22px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: border-color .15s, transform .15s; }
+.avatar-opt:hover { transform: scale(1.15); }
+.avatar-opt.sel { border-color: var(--accent-color); background: var(--accent-bg); }
 </style>
