@@ -73,7 +73,7 @@ function goInterview(mode) {
 </template>
 
 <style scoped>
-.page { max-width: 720px; margin: 0 auto; padding: 48px 32px; }
+.page { max-width: 960px; margin: 0 auto; padding: 56px 40px; }
 .hero { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 36px; }
 .hero h1 { font-size: 26px; font-weight: 800; margin: 0; color: var(--text-primary); }
 .hero p { font-size: 15px; color: var(--text-secondary); margin: 6px 0 0; }

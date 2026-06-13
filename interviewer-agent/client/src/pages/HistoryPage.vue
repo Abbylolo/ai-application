@@ -53,7 +53,7 @@ async function exp() {
 </template>
 
 <style scoped>
-.page { max-width: 720px; margin: 0 auto; padding: 48px 32px; }
+.page { max-width: 960px; margin: 0 auto; padding: 56px 40px; }
 .bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
 .h1 { font-size: 24px; font-weight: 800; }
 .empty { text-align: center; color: var(--text-muted); padding: 56px 0; font-size: 14px; }
