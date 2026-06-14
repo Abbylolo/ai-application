@@ -56,6 +56,9 @@ npm run electron:dev
 
 AI 驱动的模拟技术面试平台。支持简历解析、多难度面试（大厂/中厂/小厂）、公司定制面试、即时评分反馈、面试报告生成等功能。前后端分离架构，数据存储于 Supabase。
 
+> 🌐 **在线体验**: [ai-application-jobprep.vercel.app](https://ai-application-jobprep.vercel.app/)
+> 🔑 **演示账号**: `demo@jobprep.com` / `demo123456`
+
 **快速开始：**
 
 ```bash

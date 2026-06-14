@@ -1,5 +1,8 @@
 # 🤖 面试官 Agent
 
+> 🌐 **在线体验**: [ai-application-jobprep.vercel.app](https://ai-application-jobprep.vercel.app/)
+> 🔑 **演示账号**: `demo@jobprep.com` / `demo123456`
+
 模拟真实技术面试的 AI 应用，支持多模型、语音输入、公司特定面试。
 
 ## 功能
