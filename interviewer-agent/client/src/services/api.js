@@ -8,7 +8,6 @@ async function getModelConfig() {
   try {
     const configId = localStorage.getItem('currentModelConfigId')
     const allConfigs = await data.getModelConfigs()
-    localStorage.setItem('modelConfigs', JSON.stringify(allConfigs))
     return allConfigs.find(c => String(c.id) === String(configId)) || allConfigs[0] || {}
   } catch {
     return {}

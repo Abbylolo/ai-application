@@ -16,8 +16,6 @@ export const useSettingsStore = defineStore('settings', () => {
   async function loadConfigs() {
     try {
       modelConfigs.value = await data.getModelConfigs()
-      // 同时存 localStorage 给 api.js 备用
-      localStorage.setItem('modelConfigs', JSON.stringify(modelConfigs.value))
     } catch (e) {
       console.warn('加载模型配置失败:', e.message)
     }

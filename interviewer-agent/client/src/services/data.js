@@ -3,8 +3,16 @@
  * 通过后端 /api/db/* 代理访问 Supabase，自动携带 auth token
  */
 import { getAccessToken } from './auth.js'
+import { encrypt, decrypt } from '@/utils/crypto.js'
 
 const BASE = '/api/db'
+
+// 兼容旧数据：如果解密失败则返回原值（明文兼容）
+async function safeDecrypt(value) {
+  if (!value) return ''
+  try { return await decrypt(value) }
+  catch { return value }
+}
 
 async function authHeaders() {
   const token = await getAccessToken()
@@ -71,13 +79,20 @@ export async function deleteProfile(id) {
 export async function getModelConfigs() {
   const data = await get(`${BASE}/model-configs`)
   if (data.error) return []
-  return data.map(fromSupabaseConfig)
+  const configs = data.map(fromSupabaseConfig)
+  return Promise.all(configs.map(async (c) => ({
+    ...c,
+    apiKey: await safeDecrypt(c.apiKey)
+  })))
 }
 
 export async function saveModelConfig(config) {
   const body = toSupabaseConfig(config)
+  body.api_key = await encrypt(config.apiKey)
   const data = await post(`${BASE}/model-configs`, body)
-  return fromSupabaseConfig(data)
+  const result = fromSupabaseConfig(data)
+  result.apiKey = config.apiKey  // 返回明文，避免调用方拿到密文
+  return result
 }
 
 export async function deleteModelConfig(id) {
