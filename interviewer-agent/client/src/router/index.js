@@ -70,13 +70,17 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
+  const isPasswordReset = window.location.search.includes('reset=1') || to.query.reset === '1'
+  if (isPasswordReset && to.path !== '/auth') {
+    return next('/auth?reset=1')
+  }
   if (to.meta.requiresAuth) {
     const user = await getCurrentUser()
     if (!user) return next('/auth')
   }
   if (to.path === '/auth') {
     const user = await getCurrentUser()
-    if (user) return next('/')
+    if (user && !isPasswordReset) return next('/')
   }
   next()
 })

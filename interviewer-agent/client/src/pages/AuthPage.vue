@@ -1,35 +1,99 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { computed, ref, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { signIn, signUp } from '@/services/auth.js'
+import { sendPasswordResetEmail, signIn, signOut, signUp, updatePassword } from '@/services/auth.js'
 
 const router = useRouter()
 const route = useRoute()
 const email = ref('')
 const password = ref('')
+const confirmPassword = ref('')
 const mode = ref('login')
 const loading = ref(false)
 const err = ref('')
 const ok = ref('')
 const show = ref(false)
 const passwordVisible = ref(false)
+const confirmPasswordVisible = ref(false)
+
+const isResetMode = computed(() => mode.value === 'resetRequest' || mode.value === 'resetConfirm')
+const headerTitle = computed(() => {
+  if (mode.value === 'resetRequest') return '找回密码'
+  if (mode.value === 'resetConfirm') return '设置新密码'
+  return mode.value === 'login' ? '欢迎回来' : '创建账号'
+})
+const headerDesc = computed(() => {
+  if (mode.value === 'resetRequest') return '输入注册邮箱，系统会发送验证链接'
+  if (mode.value === 'resetConfirm') return '邮箱验证通过后，在这里更新你的登录密码'
+  return mode.value === 'login' ? '登录以继续面试训练' : '注册后即可免费使用'
+})
+const submitText = computed(() => {
+  if (mode.value === 'resetRequest') return '发送验证邮件'
+  if (mode.value === 'resetConfirm') return '更新密码'
+  return mode.value === 'login' ? '登 录' : '创建账号'
+})
 
 function triggerAnim() {
   show.value = false
   requestAnimationFrame(() => requestAnimationFrame(() => show.value = true))
 }
 
-onMounted(triggerAnim)
+onMounted(() => {
+  triggerAnim()
+  if (window.location.search.includes('reset=1') || route.query.reset === '1') {
+    mode.value = 'resetConfirm'
+  }
+})
 
 // 每次路由切到这个页面重新播动画
 watch(() => route.path, (to) => {
   if (to === '/auth') triggerAnim()
 })
 
-function switchMode(m) { mode.value = m; err.value = ''; ok.value = '' }
+function switchMode(m) {
+  mode.value = m
+  err.value = ''
+  ok.value = ''
+  password.value = ''
+  confirmPassword.value = ''
+}
+
+function clearResetUrl() {
+  window.history.replaceState({}, '', `${window.location.origin}${window.location.pathname}#/auth`)
+}
 
 async function submit() {
   err.value = ''; ok.value = ''
+  if (mode.value === 'resetRequest') {
+    if (!email.value) { err.value = '请填写注册邮箱'; return }
+    loading.value = true
+    try {
+      await sendPasswordResetEmail(email.value)
+      ok.value = '验证邮件已发送，请前往邮箱点击链接后设置新密码'
+    } catch (e) {
+      err.value = e.message || '发送失败'
+    } finally { loading.value = false }
+    return
+  }
+  if (mode.value === 'resetConfirm') {
+    if (!password.value || !confirmPassword.value) { err.value = '请填写新密码并确认'; return }
+    if (password.value.length < 6) { err.value = '密码至少 6 位'; return }
+    if (password.value !== confirmPassword.value) { err.value = '两次输入的密码不一致'; return }
+    loading.value = true
+    try {
+      await updatePassword(password.value)
+      await signOut()
+      ok.value = '密码已更新，请使用新密码登录'
+      await router.replace('/auth')
+      clearResetUrl()
+      mode.value = 'login'
+      password.value = ''
+      confirmPassword.value = ''
+    } catch (e) {
+      err.value = e.message || '修改失败，请重新点击邮件链接'
+    } finally { loading.value = false }
+    return
+  }
   if (!email.value || !password.value) { err.value = '请填写邮箱和密码'; return }
   if (password.value.length < 6) { err.value = '密码至少 6 位'; return }
   loading.value = true
@@ -122,11 +186,11 @@ async function submit() {
     <section class="panel">
       <div class="form-block">
         <header class="head">
-          <h2>{{ mode === 'login' ? '欢迎回来' : '创建账号' }}</h2>
-          <p>{{ mode === 'login' ? '登录以继续面试训练' : '注册后即可免费使用' }}</p>
+          <h2>{{ headerTitle }}</h2>
+          <p>{{ headerDesc }}</p>
         </header>
 
-        <div class="seg">
+        <div v-if="!isResetMode" class="seg">
           <button :class="{ on: mode === 'login' }" @click="switchMode('login')">登录</button>
           <button :class="{ on: mode === 'register' }" @click="switchMode('register')">注册</button>
           <span class="seg-bar" :class="{ r: mode === 'register' }"></span>
@@ -140,7 +204,7 @@ async function submit() {
         </Transition>
 
         <form @submit.prevent="submit">
-          <div class="fld">
+          <div v-if="mode !== 'resetConfirm'" class="fld">
             <label>邮箱地址</label>
             <span class="inp">
               <svg class="ii" viewBox="0 0 20 20" fill="none" width="17" height="17">
@@ -150,8 +214,8 @@ async function submit() {
               <input v-model="email" type="email" placeholder="name@company.com" autocomplete="email" />
             </span>
           </div>
-          <div class="fld">
-            <label>密码</label>
+          <div v-if="mode !== 'resetRequest'" class="fld">
+            <label>{{ mode === 'resetConfirm' ? '新密码' : '密码' }}</label>
             <span class="inp">
               <svg class="ii" viewBox="0 0 20 20" fill="none" width="17" height="17">
                 <rect x="3.5" y="8.5" width="13" height="8" rx="2" stroke="currentColor" stroke-width="1.4"/>
@@ -170,13 +234,35 @@ async function submit() {
               </button>
             </span>
           </div>
+          <div v-if="mode === 'resetConfirm'" class="fld">
+            <label>确认新密码</label>
+            <span class="inp">
+              <svg class="ii" viewBox="0 0 20 20" fill="none" width="17" height="17">
+                <rect x="3.5" y="8.5" width="13" height="8" rx="2" stroke="currentColor" stroke-width="1.4"/>
+                <path d="M6.5 8.5V6a3.5 3.5 0 017 0v2.5" stroke="currentColor" stroke-width="1.4"/>
+              </svg>
+              <input v-model="confirmPassword" :type="confirmPasswordVisible ? 'text' : 'password'" placeholder="再次输入新密码" minlength="6" autocomplete="new-password" />
+              <button class="eye-btn" type="button" :aria-label="confirmPasswordVisible ? '隐藏密码' : '显示密码'" @click="confirmPasswordVisible = !confirmPasswordVisible">
+                <svg v-if="!confirmPasswordVisible" viewBox="0 0 20 20" fill="none" width="18" height="18">
+                  <path d="M2.5 10s2.7-5 7.5-5 7.5 5 7.5 5-2.7 5-7.5 5-7.5-5-7.5-5z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+                  <circle cx="10" cy="10" r="2.2" stroke="currentColor" stroke-width="1.4"/>
+                </svg>
+                <svg v-else viewBox="0 0 20 20" fill="none" width="18" height="18">
+                  <path d="M3 3l14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  <path d="M7.4 5.6A7.8 7.8 0 0110 5c4.8 0 7.5 5 7.5 5a13.5 13.5 0 01-2.2 2.8M12.1 14.6A7.8 7.8 0 0110 15c-4.8 0-7.5-5-7.5-5a13 13 0 013-3.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </span>
+          </div>
+
+          <button v-if="mode === 'login'" type="button" class="forgot-link" @click="switchMode('resetRequest')">忘记密码？</button>
 
           <button type="submit" class="btn" :disabled="loading">
             <template v-if="loading">
               <span class="spin"></span>
             </template>
             <template v-else>
-              <span>{{ mode === 'login' ? '登 录' : '创建账号' }}</span>
+              <span>{{ submitText }}</span>
               <svg class="arr" viewBox="0 0 20 20" fill="none" width="16" height="16">
                 <path d="M4 10h11m0 0l-4-4m4 4l-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
@@ -185,8 +271,14 @@ async function submit() {
         </form>
 
         <p class="sw">
-          {{ mode === 'login' ? '还没有账号？' : '已有账号？' }}
-          <a href="#" @click.prevent="switchMode(mode === 'login' ? 'register' : 'login')">{{ mode === 'login' ? '免费注册' : '立即登录' }}</a>
+          <template v-if="isResetMode">
+            想起密码了？
+            <a href="#" @click.prevent="switchMode('login')">返回登录</a>
+          </template>
+          <template v-else>
+            {{ mode === 'login' ? '还没有账号？' : '已有账号？' }}
+            <a href="#" @click.prevent="switchMode(mode === 'login' ? 'register' : 'login')">{{ mode === 'login' ? '免费注册' : '立即登录' }}</a>
+          </template>
         </p>
       </div>
     </section>
@@ -513,6 +605,14 @@ form { display: flex; flex-direction: column; gap: 20px; flex: 1; justify-conten
   cursor: pointer; transition: background .2s, color .2s;
 }
 .eye-btn:hover { background: #eef2ff; color: #4f46e5; }
+.forgot-link {
+  align-self: flex-end;
+  border: none; background: transparent;
+  color: #4f46e5; font-size: 13px; font-weight: 600;
+  font-family: inherit; cursor: pointer; padding: 0;
+  margin-top: -10px;
+}
+.forgot-link:hover { color: #3730a3; text-decoration: underline; }
 
 /* 按钮 */
 .btn {

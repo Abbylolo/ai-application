@@ -202,13 +202,12 @@ function toSupabaseQA(q) {
 }
 
 function toSupabaseCompany(c) {
+  const questions = packCompanyQuestions(c)
   return {
     id: c.id ? Number(c.id) : undefined,
     company_name: c.companyName, position: c.position,
     jd_content: c.jdContent, source: c.source,
-    jd_parsed: JSON.stringify(c.jdParsed || null),
-    search_results: JSON.stringify(c.searchResults || []),
-    questions: JSON.stringify(c.questions || []),
+    questions: JSON.stringify(questions),
     tags: JSON.stringify(c.tags || [])
   }
 }
@@ -263,14 +262,43 @@ function fromSupabaseQA(q) {
 }
 
 function fromSupabaseCompany(c) {
+  const packedQuestions = safeJSON(c.questions, [])
+  const meta = unpackCompanyMeta(packedQuestions)
+  const columnSearchResults = safeJSON(c.search_results, [])
   return {
     id: c.id, companyName: c.company_name, position: c.position,
     jdContent: c.jd_content, source: c.source,
-    jdParsed: safeJSON(c.jd_parsed, null),
-    searchResults: safeJSON(c.search_results, []),
-    questions: safeJSON(c.questions, []), tags: safeJSON(c.tags, []),
+    jdParsed: safeJSON(c.jd_parsed, null) || meta.jdParsed,
+    searchResults: columnSearchResults.length ? columnSearchResults : meta.searchResults,
+    questions: meta.questions, tags: safeJSON(c.tags, []),
     createdAt: c.created_at ? new Date(c.created_at) : null,
     updatedAt: c.updated_at ? new Date(c.updated_at) : null
+  }
+}
+
+function packCompanyQuestions(c) {
+  const questions = Array.isArray(c.questions) ? c.questions.filter(q => q?.type !== 'company_meta') : []
+  if (!c.jdParsed && !(c.searchResults || []).length) return questions
+  return [
+    {
+      id: 'company_meta',
+      type: 'company_meta',
+      source: 'system',
+      jdParsed: c.jdParsed || null,
+      searchResults: c.searchResults || [],
+      updatedAt: new Date().toISOString()
+    },
+    ...questions
+  ]
+}
+
+function unpackCompanyMeta(questions) {
+  const list = Array.isArray(questions) ? questions : []
+  const meta = list.find(q => q?.type === 'company_meta') || {}
+  return {
+    jdParsed: meta.jdParsed || null,
+    searchResults: meta.searchResults || [],
+    questions: list.filter(q => q?.type !== 'company_meta')
   }
 }
 
