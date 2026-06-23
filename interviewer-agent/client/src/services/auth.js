@@ -26,6 +26,12 @@ export async function signOut() {
   await supabase.auth.signOut()
 }
 
+export async function updatePassword(password) {
+  const { data, error } = await supabase.auth.updateUser({ password })
+  if (error) throw error
+  return data
+}
+
 export async function getAccessToken() {
   const { data: { session } } = await supabase.auth.getSession()
   return session?.access_token || null

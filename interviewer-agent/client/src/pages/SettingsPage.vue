@@ -2,18 +2,41 @@
 import { ref, reactive } from 'vue'
 import { useSettingsStore } from '@/stores/settings.js'
 import { testConnection } from '@/services/api.js'
+import { updatePassword } from '@/services/auth.js'
 
 const settingsStore = useSettingsStore()
 const showForm = ref(false)
 const testResult = ref(null)
 const isTesting = ref(false)
+const passwordSaving = ref(false)
+const passwordMsg = ref('')
+const passwordErr = ref('')
+const showNewPassword = ref(false)
+const showConfirmPassword = ref(false)
 const edit = reactive({ id:'', name:'', providerType:'anthropic', endpoint:'', apiKey:'', modelName:'claude-sonnet-4-6', isDefault:false })
+const passwordForm = reactive({ newPassword:'', confirmPassword:'' })
 
 function openNew() { Object.assign(edit, { id:'', name:'', providerType:'anthropic', endpoint:'', apiKey:'', modelName:'claude-sonnet-4-6', isDefault:false }); showForm.value = true; testResult.value = null }
 function openEdit(c) { Object.assign(edit, { ...c }); showForm.value = true; testResult.value = null }
 async function handleTest() { isTesting.value = true; testResult.value = null; try { testResult.value = await testConnection({ ...edit }) } catch(e) { testResult.value = { success:false, error:e.message } } finally { isTesting.value = false } }
 async function handleSave() { if(!edit.name||!edit.apiKey) return; await settingsStore.saveConfig({ ...edit }); showForm.value = false }
 async function handleDelete(id) { if(confirm('删除？')) await settingsStore.deleteConfig(id) }
+async function handlePasswordChange() {
+  passwordMsg.value = ''
+  passwordErr.value = ''
+  if (passwordForm.newPassword.length < 6) { passwordErr.value = '新密码至少 6 位'; return }
+  if (passwordForm.newPassword !== passwordForm.confirmPassword) { passwordErr.value = '两次输入的密码不一致'; return }
+  passwordSaving.value = true
+  try {
+    await updatePassword(passwordForm.newPassword)
+    passwordMsg.value = '密码已更新，下次登录请使用新密码'
+    Object.assign(passwordForm, { newPassword:'', confirmPassword:'' })
+  } catch (e) {
+    passwordErr.value = e.message || '修改失败'
+  } finally {
+    passwordSaving.value = false
+  }
+}
 </script>
 
 <template>
@@ -54,6 +77,31 @@ async function handleDelete(id) { if(confirm('删除？')) await settingsStore.d
       <div class="card-hd">📋 面试偏好</div>
       <div class="fld"><label>评审模式</label><select v-model="settingsStore.reviewMode" @change="settingsStore.setReviewMode(settingsStore.reviewMode)"><option value="instant">即时点评</option><option value="summary">整体总结</option></select></div>
     </div>
+
+    <div class="card mt">
+      <div class="card-hd">🔐 修改密码</div>
+      <div class="fld">
+        <label>新密码</label>
+        <div class="pwd-box">
+          <input v-model="passwordForm.newPassword" :type="showNewPassword ? 'text' : 'password'" autocomplete="new-password" placeholder="至少 6 位" />
+          <button type="button" class="icon-btn" :aria-label="showNewPassword ? '隐藏密码' : '显示密码'" @click="showNewPassword = !showNewPassword">
+            {{ showNewPassword ? '🙈' : '👁' }}
+          </button>
+        </div>
+      </div>
+      <div class="fld">
+        <label>确认新密码</label>
+        <div class="pwd-box">
+          <input v-model="passwordForm.confirmPassword" :type="showConfirmPassword ? 'text' : 'password'" autocomplete="new-password" placeholder="再次输入新密码" />
+          <button type="button" class="icon-btn" :aria-label="showConfirmPassword ? '隐藏密码' : '显示密码'" @click="showConfirmPassword = !showConfirmPassword">
+            {{ showConfirmPassword ? '🙈' : '👁' }}
+          </button>
+        </div>
+      </div>
+      <div v-if="passwordMsg" class="ok">{{ passwordMsg }}</div>
+      <div v-if="passwordErr" class="err">{{ passwordErr }}</div>
+      <button class="btn-sm pri" :disabled="passwordSaving" @click="handlePasswordChange">{{ passwordSaving ? '保存中...' : '更新密码' }}</button>
+    </div>
   </div>
 </template>
 
@@ -76,6 +124,10 @@ async function handleDelete(id) { if(confirm('删除？')) await settingsStore.d
 .fld label { display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 5px; }
 .fld input, .fld select { width: 100%; padding: 9px 13px; border: 1.5px solid var(--border-color); border-radius: 10px; font-size: 14px; font-family: inherit; background: var(--bg-primary); color: var(--text-primary); }
 .fld input:focus, .fld select:focus { border-color: var(--accent-color); box-shadow: 0 0 0 3px rgba(79,70,229,.08); outline: none; }
+.pwd-box { position: relative; }
+.pwd-box input { padding-right: 48px; }
+.icon-btn { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; border: none; border-radius: 8px; background: transparent; cursor: pointer; }
+.icon-btn:hover { background: var(--bg-hover); }
 .chk { display: flex !important; align-items: center; gap: 8px; cursor: pointer; font-size: 14px !important; }
 .chk input { width: auto; }
 .fld-acts { display: flex; gap: 8px; margin-top: 16px; }

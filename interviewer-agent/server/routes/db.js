@@ -136,8 +136,18 @@ dbRouter.get('/company-questions', async (req, res) => {
 })
 
 dbRouter.post('/company-questions', async (req, res) => {
-  const { data, error } = await supabase.from('company_question_bank')
-    .insert({ ...req.body, user_id: uid(req) }).select().single()
-  if (error) return res.status(500).json({ error: error.message })
-  res.json(data)
+  const record = { ...req.body, user_id: uid(req) }
+
+  if (record.id) {
+    const { data, error } = await supabase.from('company_question_bank')
+      .update(record).eq('id', record.id).eq('user_id', uid(req)).select().single()
+    if (error) return res.status(500).json({ error: error.message })
+    if (!data) return res.status(404).json({ error: '记录不存在' })
+    res.json(data)
+  } else {
+    const { data, error } = await supabase.from('company_question_bank')
+      .insert(record).select().single()
+    if (error) return res.status(500).json({ error: error.message })
+    res.json(data)
+  }
 })

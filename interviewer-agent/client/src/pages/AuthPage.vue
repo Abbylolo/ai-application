@@ -12,6 +12,7 @@ const loading = ref(false)
 const err = ref('')
 const ok = ref('')
 const show = ref(false)
+const passwordVisible = ref(false)
 
 function triggerAnim() {
   show.value = false
@@ -156,7 +157,17 @@ async function submit() {
                 <rect x="3.5" y="8.5" width="13" height="8" rx="2" stroke="currentColor" stroke-width="1.4"/>
                 <path d="M6.5 8.5V6a3.5 3.5 0 017 0v2.5" stroke="currentColor" stroke-width="1.4"/>
               </svg>
-              <input v-model="password" type="password" placeholder="至少 6 位字符" minlength="6" :autocomplete="mode === 'login' ? 'current-password' : 'new-password'" />
+              <input v-model="password" :type="passwordVisible ? 'text' : 'password'" placeholder="至少 6 位字符" minlength="6" :autocomplete="mode === 'login' ? 'current-password' : 'new-password'" />
+              <button class="eye-btn" type="button" :aria-label="passwordVisible ? '隐藏密码' : '显示密码'" @click="passwordVisible = !passwordVisible">
+                <svg v-if="!passwordVisible" viewBox="0 0 20 20" fill="none" width="18" height="18">
+                  <path d="M2.5 10s2.7-5 7.5-5 7.5 5 7.5 5-2.7 5-7.5 5-7.5-5-7.5-5z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+                  <circle cx="10" cy="10" r="2.2" stroke="currentColor" stroke-width="1.4"/>
+                </svg>
+                <svg v-else viewBox="0 0 20 20" fill="none" width="18" height="18">
+                  <path d="M3 3l14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  <path d="M7.4 5.6A7.8 7.8 0 0110 5c4.8 0 7.5 5 7.5 5a13.5 13.5 0 01-2.2 2.8M12.1 14.6A7.8 7.8 0 0110 15c-4.8 0-7.5-5-7.5-5a13 13 0 013-3.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
             </span>
           </div>
 
@@ -479,7 +490,7 @@ form { display: flex; flex-direction: column; gap: 20px; flex: 1; justify-conten
   transition: color .2s;
 }
 .inp input {
-  width: 100%; padding: 14px 16px 14px 46px;
+  width: 100%; padding: 14px 46px 14px 46px;
   border: 1.5px solid #e2e8f0; border-radius: 12px;
   font-size: 15px; color: #0f172a; font-family: inherit;
   outline: none; box-sizing: border-box;
@@ -493,6 +504,15 @@ form { display: flex; flex-direction: column; gap: 20px; flex: 1; justify-conten
   background: #fff;
 }
 .inp:focus-within .ii { color: #4f46e5; }
+.eye-btn {
+  position: absolute; right: 12px;
+  width: 30px; height: 30px;
+  border: none; border-radius: 8px;
+  background: transparent; color: #94a3b8;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: background .2s, color .2s;
+}
+.eye-btn:hover { background: #eef2ff; color: #4f46e5; }
 
 /* 按钮 */
 .btn {

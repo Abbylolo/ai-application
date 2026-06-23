@@ -203,8 +203,11 @@ function toSupabaseQA(q) {
 
 function toSupabaseCompany(c) {
   return {
+    id: c.id ? Number(c.id) : undefined,
     company_name: c.companyName, position: c.position,
     jd_content: c.jdContent, source: c.source,
+    jd_parsed: JSON.stringify(c.jdParsed || null),
+    search_results: JSON.stringify(c.searchResults || []),
     questions: JSON.stringify(c.questions || []),
     tags: JSON.stringify(c.tags || [])
   }
@@ -263,6 +266,8 @@ function fromSupabaseCompany(c) {
   return {
     id: c.id, companyName: c.company_name, position: c.position,
     jdContent: c.jd_content, source: c.source,
+    jdParsed: safeJSON(c.jd_parsed, null),
+    searchResults: safeJSON(c.search_results, []),
     questions: safeJSON(c.questions, []), tags: safeJSON(c.tags, []),
     createdAt: c.created_at ? new Date(c.created_at) : null,
     updatedAt: c.updated_at ? new Date(c.updated_at) : null

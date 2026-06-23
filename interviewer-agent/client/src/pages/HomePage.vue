@@ -22,9 +22,13 @@ onMounted(async () => {
 const diffLabels = { small: '小厂', mid: '中厂', big: '大厂' }
 
 function goInterview(mode) {
+  if (mode === 'company') {
+    router.push('/company')
+    return
+  }
   if (!settingsStore.currentConfig) { alert('请先配置模型'); router.push('/settings'); return }
   if (!userStore.currentProfile) { router.push('/setup'); return }
-  router.push(mode === 'company' ? '/company' : '/interview')
+  router.push('/interview')
 }
 </script>
 

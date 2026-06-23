@@ -58,7 +58,15 @@ onMounted(async () => {
   if (route.query.company) {
     interviewStore.type = 'company_specific'
     interviewStore.companyName = route.query.company
-    if (route.query.jdInfo) {
+    const storedContext = sessionStorage.getItem('companyInterviewContext')
+    if (storedContext) {
+      try {
+        const context = JSON.parse(storedContext)
+        if (context.company === route.query.company) {
+          interviewStore.jdParsed = context.jdInfo
+        }
+      } catch { /* ignore parse error */ }
+    } else if (route.query.jdInfo) {
       try {
         interviewStore.jdParsed = JSON.parse(decodeURIComponent(route.query.jdInfo))
       } catch { /* ignore parse error */ }

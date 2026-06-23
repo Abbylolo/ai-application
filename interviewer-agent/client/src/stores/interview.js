@@ -83,7 +83,21 @@ export const useInterviewStore = defineStore('interview', () => {
     }
     if (jdInfo && type.value === 'company_specific') {
       bg += `\n## 目标岗位要求\n- 公司：${companyName.value}\n`
+      if (jdInfo.position) bg += `- 岗位：${jdInfo.position}\n`
       bg += `- 必备技能：${jdInfo.requiredSkills?.join('、') || ''}\n`
+      if (jdInfo.jdContent) bg += `- JD 原文摘要参考：${String(jdInfo.jdContent).slice(0, 1200)}\n`
+      if (jdInfo.searchResults?.length) {
+        bg += `\n## 已检索面经参考\n`
+        jdInfo.searchResults.slice(0, 6).forEach((item, index) => {
+          bg += `${index + 1}. ${item.snippet || item}\n`
+        })
+      }
+      if (jdInfo.questions?.length) {
+        bg += `\n## 用户真实面试题库\n`
+        jdInfo.questions.slice(0, 8).forEach((item, index) => {
+          bg += `${index + 1}. Q: ${item.question}\nA: ${item.answer}\n`
+        })
+      }
     }
     return diffPrompt + '\n\n' + bg + '\n\n' + OUTPUT_FORMAT
   }
