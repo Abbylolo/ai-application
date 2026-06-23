@@ -24,7 +24,6 @@ async function getHeaders() {
   if (looksEncryptedValue(apiKey)) {
     throw new Error('模型 API Key 解密失败，请检查线上 VITE_ENCRYPTION_KEY，或在设置页重新保存模型配置')
   }
-  validateProviderKey(providerType, apiKey)
   return {
     'Content-Type': 'application/json',
     'x-provider-type': providerType,
@@ -37,12 +36,6 @@ async function getHeaders() {
 function looksEncryptedValue(value) {
   if (!value || /^sk-|^ak-|^pk-/.test(value)) return false
   return value.length > 60 && /^[A-Za-z0-9+/=]+$/.test(value)
-}
-
-function validateProviderKey(providerType, apiKey) {
-  if (providerType === 'anthropic' && !apiKey.startsWith('sk-ant-')) {
-    throw new Error('当前模型配置选择的是 Anthropic，但 API Key 不是 sk-ant- 开头。请在设置页切换正确供应商，或重新填写 Anthropic API Key')
-  }
 }
 
 const BASE = '/api'

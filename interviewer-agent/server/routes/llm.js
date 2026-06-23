@@ -37,7 +37,7 @@ llmRouter.post('/chat', async (req, res) => {
     let content
 
     if (providerType === 'anthropic') {
-      content = await callAnthropic(apiKey, model, system, messages, temperature, max_tokens)
+      content = await callAnthropic(apiKey, model, system, messages, temperature, max_tokens, apiEndpoint)
     } else {
       content = await callOpenAICompatible(apiKey, apiEndpoint, model, system, messages, temperature, max_tokens)
     }
