@@ -87,11 +87,15 @@ export async function getModelConfigs() {
 }
 
 export async function saveModelConfig(config) {
-  const body = toSupabaseConfig(config)
-  body.api_key = await encrypt(config.apiKey)
+  const normalizedConfig = {
+    ...config,
+    apiKey: (config.apiKey || '').trim()
+  }
+  const body = toSupabaseConfig(normalizedConfig)
+  body.api_key = await encrypt(normalizedConfig.apiKey)
   const data = await post(`${BASE}/model-configs`, body)
   const result = fromSupabaseConfig(data)
-  result.apiKey = config.apiKey  // 返回明文，避免调用方拿到密文
+  result.apiKey = normalizedConfig.apiKey  // 返回明文，避免调用方拿到密文
   return result
 }
 
