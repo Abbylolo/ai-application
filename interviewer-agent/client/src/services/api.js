@@ -16,6 +16,12 @@ async function getModelConfig() {
 
 async function getHeaders() {
   const config = await getModelConfig()
+  if (!config.apiKey) {
+    throw new Error('请先在设置中配置可用的模型 API Key')
+  }
+  if (looksEncryptedValue(config.apiKey)) {
+    throw new Error('模型 API Key 解密失败，请检查线上 VITE_ENCRYPTION_KEY，或在设置页重新保存模型配置')
+  }
   return {
     'Content-Type': 'application/json',
     'x-provider-type': config.providerType || 'anthropic',
@@ -23,6 +29,11 @@ async function getHeaders() {
     'x-api-endpoint': config.endpoint || '',
     'x-model': config.modelName || 'claude-sonnet-4-6'
   }
+}
+
+function looksEncryptedValue(value) {
+  if (!value || /^sk-|^ak-|^pk-/.test(value)) return false
+  return value.length > 60 && /^[A-Za-z0-9+/=]+$/.test(value)
 }
 
 const BASE = '/api'
@@ -48,7 +59,11 @@ export async function chatLLM({ system, messages, temperature = 0.3, max_tokens 
     headers,
     body: JSON.stringify({ system, messages, temperature, max_tokens })
   })
-  return res.json()
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok || data.error) {
+    throw new Error(data.message || data.error || `LLM 请求失败 (${res.status})`)
+  }
+  return data
 }
 
 /**

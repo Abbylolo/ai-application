@@ -71,6 +71,21 @@ onMounted(async () => {
         interviewStore.jdParsed = JSON.parse(decodeURIComponent(route.query.jdInfo))
       } catch { /* ignore parse error */ }
     }
+    if (!interviewStore.jdParsed && route.query.companyRecordId) {
+      try {
+        const records = await data.getCompanyQuestions()
+        const record = records.find(item => String(item.id) === String(route.query.companyRecordId))
+        if (record) {
+          interviewStore.jdParsed = {
+            ...(record.jdParsed || {}),
+            position: record.position,
+            jdContent: record.jdContent,
+            searchResults: record.searchResults || [],
+            questions: record.questions || []
+          }
+        }
+      } catch { /* ignore record load error */ }
+    }
     // 直接开始面试，跳过难度选择
     await startCompanyInterview()
     return

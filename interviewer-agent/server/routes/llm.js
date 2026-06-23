@@ -45,10 +45,11 @@ llmRouter.post('/chat', async (req, res) => {
     res.json({ content })
   } catch (error) {
     console.error('LLM 调用失败:', error.message)
-    res.status(500).json({
+    const status = Number(error.status || error.statusCode || 500)
+    res.status(status >= 400 && status < 600 ? status : 500).json({
       error: 'LLM 调用失败',
       message: error.message,
-      status: error.status
+      status
     })
   }
 })
